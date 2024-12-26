@@ -1,0 +1,67 @@
+,
+[X] : tableau de type X
+{X} : liste chainée de type X, 
+    list<> = liste doublement chainée
+int : entier
+str : chaine de charactères
+
+
+
+Environnement
+    Climat : str
+    Time : int
+
+Nature
+    Entrée : ptr Piece
+
+    Ant_list : list<> {ptr Ant}
+    Ant_number : int
+
+Nest
+    Name : str
+    Clan : str
+    Sortie : ptr Piece
+
+    Ant_list : list<> {ptr Ant}
+    Ant_number : int
+
+Piece
+    Name : str
+    Visited : bool
+
+    Taille_ant : int
+    Ant_list : list<> {ptr Ant}
+    Ant_list_size : int
+
+    Obj_list : list<> {ptr Object}
+    Obj_list_size : int
+
+    Connexion_list : [ptr Piece]
+    Connexion_list_size : int
+
+    Pheromone_stack : [ptr Pheromone]
+
+Prédateurs
+    Name/ID : str
+    PV : int
+    DMG : int
+    Age : int
+    Position : ptr Piece
+
+Ant
+    Name/ID : str
+    PV : int
+    DMG : int
+    Age : int
+    Clan : str
+    Position
+
+Objet
+    Name/ID : str
+    size : int
+    is_helded : bool
+    
+
+Pheromone
+    Action
+    Density
