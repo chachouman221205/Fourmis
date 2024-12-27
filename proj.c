@@ -3,90 +3,122 @@
 #include <stdbool.h>
 
 /* -----< Structures Principales >----- */
+/*
+Pour plus d'explications sur chacun des paramètres, ce référer au document pdf "Rapport modélisation projet"
+Seules les explications importantes sont en commentaire
+*/
+
     // Représente une pièce dans l'environnement
 typedef struct Room {
-    char *Name_ID;             // Nom ou identifiant de la pièce
-    struct Room *Entry;        // Pointeur vers une autre pièce (entrée de cette pièce)
-    bool Visited;              // Indique si la pièce a été visitée
-    int size;                  // Taille maximale de la pièce
-    struct Ant **Ant_list;     // Liste des pointeurs vers les fourmis présentes dans la pièce
-    int Ant_count;             // Nombre de fourmis dans la pièce
-    struct Object **Obj_list;  // Liste des pointeurs vers les objets présents dans la pièce
-    int Obj_count;             // Nombre d'objets dans la pièce
-    struct Room **Connexion_list; // Liste des pointeurs vers les pièces voisines
-    int Connexion_list_size;   // Nombre de connexions vers d'autres pièces
-    struct Pheromone **Pheromone_stack; // Liste de phéromones présentes dans la pièce (pile)
+    char *Name_ID;
+    struct Room *Entry;
+    bool Visited;   // Pour l'exploration du graphe (graphe d'objets "Room")
+    int size;       // Taille max de la Room
+
+    struct Ant **Ant_list;
+    int Ant_count;
+
+    struct Object **Obj_list;
+    int Obj_count;
+
+    struct Room **Connexion_list;
+    int Connexion_list_size;
+
+    struct Pheromone **Pheromone_stack;
 } Room;
 
-    // Représente l'extérieur de l'environnement
+    // Représente l'extérieur de l'environnement (graphe de "Room")
 typedef struct Exterior {
-    struct Room *Entry;        // Pointeur vers une pièce de l'environnement
-    struct Ant **Ant_list;     // Liste des pointeurs vers toutes les fourmis à l'extérieur
-    int Ant_number;            // Nombre total de fourmis présentes à l'extérieur
+    struct Room *Entry;     // Pointeur vers l'entrée de l'environnement
+
+    struct Ant **Ant_list;
+    int Ant_number;
 } Exterior;
 
-    // Représente une fourmilière
+    // Représente une fourmilière (graphe de "Room")
 typedef struct Nest {
-    char *Species;             // Espèce de la fourmilière
-    char *Clan;                // Identifiant du clan auquel appartient la fourmilière
-    int Life_min;              // Vie min d'une fourmi (cf Ant)
-    int Life_max;              // Vie max d'une fourmi (cf Ant)
+    char *Species;
+    char *Clan;     // Identifiant du clan auquel appartient la fourmilière
+
+        // Liste des paramètres des fourmis de cette nest
+    int* PV;        // tableau des PVs en fonction du type de fourmi : {1, 5, 10}; 1 ouvrière, 5 garde, 10 reine
+    int* DMG;       // comme pour les PVs
+    int Life_min;   // random pour plus de diversité
+    int Life_max;
+    int Hunger;
 
     struct Room *Entrance;     // Pointeur vers la pièce d'entrée de la fourmilière
-    struct Ant **Ant_list;     // Liste des pointeurs vers les fourmis de la fourmilière
-    int Ant_number;            // Nombre total de fourmis dans la fourmilière
+
+    struct Ant **Ant_list;
+    int Ant_number;
 } Nest;
 
     // Représente une fourmi
 typedef struct Ant {
-    char *Name_ID;             // Nom ou identifiant de la fourmi
-    int PV;                    // Points de vie de la fourmi
-    int DMG;                   // Dégâts que la fourmi peut infliger
-    int Hunger;                // Nombre d'itérations avant que la fourmi ait besoin de manger
-    int Life;                  // Itérations restantes pour la fourmis, elle meurt quand Life = 0 
-    char *Clan;                // Clan ou fourmilière d'origine
-    struct Room *Position;     // Pointeur vers la pièce où se trouve la fourmi
+    char *Name_ID;
+
+    int PV;
+    int DMG;
+
+    int Life;       // Itérations restantes pour la fourmis, elle meurt quand Life = 0
+    int Hunger;     // Nombre d'itérations avant que la fourmi ait besoin de manger, meurt si <= -5
+        // La fourmi a faim quand hunger = 0, et doit manger en moins de 5 itérations pour survivre
+
+    char *Clan;
+    struct Room *Position;      // Pointeur vers la pièce où se trouve la fourmi
     struct Object *Held_object; // Pointeur vers l'objet que la fourmi transporte (NULL si aucun)
-    struct Pheromone *Action;  // Pointeur vers la phéromone qui détermine son objectif
+    struct Pheromone *Action;   // Pointeur vers la phéromone qui détermine son objectif
 } Ant;
 
     // Représente un objet
 typedef struct Object {
-    char *Name_ID;             // Nom ou identifiant de l'objet
-    int size;                  // Taille de l'objet
-    bool held;                 // Indique si l'objet est transporté par une fourmi
+    char *Name_ID;
+
+    int size;       // Taille de l'objet
+    bool held;      // Indique si l'objet est transporté par une fourmi
 } Object;
 
-    // Représente une phéromone
+    // Représente une phéromone (stack)
 typedef struct Pheromone {
-    char *Action;              // Type ou action associée à la phéromone
-    int Density;               // Densité de la phéromone (indique sa force)
+    char *Action;   // Type ou action associée à la phéromone (pour la compréhension)
+    int Density;    // Densité de la phéromone (indique sa force)
 } Pheromone;
 
     // Représente une créature quelconque (prédateur ou autre)
 typedef struct Creature {
-    char *Name_ID;             // Nom ou type de la créature
-    int PV;                    // Points de vie de la créature
-    int DMG;                   // Dégâts que la créature peut infliger
-    int Age;                   // Âge de la créature en itérations
-    struct Room *Position;     // Pointeur vers la pièce où se trouve la créature
+    char *Name_ID;
+
+    int PV;
+    int DMG;
+    int Life;
+
+    struct Room *Position;
 } Creature;
 
-    // Représente les saisons (boucle)
+    // Représente les saisons (liste chainée bouclée)
 typedef struct Season {
-    char *name;               // Nom de la saison
+    char *name;
     int number;               // Numéro de la saison (0 à 3)
-    struct Season *next;      // Pointeur vers la saison suivante
+    struct Season *next;
 } Season;
 
 
 /* -----< Initialisation des variables globales >----- */
-int tick = 0;   // temps actuel dans la simulation
-int start_season;   // Saison de départ (0 à 3) : 0 = spring, 1 = summer, 2 = autumn, 3 = winter
-int IDs = 0;    // IDs++ à chaque nouvel ant/object/predator, permet de ne jamais avoir 2 fois le meme id
+/*
+Initialisation de certaines varaiables plus pratiques quand globales
+*/
+bool debug_msgs = 0;    // Printf de messages si = 1, pour le debug
+
+int tick = 0;           // Temps actuel dans la simulation
+int start_season;       // Saison de départ (0 à 3) : 0 = spring, 1 = summer, 2 = autumn, 3 = winter
+int IDs = 0;            // IDs++ à chaque nouvel ant/object/predator, permet de ne jamais avoir 2 fois le meme id
 
 
 /* -----< Fonctions et procédures >----- */
+/*
+Main project
+*/
+
     // Seasons
 Season* init_seasons(){
     Season *spring = malloc(sizeof(Season));
@@ -98,7 +130,7 @@ Season* init_seasons(){
     spring->number = 0;
 
     Season *summer = malloc(sizeof(Season));
-    if(summer == NULL){
+    if(summer == NULL){     // Si echec d'allocation, on free toutes les saisons déjà allouées
         perror("Échec de l'allocation pour summer");
         free(spring);
         return -1;
@@ -133,6 +165,10 @@ Season* init_seasons(){
     autumn->next = winter;
     winter->next = spring;
 
+    if(debug_msgs){
+        printf("| DEBUG : seasons initialized\n");
+    }
+    
     Season* tab[] = {spring, summer, autumn, winter};
     return tab[start_season];
 }
@@ -147,12 +183,16 @@ void free_seasons(Season *season){
             current = next_season;
             next_season = current->next;
         }
-        free(current); // Libérer le dernier nœud
+        free(current); // Libérer la derniere saison
+
+        if(debug_msgs){
+            printf("| DEBUG : seasons freed\n");
+        }
     }
 }
 
     // Ants
-Ant* init_new_ant(char *name, int PV, int DMG, int Hunger, Nest nest) {
+Ant* init_new_ant(Nest* nest, int ant_type, char *name, int PV, int DMG, int Hunger) {
     Ant *new_ant = malloc(sizeof(Ant));
     if(new_ant == NULL){
         perror("Échec de l'allocation mémoire pour la fourmi");
@@ -161,24 +201,61 @@ Ant* init_new_ant(char *name, int PV, int DMG, int Hunger, Nest nest) {
 
     srand(time(NULL));  // Random pour Life de la fourmis
 
-    // Initialisation des champs de la fourmi
-    sprintf(new_ant->Name_ID, "Ant%d", IDs++);
-    new_ant->PV = PV;
-    new_ant->DMG = DMG;
-    new_ant->Hunger = Hunger;
-    new_ant->Life = nest.Life_min + rand() % (nest.Life_max - nest.Life_min + 1); 
-        // Life entre Life_min et Life_max, dépends de la nest
-    new_ant->Clan = nest.Clan;
+    // Initialisation des champs de la fourmi, on initialise en fonction de la nest
+    (name != NULL)? (new_ant->Name_ID = name) : (sprintf(new_ant->Name_ID, "Ant%d", IDs++));
+    new_ant->PV = nest->PV[ant_type];
+    new_ant->DMG = nest->DMG[ant_type];
+    new_ant->Hunger = nest->Hunger;
+    new_ant->Life = nest->Life_min + rand() % (nest->Life_max - nest->Life_min + 1); // Life entre Life_min et Life_max
+    new_ant->Clan = nest->Clan;
     new_ant->Position = NULL;     // Position NULL au départ, assignation plus tard
     new_ant->Held_object = NULL;  // Pas d'objet au départ
     new_ant->Action = NULL;       // Pas de phéromone assignée au départ
 
-    return new_ant; // Retourne un pointeur vers la fourmi nouvellement allouée
+    if(debug_msgs){
+        printf("| DEBUG : new ant \"%s\" initialized in nest \"%s\"\n", new_ant->Name_ID, nest->Clan);
+    }
+
+    return new_ant;
 }
 
 void test_kill_ant(Ant* ant){
     if(ant != NULL){
+        char* death_message[] = {"PV <= %d", "Life = %d", "Hunger <= %d"};
+        int condition = 0;
+        
+        if(debug_msgs){
+            if(ant->PV <= 0){
+                condition = 1;
+            }
+            if(ant->Life <= 0){
+                condition = 2;
+            }
+            if(ant->Hunger <= -5){
+                condition = 3;
+            }
 
+            if(condition != 0){
+                printf("| DEBUG : ant \"%s\" died : %s\n", ant->Name_ID, death_message[condition], 
+                    (condition == 0)? (ant->PV) : ( (condition == 1)? (ant->Life) : (ant->Hunger) ) );
+                free_ant(ant);
+            }
+        }
+        else{
+            if(ant->PV <= 0 || ant->Life <= 0 || ant->Hunger <= -5){
+                free_ant(ant);
+            }
+        }
+
+    }
+}
+
+void free_ant(Ant* ant){
+    if(ant != NULL){
+        if(debug_msgs){
+            printf("| DEBUG : ant \"%s\" freed\n", ant->Name_ID);
+        }
+        free(ant);
     }
 }
 
