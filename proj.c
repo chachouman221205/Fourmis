@@ -270,6 +270,19 @@ void free_room(Room* room){
         if(debug_msgs){
             printf("| DEBUG : room \"%s\" freed\n", room->Name_ID);
         }
+
+        // On retire les connections avec les autres Rooms
+        Room* R;
+        for (int i = 0; i < room.Connexion_list_size; i++) {
+            R = room.Connexion_list[i]
+            // chercher la connection
+            for (int j = 0; j < R.Connexion_list_size; j++) {
+                if (R.Connexion_list[j] == room) {
+                    R.Connexion_list[j] = Null; // On retire la connection
+                }
+            }
+        }
+
         free(room);
     }
 }
