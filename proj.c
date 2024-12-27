@@ -12,7 +12,6 @@ Seules les explications importantes sont en commentaire
     // Représente une pièce dans l'environnement
 typedef struct Room {
     char *Name_ID;
-    struct Room *Entry;
     bool Visited;   // Pour l'exploration du graphe (graphe d'objets "Room")
     int Size;       // Taille max de la Room, limite d'objet et de fourmis pouvant entrer
 
@@ -262,7 +261,7 @@ void free_exterior(Exterior exterior){
 }
 
     // Rooms
-Room* init_room(char* name_ID, Room* entry, bool visited, int size, Ant** ant_list, int ant_count, Object** obj_list, int obj_count, Room** connexion_list, int connexion_list_size, Pheromone** pheromone_stack){
+Room* init_room(char* name_ID, int size){
     Room* new_room = malloc(sizeof(Room));
     if(new_room == NULL){
         perror("Échec de l'allocation mémoire pour la pièce");
@@ -270,23 +269,61 @@ Room* init_room(char* name_ID, Room* entry, bool visited, int size, Ant** ant_li
     }
 
     new_room->Name_ID = name_ID;
-    new_room->Entry = entry;
-    new_room->Visited = 0;  // pas visité à l'initialisation
+    new_room->Visited = false;  // pas visité à l'initialisation
     new_room->Size = size;
-    new_room->Ant_list = ant_list;
-    new_room->Ant_count = ant_count;
-    new_room->Obj_list = obj_list;
-    new_room->Obj_count = obj_count;
-    new_room->Connexion_list = connexion_list;
-    new_room->Connexion_list_size = connexion_list_size;
+    new_room->Ant_list = malloc(0);
+    new_room->Ant_count = 0;
+    new_room->Obj_list = malloc(0);
+    new_room->Obj_count = 0;
+    new_room->Creature_list = malloc(0);
+    new_room->Creature_count = 0;
+    new_room->Connexion_list = malloc(0);
+    new_room->Connexion_list_size = 0;
 
-    new_room->Pheromone_stack = pheromone_stack;
+    new_room->Pheromone_stack = NULL;
 
     if(debug_msgs){
         printf("| DEBUG : new room \"%s\" initialized\n", new_room->Name_ID);
     }
 
     return new_room;
+}
+
+void connect_rooms(Room* room1, Room* room2) {
+    // Verifier si les salles sont déjà connectées
+    bool existing_connection_status = 0;
+    for (int i = 0; i < room1->Connexion_list_size; i++) {
+        if (room1->Connexion_list[i] == room2) {
+            existing_connection_status++;
+            break;
+        }
+    }
+    for (int i = 0; i < room2->Connexion_list_size; i++) {
+        if (room2->Connexion_list[i] == room1) {
+            existing_connection_status++;
+            break;
+
+            }
+        }
+    }
+
+    if (existing_connection_status == 2) {
+        return; // Les deux rooms sont déjà connectés
+    }
+    if (existing_connection_status == 1) {
+        printf("ERROR : room \"%s\" and room \"%s\" have a bad connection")
+        exit(1);
+    }
+
+    // Ajustement de la taille de chaque tableau
+    room1->Connexion_list_size++;
+    room1->Connexion_list = realloc(room1->Connexion_list, room1->Connexion_list_size * sizeof(Room*));
+    room2->Connexion_list_size++;
+    room2->Connexion_list = realloc(room2->Connexion_list, room2->Connexion_list_size * sizeof(Room*));
+
+    // Ajouter une connection
+    room1->Connexion_list[room1->Connexion_list_size-1] = room2;
+    room2->Connexion_list[room2->Connexion_list_size-1] = room1;
 }
 
 void free_room(Room* room){
@@ -307,6 +344,10 @@ void free_room(Room* room){
             }
         }
 
+        free(room->Ant_list);
+        free(room->Obj_list);
+        free(room->Creature_list);
+        free(room->Connexion_list);
         free(room);
     }
 }
@@ -334,7 +375,7 @@ int remaining_space(Room* room) {
 }
 
     // Ants
-Ant* init_new_ant(Nest* nest, int ant_type, char *name, int PV, int DMG, int Hunger) {
+Ant* init_new_ant(Nest* nest, int ant_type, char *name) {
     Ant* new_ant = malloc(sizeof(Ant));
     if(new_ant == NULL){
         perror("Échec de l'allocation mémoire pour la fourmi");
@@ -384,7 +425,8 @@ void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvr
 
 void free_ant(Ant* ant){
     if(ant != NULL){
-        if(ant->Held_object != NULL){
+        if(ant->Held_object != NULL){ // Si la fourmi porte un objet, on le pose dans la salle avant de free la fourmi
+            ant->Held_object->Held = false;
             ant->Position->Obj_count++;
             ant->Position->Obj_list = realloc(ant->Position->Obj_list, ant->Position->Obj_count * sizeof(Object*));
             ant->Position->Obj_list[ant->Position->Obj_count-1] = ant->Held_object;
