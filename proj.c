@@ -365,9 +365,26 @@ Ant* init_new_ant(Nest* nest, int ant_type, char *name, int PV, int DMG, int Hun
     return new_ant;
 }
 
-void free_ant(Ant* ant) {
-    if(ant != NULL) {
-        if(ant->Held_object != NULL) {
+
+void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle 
+    if(ant->Name_ID == queen){  // actions possibles des reines
+        if(ant->hunger > 10 && ant->position == "salle de ponte"){ // si reinne a bien la nourriture requise (ici 10 pr l'expml ) et que reine bien doans "salle de ponte " alors --> ponte
+            ant->hunger = ant->hunger - 10;   // on lui retire la nouriture utilisée
+            init_new_ant(ant->nest, ?, ? , ? , ? , 5 );  // ici  problème , comment on défini la classe etle nom de la fourmis lors de la création ? 
+            // ici faut rajouter une phéromnone qui indique qu'il faut déplacer la larve 
+        }
+
+    }
+    else if(ant->Name_ID == worker){ // actions possibles des ouvrières
+
+    }
+
+}
+
+
+void free_ant(Ant* ant){
+    if(ant != NULL){
+        if(ant->Held_object != NULL){
             ant->Position->Obj_count++;
             ant->Position->Obj_list = realloc(ant->Position->Obj_list, ant->Position->Obj_count * sizeof(Object*));
             ant->Position->Obj_list[ant->Position->Obj_count-1] = ant->Held_object;
