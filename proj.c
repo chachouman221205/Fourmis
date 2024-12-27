@@ -37,7 +37,7 @@ typedef struct Exterior {
 
     // Représente une fourmilière (graphe de "Room")
 typedef struct Nest {
-    char *Species;
+    char *Specie;
     char *Clan;     // Identifiant du clan auquel appartient la fourmilière
 
         // Liste des paramètres des fourmis de cette nest
@@ -191,9 +191,34 @@ void free_seasons(Season *season){
     }
 }
 
+    // Nest
+Nest* init_nest(char* specie, char* clan, int pv, int dmg, int life_min, int life_max, int hunger, Ant** ant_list, int ant_number){
+    Nest* new_nest = malloc(sizeof(Nest));
+    if(new_nest == NULL){
+        perror("Échec de l'allocation mémoire pour la nest");
+        return NULL;
+    }
+
+    new_nest->Specie = specie;
+    new_nest->Clan = clan;
+    new_nest->PV = pv;
+    new_nest->DMG = dmg;
+    new_nest->Life_min = life_min;
+    new_nest->Life_max = life_max;
+    new_nest->Hunger = hunger;
+    new_nest->Ant_list = ant_list;
+    new_nest->Ant_number = ant_number;
+
+    if(debug_msgs){
+        printf("| DEBUG : new nest \"%s\" initialized\n", new_nest->Clan);
+    }
+
+    return new_nest;
+}
+
     // Ants
 Ant* init_new_ant(Nest* nest, int ant_type, char *name, int PV, int DMG, int Hunger) {
-    Ant *new_ant = malloc(sizeof(Ant));
+    Ant* new_ant = malloc(sizeof(Ant));
     if(new_ant == NULL){
         perror("Échec de l'allocation mémoire pour la fourmi");
         return NULL;
