@@ -14,14 +14,16 @@ typedef struct Room {
     char *Name_ID;
     struct Room *Entry;
     bool Visited;   // Pour l'exploration du graphe (graphe d'objets "Room")
-    int Size;       // Taille max de la Room
+    int Size;       // Taille max de la Room, limite d'objet et de fourmis pouvant entrer
 
     struct Ant **Ant_list;
     int Ant_count;
 
     struct Object **Obj_list;
     int Obj_count;
-    int Max_obj_nb;
+
+    struct Object **Creature_list;
+    int Creature_count;
 
     struct Room **Connexion_list;
     int Connexion_list_size;
@@ -94,6 +96,7 @@ typedef struct Creature {
     int DMG;
     int Life;
     int Hunger;
+    int Size;
 
     struct Room *Position;
 } Creature;
@@ -202,7 +205,7 @@ void free_seasons(Season* season){
 }
 
     // Nest
-Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger, Ant** ant_list, int ant_number){
+Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger){
     Nest* new_nest = malloc(sizeof(Nest));
     if(new_nest == NULL){
         perror("Échec de l'allocation mémoire pour la nest");
@@ -216,8 +219,8 @@ Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int l
     new_nest->Life_min = life_min;
     new_nest->Life_max = life_max;
     new_nest->Hunger = hunger;
-    new_nest->Ant_list = ant_list;
-    new_nest->Ant_number = ant_number;
+    new_nest->Ant_list = malloc(0);
+    new_nest->Ant_number = 0;
 
     if(debug_msgs){
         printf("| DEBUG : new nest \"%s\" initialized\n", new_nest->Clan);
@@ -259,7 +262,7 @@ void free_exterior(Exterior exterior){
 }
 
     // Rooms
-Room* init_room(char* name_ID, Room* entry, bool visited, int size, Ant** ant_list, int ant_count, Object** obj_list, int obj_count, int max_object, Room** connexion_list, int connexion_list_size, Pheromone** pheromone_stack){
+Room* init_room(char* name_ID, Room* entry, bool visited, int size, Ant** ant_list, int ant_count, Object** obj_list, int obj_count, Room** connexion_list, int connexion_list_size, Pheromone** pheromone_stack){
     Room* new_room = malloc(sizeof(Room));
     if(new_room == NULL){
         perror("Échec de l'allocation mémoire pour la pièce");
@@ -274,7 +277,6 @@ Room* init_room(char* name_ID, Room* entry, bool visited, int size, Ant** ant_li
     new_room->Ant_count = ant_count;
     new_room->Obj_list = obj_list;
     new_room->Obj_count = obj_count;
-    new_room->Max_obj_nb = max_object;
     new_room->Connexion_list = connexion_list;
     new_room->Connexion_list_size = connexion_list_size;
 
@@ -309,6 +311,28 @@ void free_room(Room* room){
     }
 }
 
+int remaining_space(Room* room) {
+    int space_used = 0;
+    // Objects
+    for (int i = 0; i < room->Obj_count; i++) {
+        if (room->Obj_list[i] != NULL) {
+            space_used += room->Obj_list[i]->Size;
+        }
+    }
+
+    // Ants
+    space_used += room->Ant_count;
+
+    // Creatures
+    for (int i = 0; i < room->Creature_count; i++) {
+        if (room->Creature_list[i] != NULL) {
+            space_used += room->Creature_list[i]->Size;
+        }
+    }
+
+    return room->Size - space_used;
+}
+
     // Ants
 Ant* init_new_ant(Nest* nest, int ant_type, char *name, int PV, int DMG, int Hunger) {
     Ant* new_ant = malloc(sizeof(Ant));
@@ -341,17 +365,12 @@ Ant* init_new_ant(Nest* nest, int ant_type, char *name, int PV, int DMG, int Hun
     return new_ant;
 }
 
-void free_object(Object* object);
-void free_ant(Ant* ant){
-    if(ant != NULL){
-        if(ant->Held_object != NULL){
+void free_ant(Ant* ant) {
+    if(ant != NULL) {
+        if(ant->Held_object != NULL) {
             ant->Position->Obj_count++;
-            if(ant->Position->Max_obj_nb > ant->Position->Obj_count){   // Si il reste de la place on "drop" l'obj dans la piece
-                ant->Position->Obj_list[ant->Position->Obj_count] = ant->Held_object;
-            }
-            else{   // Sinon on le free
-                free_object(ant->Held_object);
-            }
+            ant->Position->Obj_list = realloc(ant->Position->Obj_list, ant->Position->Obj_count * sizeof(Object*));
+            ant->Position->Obj_list[ant->Position->Obj_count-1] = ant->Held_object;
         }
         if(debug_msgs){
             printf("| DEBUG : ant \"%s\" freed\n", ant->Name_ID);
