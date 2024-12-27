@@ -113,7 +113,14 @@ bool debug_msgs = 0;    // Printf de messages si = 1, pour le debug
 
 int tick = 0;           // Temps actuel dans la simulation
 int start_season;       // Saison de départ (0 à 3) : 0 = spring, 1 = summer, 2 = autumn, 3 = winter
-int IDs = 0;            // IDs++ à chaque nouvel ant/object/predator, permet de ne jamais avoir 2 fois le meme id
+int IDs = 0;            // IDs++ à chaque nouvel(le) room/ant/object/predator, permet de ne jamais avoir 2 fois le meme id
+
+
+/* -----< Récupération des variables de départ >----- */
+void init_variables(){  // Récupère les scanf pour inititaliser des variables
+    scanf(" %d", &tick); // à modifier
+    // ...
+}
 
 
 /* -----< Fonctions et procédures >----- */
@@ -228,8 +235,22 @@ void free_nest(Nest* nest){
 }
 
     // Exterior
-Exterior* init_exterior(){
+Exterior* init_exterior(Room* entry, Ant** ant_list, int ant_number){
+    Exterior* new_exterior = malloc(sizeof(Exterior));
+    if(new_exterior == NULL){
+        perror("Échec de l'allocation mémoire pour l'exterieur");
+        return NULL;
+    }
 
+    new_exterior->Entry = entry;
+    new_exterior->Ant_list = ant_list;
+    new_exterior->Ant_number = ant_number;
+
+    if(debug_msgs){
+        printf("| DEBUG : new exterior initialized\n");
+    }
+
+    return new_exterior;
 }
 
 void free_exterior(Exterior exterior){
@@ -481,13 +502,6 @@ void free_object(Object* object){
         }
         free(object);
     }
-}
-
-
-/* -----< Récupération des variables de départ >----- */
-void init_variables(){  // Récupère les scanf pour inititaliser des variables
-    scanf(" %d", &tick); // à modifier
-    // ...
 }
 
 
