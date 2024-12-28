@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
+#include <string.h>
 
 /* -----< Structures Principales >----- */
 /*
@@ -673,22 +674,35 @@ Ant* init_new_ant(Larve* larve) {
     return new_ant;
 }
 
-/*
+
 void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle 
-    if(ant->Name_ID == "queen"){  // actions possibles des reines
-        if(ant->Hunger > 10 && ant->position == "salle de ponte"){ // si reinne a bien la nourriture requise (ici 10 pr l'expml ) et que reine bien doans "salle de ponte " alors --> ponte
+    char salle_de_ponte[] = "salle de ponte";
+    int id = strcmp(ant->position, salle_de_ponte);
+    if(ant->type == 0){  // actions possibles des reines
+
+        //si hunger < 10 --> aller manger
+        //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
+
+        if(ant->Hunger > 10 && id == 0){ // si reinne a bien la nourriture requise (ici 10 pr l'expml ) et que reine bien doans "salle de ponte " alors --> ponte
             ant->Hunger = ant->Hunger - 10;   // on lui retire la nouriture utilisée
-            init_new_ant(ant->nest, ?, ? , ? , ? , 5 );  // ici  problème , comment on défini la classe et le nom de la fourmis lors de la création ? 
-            // ici faut rajouter une phéromnone qui indique qu'il faut déplacer la larve 
+            init_new_egg(ant->nest, egg_IDs , 0 , ant->position ); //REGARDER COMMENT DEFINIR LE ANT_TYPE
+            egg_IDs++;
+             // ici faut rajouter une phéromnone qui indique qu'il faut déplacer l'oeuf
+
         }
 
+
+
     }
-    else if(ant->Name_ID == "worker"){ // actions possibles des ouvrières
+    else if(ant->type == 1){ // actions possibles des ouvrières
         pass();
     }
-
+    ant->hunger--;
+    ant->life--;
+    //faire vérif si il meurt ou pas
 }
-*/
+
+
 
 void free_ant(Ant* ant){
     if(ant != NULL){
@@ -896,7 +910,12 @@ void simuler_room(Room* room) {
     room->Visited = true;
 
     // Code à éxecuter une fois par room
-
+    if (room->ant_count == 0 && room->Creature_count == 0){//peut etre vérifier larve et oeufs aussi
+        return 0;
+    }
+    for (i = room->ant_count ; i > 0 ; i--){ //effectuer l'action sur chaque fourmis
+        Action_ant();  
+    }
 
     // Fin du code à éxecuter
 
