@@ -306,7 +306,7 @@ Room* init_room(char* name_ID, int size){
 
 void connect_rooms(Room* room1, Room* room2) {
     // Verifier si les salles sont déjà connectées
-    bool existing_connection_status = 0;
+    int existing_connection_status = 0;
     for (int i = 0; i < room1->Connexion_list_size; i++) {
         if (room1->Connexion_list[i] == room2) {
             existing_connection_status++;
@@ -338,7 +338,7 @@ void connect_rooms(Room* room1, Room* room2) {
 
     if(room1->Connexion_list == NULL || room2->Connexion_list){
         perror("Échec de l'allocation mémoire pour la connexion entre pièces");
-        return NULL;
+        exit(1);
     }
 
     // Ajouter une connection
@@ -519,33 +519,7 @@ void combat_ants(Ant* ant1, Ant* ant2){
     test_kill_ant(ant2);
 }
 
-void combat_ant_crea(Ant* ant, Creature* crea){
-    if(ant == NULL){
-        perror("Échec du combat_ant_crea : ant NULL");
-        return;
-    }
-    if(crea == NULL){
-        perror("Échec du combat_ant_crea : crea NULL");
-        return;
-    }
 
-    ant->PV -= crea->DMG;
-    crea->PV -= ant->DMG;
-
-    if(debug_msgs){
-        printf("| DEBUG : ant \"%s\" : %d PV\n", ant->Name_ID, ant->PV);
-        printf("| DEBUG : crea \"%s\" : %d PV\n", crea->Name_ID, crea->PV);
-    }
-
-    if(crea->PV <= 0){
-        ant->Hunger += 15;  // la fourmi se nourrit, la fourmi se nourrit beaucoup avec une creature
-    }
-    if(ant->PV <= 0){
-        crea->Hunger += 3;  // la creature se nourrit, la creature se nourrit peu avec une fourmi
-    }
-    test_kill_ant(ant);
-    test_kill_creature(crea);
-}
 
     // Creatures
 Creature* init_creature(char* name_ID, int pv, int dmg, int life, int hunger, Room* position){
@@ -600,6 +574,34 @@ void test_kill_creature(Creature* crea){
         }
     }
 
+}
+
+void combat_ant_creature(Ant* ant, Creature* crea){
+    if(ant == NULL){
+        perror("Échec du combat_ant_crea : ant NULL");
+        return;
+    }
+    if(crea == NULL){
+        perror("Échec du combat_ant_crea : crea NULL");
+        return;
+    }
+
+    ant->PV -= crea->DMG;
+    crea->PV -= ant->DMG;
+
+    if(debug_msgs){
+        printf("| DEBUG : ant \"%s\" : %d PV\n", ant->Name_ID, ant->PV);
+        printf("| DEBUG : crea \"%s\" : %d PV\n", crea->Name_ID, crea->PV);
+    }
+
+    if(crea->PV <= 0){
+        ant->Hunger += 15;  // la fourmi se nourrit, la fourmi se nourrit beaucoup avec une creature
+    }
+    if(ant->PV <= 0){
+        crea->Hunger += 3;  // la creature se nourrit, la creature se nourrit peu avec une fourmi
+    }
+    test_kill_ant(ant);
+    test_kill_creature(crea);
 }
 
     // Objects
