@@ -658,13 +658,6 @@ void print_numbers(){
 }
 
 
-/* -----< Initialisation de la simulation >----- */
-void start(){   // Lancer la simulation 
-    Season* season = init_seasons(0);
-    srand(time(NULL)); // Pour rendre la simulation aléatoire
-    // ...
-}
-
 void simuler_room(Room* room) {
     if (room->visited) {
         return;
@@ -688,6 +681,15 @@ void simulation(Nest* nest, Exterior* exterior int iterations) {
 
     simulation(nest, exterior, iterations-1);
 }
+
+/* -----< Initialisation de la simulation >----- */
+void start(){   // Lancer la simulation 
+    Season* season = init_seasons(0);
+    srand(time(NULL)); // Pour rendre la simulation aléatoire
+    // ...
+}
+
+
 
 /* -----< Main >----- */
 int main(){
