@@ -102,6 +102,7 @@ typedef struct Ant {
         // La fourmi a faim quand hunger = 0, et doit manger en moins de 5 itérations pour survivre
 
     char *Clan;
+    Nest* Nest;
     struct Room *Position;      // Pointeur vers la pièce où se trouve la fourmi
     struct Object *Held_object; // Pointeur vers l'objet que la fourmi transporte (NULL si aucun)
     struct Pheromone *Action;   // Pointeur vers la phéromone qui détermine son objectif
@@ -645,6 +646,15 @@ bool test_grow_larve(Larve* larve){
 }
 
     // Ants
+
+void attach_ant_to_nest(Ant* ant, Nest* nest) {
+
+
+    ant->Nest = nest;
+    ant->Clan = nest->Clan;
+    nest->Ant_list = realloc(nest->Ant_list, (nest->Ant_number++) * sizeof(Ant*));
+}
+
 Ant* init_new_ant(Larve* larve) {
     Ant* new_ant = malloc(sizeof(Ant));
     if(new_ant == NULL){
@@ -661,10 +671,11 @@ Ant* init_new_ant(Larve* larve) {
     new_ant->DMG = larve->Nest->DMG[larve->Ant_type];
     new_ant->Hunger = larve->Nest->Hunger - (larve->Hunger / 2);
     new_ant->Life = larve->Nest->Life_min + rand() % (larve->Nest->Life_max - larve->Nest->Life_min + 1); // Life entre Life_min et Life_max
-    new_ant->Clan = larve->Clan;    // La fourmi conserve sont clan de ponte meme si l'oeuf a été volé
     new_ant->Position = larve->Position;     // Position NULL au départ, assignation plus tard
     new_ant->Held_object = NULL;  // Pas d'objet au départ
     new_ant->Action = NULL;       // Pas de phéromone assignée au départ
+
+
 
     if(debug_msgs){
         printf("| DEBUG : new ant \"%s\" initialized in nest \"%s\"\n", new_ant->Name_ID, larve->Nest->Clan);
@@ -742,7 +753,6 @@ void test_kill_ant(Ant* ant){
             free_ant(ant);
         }
     }
-
 }
 
 void combat_ants(Ant* ant1, Ant* ant2){
