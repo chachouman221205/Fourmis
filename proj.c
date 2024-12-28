@@ -929,12 +929,8 @@ void simulation(Nest* nest, Exterior* exterior, int iterations) {
     simulation(nest, exterior, iterations-1);
 }
 
-<<<<<<< HEAD
 /* -----< Initialisation de la simulation >----- */
 void start(Nest** nest, Exterior** exterior){   // Lancer la simulation
-=======
-void start(){   // Lancer la simulation 
->>>>>>> refs/remotes/origin/main
     Season* season = init_seasons(0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
 
@@ -950,13 +946,8 @@ void start(){   // Lancer la simulation
     dmg_param[0] = 1;
     dmg_param[1] = 5;
     dmg_param[2] = 1;
-<<<<<<< HEAD
-    *nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
-=======
 
-    // Creation d'une fourmilière
-    Nest* nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
->>>>>>> refs/remotes/origin/main
+    *nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
 
     /* Structure de la fourmilière initiale voulue:
      *                 entrée
