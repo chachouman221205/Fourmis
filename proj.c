@@ -381,12 +381,12 @@ Room* init_room(char* name_ID, int size){
 void connect_rooms(Room* room1, Room* room2) {
 
     if (room1 == NULL || room2 == NULL) {
-        perror("ERROR : attempting connection to a non existing room (\"%s\" - \"%s\")", room1->Name_ID, room2->Name_ID);
+        printf("ERROR : attempting connection to a non existing room (\"%s\" - \"%s\")", room1->Name_ID, room2->Name_ID);
         exit(1);
     }
 
     if (room1 == room2) {
-        perror("ERROR : Can't connect a room to itself: \"%s\"", room1->Name_ID);
+        printf("ERROR : Can't connect a room to itself: \"%s\"", room1->Name_ID);
         exit(1);
     }
 
@@ -411,7 +411,7 @@ void connect_rooms(Room* room1, Room* room2) {
         return; // Les deux rooms sont déjà connectés
     }
     if (existing_connection_status == 1) {
-        perror("ERROR : room \"%s\" and room \"%s\" have a bad connection", room1->Name_ID, room2->Name_ID);
+        printf("ERROR : room \"%s\" and room \"%s\" have a bad connection", room1->Name_ID, room2->Name_ID);
         exit(1);
     }
 
@@ -884,6 +884,11 @@ void print_numbers(){
 }
 
 
+/* -----< Simulation >----- */
+/*
+Ici sont gérées les étapes de la simulation, init et itérations
+*/
+
 void simuler_room(Room* room) {
     if (room->Visited) {
         return;
@@ -899,6 +904,7 @@ void simuler_room(Room* room) {
         simuler_room(room->Connexion_list[i]);
     }
 }
+
 void reinitialiser_rooms(Room* room) {
     if (!room->Visited) {
         return;
@@ -908,18 +914,27 @@ void reinitialiser_rooms(Room* room) {
         simuler_room(room->Connexion_list[i]);
     }
 }
+
 void simulation(Nest* nest, Exterior* exterior, int iterations) {
     if (iterations == 0) {
         return;
     }
+    
+    tick++;
+
+    simuler_room(nest->Entry);
     simuler_room(exterior->Entry);
     reinitialiser_rooms(exterior->Entry);
 
     simulation(nest, exterior, iterations-1);
 }
 
+<<<<<<< HEAD
 /* -----< Initialisation de la simulation >----- */
 void start(Nest** nest, Exterior** exterior){   // Lancer la simulation
+=======
+void start(){   // Lancer la simulation 
+>>>>>>> refs/remotes/origin/main
     Season* season = init_seasons(0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
 
@@ -935,7 +950,13 @@ void start(Nest** nest, Exterior** exterior){   // Lancer la simulation
     dmg_param[0] = 1;
     dmg_param[1] = 5;
     dmg_param[2] = 1;
+<<<<<<< HEAD
     *nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
+=======
+
+    // Creation d'une fourmilière
+    Nest* nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
+>>>>>>> refs/remotes/origin/main
 
     /* Structure de la fourmilière initiale voulue:
      *                 entrée
@@ -947,15 +968,15 @@ void start(Nest** nest, Exterior** exterior){   // Lancer la simulation
      *         |               \      |
      *         |                Chambre de la reine
      *         |               /
-     *       Chambre de larves
+     *        Chambre de larves
      */
 
     // Création des salles
-    resting_room = init_room("Resting Room", 50);
-    food_room1 = init_room("Storage Room", 50);
-    food_room2 = init_room("Storage Room", 60);
-    queen_chamber = init_room("Queen chamber", 20);
-    larva_room = init_room("Larva chamber", 60);
+    Room* resting_room = init_room("Resting Room", 50);
+    Room* food_room1 = init_room("Storage Room", 50);
+    Room* food_room2 = init_room("Storage Room", 60);
+    Room* queen_chamber = init_room("Queen chamber", 20);
+    Room* larva_room = init_room("Larva chamber", 60);
 
     // Connection des salles
     connect_rooms(nest_entrance, resting_room);
@@ -966,7 +987,6 @@ void start(Nest** nest, Exterior** exterior){   // Lancer la simulation
     connect_rooms(food_room2, queen_chamber);
     connect_rooms(food_room2, larva_room);
     connect_rooms(queen_chamber, larva_room);
-
 
 
     // Génération de l'extérieur
@@ -998,7 +1018,6 @@ void start(Nest** nest, Exterior** exterior){   // Lancer la simulation
     connect_rooms(created_rooms[0], nest_entrance);
     free(created_rooms);
 }
-
 
 
 /* -----< Main >----- */
