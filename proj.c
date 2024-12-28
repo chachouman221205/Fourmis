@@ -381,12 +381,12 @@ Room* init_room(char* name_ID, int size){
 void connect_rooms(Room* room1, Room* room2) {
 
     if (room1 == NULL || room2 == NULL) {
-        perror("ERROR : attempting connection to a non existing room (\"%s\" - \"%s\")", room1->Name_ID, room2->Name_ID);
+        printf("ERROR : attempting connection to a non existing room (\"%s\" - \"%s\")", room1->Name_ID, room2->Name_ID);
         exit(1);
     }
 
     if (room1 == room2) {
-        perror("ERROR : Can't connect a room to itself: \"%s\"", room1->Name_ID);
+        printf("ERROR : Can't connect a room to itself: \"%s\"", room1->Name_ID);
         exit(1);
     }
 
@@ -411,7 +411,7 @@ void connect_rooms(Room* room1, Room* room2) {
         return; // Les deux rooms sont déjà connectés
     }
     if (existing_connection_status == 1) {
-        perror("ERROR : room \"%s\" and room \"%s\" have a bad connection", room1->Name_ID, room2->Name_ID);
+        printf("ERROR : room \"%s\" and room \"%s\" have a bad connection", room1->Name_ID, room2->Name_ID);
         exit(1);
     }
 
@@ -881,6 +881,11 @@ void print_numbers(){
 }
 
 
+/* -----< Simulation >----- */
+/*
+Ici sont gérées les étapes de la simulation, init et itérations
+*/
+
 void simuler_room(Room* room) {
     if (room->Visited) {
         return;
@@ -909,13 +914,16 @@ void simulation(Nest* nest, Exterior* exterior, int iterations) {
     if (iterations == 0) {
         return;
     }
+    
+    tick++;
+
+    simuler_room(nest->Entry);
     simuler_room(exterior->Entry);
     reinitialiser_rooms(exterior->Entry);
 
     simulation(nest, exterior, iterations-1);
 }
 
-/* -----< Initialisation de la simulation >----- */
 void start(){   // Lancer la simulation 
     Season* season = init_seasons(0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
@@ -947,11 +955,11 @@ void start(){   // Lancer la simulation
      */
 
     // Création des salles
-    resting_room = init_room("Resting Room", 50);
-    food_room1 = init_room("Storage Room", 50);
-    food_room2 = init_room("Storage Room", 60);
-    queen_chamber = init_room("Queen chamber", 20);
-    larva_room = init_room("Larva chamber", 30);
+    Room* resting_room = init_room("Resting Room", 50);
+    Room* food_room1 = init_room("Storage Room", 50);
+    Room* food_room2 = init_room("Storage Room", 60);
+    Room* queen_chamber = init_room("Queen chamber", 20);
+    Room* larva_room = init_room("Larva chamber", 30);
 
     // Connection des salles
     connect_rooms(nest_entrance, resting_room);
@@ -990,7 +998,6 @@ void start(){   // Lancer la simulation
     // On s'assure qu'une des salles est connectée à la fourmilière
     connect_rooms(created_rooms[0], nest_entrance);
 }
-
 
 
 /* -----< Main >----- */
