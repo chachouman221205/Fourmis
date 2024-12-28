@@ -252,7 +252,7 @@ void free_nest(Nest* nest){ // à modifier par nassim
 }
 
     // Exterior
-Exterior* init_exterior(Room* entry, Ant** ant_list, int ant_number){
+Exterior* init_exterior(Room* entry){
     Exterior* new_exterior = malloc(sizeof(Exterior));
     if(new_exterior == NULL){
         perror("Échec de l'allocation mémoire pour l'exterieur");
@@ -260,8 +260,8 @@ Exterior* init_exterior(Room* entry, Ant** ant_list, int ant_number){
     }
 
     new_exterior->Entry = entry;
-    new_exterior->Ant_list = ant_list;
-    new_exterior->Ant_number = ant_number;
+    new_exterior->Ant_list = malloc(0);
+    new_exterior->Ant_number = 0;
 
     if(debug_msgs){
         printf("| DEBUG : new exterior initialized\n");
@@ -319,6 +319,17 @@ Room* init_room(char* name_ID, int size){
 }
 
 void connect_rooms(Room* room1, Room* room2) {
+
+    if (room1 == NULL || room2 == NULL) {
+        perror("ERROR : attempting connection to a non existing room (\"%s\" - \"%s\")", room1->Name_ID, room2->Name_ID);
+        exit(1);
+    }
+
+    if (room1 == room2) {
+        perror("ERROR : Can't connect a room to itself: \"%s\"", room1->Name_ID);
+        exit(1);
+    }
+
     // Verifier si les salles sont déjà connectées
     int existing_connection_status = 0;
     for (int i = 0; i < room1->Connexion_list_size; i++) {
@@ -340,7 +351,7 @@ void connect_rooms(Room* room1, Room* room2) {
         return; // Les deux rooms sont déjà connectés
     }
     if (existing_connection_status == 1) {
-        perror("ERROR : room \"%s\" and room \"%s\" have a bad connection");
+        perror("ERROR : room \"%s\" and room \"%s\" have a bad connection", room1->Name_ID, room2->Name_ID);
         exit(1);
     }
 
@@ -678,7 +689,6 @@ void simulation(Nest* nest, Exterior* exterior, int iterations) {
     if (iterations == 0) {
         return;
     }
-    simuler_room(nest->Entry);
     simuler_room(exterior->Entry);
 
     simulation(nest, exterior, iterations-1);
@@ -731,6 +741,33 @@ void start(){   // Lancer la simulation
     connect_rooms(food_room2, queen_chamber);
     connect_rooms(food_room2, larva_room);
     connect_rooms(queen_chamber, larva_room);
+
+
+
+    // Génération de l'extérieur
+    Exterior* exterior = init_exterior(nest_entrance);
+    printf("Veuillez choisir une taille d'environnement pour la simulation. Nous recommandons entre 10 (très petit) et 300 (très grand) :\n");
+    int room_number;
+    scanf("%d", &room_number);
+
+    Room** created_rooms = malloc(room_number * sizeof(Room*));
+    for (int i = 0; i < room_number; i++) {
+        created_rooms[i] = NULL;
+    }
+
+
+    for (int i = 0; i < room_number; i++) {
+        created_rooms[i] = init_room("Exterior", rand()%(600-500)+500); // Chaque salle a une taille aléatoire entre 500 et 600
+
+
+        // On connecte la salle crée à jusqu'à trois autres salles
+        for (int j = rand()%3+1; j>0; j++) {
+            connect_rooms(created_rooms[rand()%i], created_rooms[i]);
+        }
+    }
+
+    // On s'assure qu'une des salles est connectée à la fourmilière
+    connect_rooms(created_rooms[0], nest_entrance);
 }
 
 
