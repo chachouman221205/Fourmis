@@ -115,7 +115,6 @@ Initialisation de certaines varaiables plus pratiques quand globales
 bool debug_msgs = 0;    // Printf de messages si = 1, pour le debug
 
 int tick = 0;           // Temps actuel dans la simulation
-int start_season;       // Saison de départ (0 à 3) : 0 = spring, 1 = summer, 2 = autumn, 3 = winter
 int IDs = 0;            // IDs++ à chaque nouvel(le) room/ant/object/predator, permet de ne jamais avoir 2 fois le meme id
 
 
@@ -132,7 +131,7 @@ Main project
 */
 
     // Seasons
-Season* init_seasons(){
+Season* init_seasons(int start_season){     // Saison de départ (0 à 3) : 0 = spring, 1 = summer, 2 = autumn, 3 = winter
     Season *spring = malloc(sizeof(Season));
     if(spring == NULL){
         perror("Échec de l'allocation pour spring");
@@ -177,11 +176,12 @@ Season* init_seasons(){
     autumn->Next = winter;
     winter->Next = spring;
 
+    Season* tab[] = {spring, summer, autumn, winter};
+
     if(debug_msgs){
-        printf("| DEBUG : seasons initialized\n");
+        printf("| DEBUG : seasons initialized (start season \"%s\"\n", tab[start_season]->Name);
     }
     
-    Season* tab[] = {spring, summer, autumn, winter};
     return tab[start_season];
 }
 
@@ -228,11 +228,16 @@ Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int l
     return new_nest;
 }
 
-void free_nest(Nest* nest){
+void free_nest(Nest* nest){ // à modifier par nassim
     if(nest != NULL){
         if(debug_msgs){
             printf("| DEBUG : ant \"%s\" freed\n", nest->Clan);
         }
+        /*
+        for(int i = 1; i < nest->Ant_number; i++){
+            free_ant(nest->Ant_list[i]);
+        }
+        */
         free(nest);
     }
 }
@@ -256,8 +261,18 @@ Exterior* init_exterior(Room* entry, Ant** ant_list, int ant_number){
     return new_exterior;
 }
 
-void free_exterior(Exterior exterior){
-
+void free_exterior(Exterior* exterior){ // à modifier par nassim
+    if(exterior != NULL){
+        if(debug_msgs){
+            printf("| DEBUG : exterior freed\n");
+        }
+        /*
+        for(int i = 1; i < exterior->Ant_number; i++){
+            free_ant(exterior->Ant_list[i]);
+        }
+        */
+        free(exterior);
+    }
 }
 
     // Rooms
@@ -303,15 +318,15 @@ void connect_rooms(Room* room1, Room* room2) {
             existing_connection_status++;
             break;
 
-            }
         }
     }
+    
 
     if (existing_connection_status == 2) {
         return; // Les deux rooms sont déjà connectés
     }
     if (existing_connection_status == 1) {
-        printf("ERROR : room \"%s\" and room \"%s\" have a bad connection")
+        perror("ERROR : room \"%s\" and room \"%s\" have a bad connection");
         exit(1);
     }
 
@@ -320,6 +335,11 @@ void connect_rooms(Room* room1, Room* room2) {
     room1->Connexion_list = realloc(room1->Connexion_list, room1->Connexion_list_size * sizeof(Room*));
     room2->Connexion_list_size++;
     room2->Connexion_list = realloc(room2->Connexion_list, room2->Connexion_list_size * sizeof(Room*));
+
+    if(room1->Connexion_list == NULL || room2->Connexion_list){
+        perror("Échec de l'allocation mémoire pour la connexion entre pièces");
+        return NULL;
+    }
 
     // Ajouter une connection
     room1->Connexion_list[room1->Connexion_list_size-1] = room2;
@@ -374,6 +394,13 @@ int remaining_space(Room* room) {
     return room->Size - space_used;
 }
 
+int total_size(Ant* ant){
+    if(debug_msgs){
+        printf("| DEBUG : total size of ant \"%s\" = %d\n", ant->Name_ID, 1 + ant->Held_object->Size);
+    }
+    return 1 + ant->Held_object->Size; // 1 = ant size
+}
+
     // Ants
 Ant* init_new_ant(Nest* nest, int ant_type, char *name) {
     Ant* new_ant = malloc(sizeof(Ant));
@@ -381,8 +408,6 @@ Ant* init_new_ant(Nest* nest, int ant_type, char *name) {
         perror("Échec de l'allocation mémoire pour la fourmi");
         return NULL;
     }
-
-
 
     // Initialisation des champs de la fourmi, on initialise en fonction de la nest
     if (name != NULL) {
@@ -406,21 +431,23 @@ Ant* init_new_ant(Nest* nest, int ant_type, char *name) {
     return new_ant;
 }
 
-
+/*
 void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle 
-    if(ant->Name_ID == queen){  // actions possibles des reines
-        if(ant->hunger > 10 && ant->position == "salle de ponte"){ // si reinne a bien la nourriture requise (ici 10 pr l'expml ) et que reine bien doans "salle de ponte " alors --> ponte
-            ant->hunger = ant->hunger - 10;   // on lui retire la nouriture utilisée
-            init_new_ant(ant->nest, ?, ? , ? , ? , 5 );  // ici  problème , comment on défini la classe etle nom de la fourmis lors de la création ? 
+    if(ant->Name_ID == "queen"){  // actions possibles des reines
+        if(ant->Hunger > 10 && ant->position == "salle de ponte"){ // si reinne a bien la nourriture requise (ici 10 pr l'expml ) et que reine bien doans "salle de ponte " alors --> ponte
+            ant->Hunger = ant->Hunger - 10;   // on lui retire la nouriture utilisée
+            init_new_ant(ant->nest, ?, ? , ? , ? , 5 );  // ici  problème , comment on défini la classe et le nom de la fourmis lors de la création ? 
             // ici faut rajouter une phéromnone qui indique qu'il faut déplacer la larve 
         }
 
     }
-    else if(ant->Name_ID == worker){ // actions possibles des ouvrières
-
+    else if(ant->Name_ID == "worker"){ // actions possibles des ouvrières
+        pass();
     }
 
 }
+*/
+
 
 
 void free_ant(Ant* ant){
@@ -456,7 +483,7 @@ void test_kill_ant(Ant* ant){
         if(condition != 0){
             if(debug_msgs){
                 printf("| DEBUG : ant \"%s\" died : ", ant->Name_ID);
-                printf(death_message[condition], (condition == 1)? (ant->PV) : ( (condition == 2)? (ant->Life) : (ant->Hunger) ));
+                printf(death_message[condition], (condition == 1)? ant->PV : (condition == 2)? ant->Life : ant->Hunger);
             }
             free_ant(ant);
         }
@@ -492,7 +519,6 @@ void combat_ants(Ant* ant1, Ant* ant2){
     test_kill_ant(ant2);
 }
 
-void test_kill_creature(Creature* crea);
 void combat_ant_crea(Ant* ant, Creature* crea){
     if(ant == NULL){
         perror("Échec du combat_ant_crea : ant NULL");
@@ -512,10 +538,10 @@ void combat_ant_crea(Ant* ant, Creature* crea){
     }
 
     if(crea->PV <= 0){
-        ant->Hunger += 15;  // la fourmi se nourrit
+        ant->Hunger += 15;  // la fourmi se nourrit, la fourmi se nourrit beaucoup avec une creature
     }
     if(ant->PV <= 0){
-        crea->Hunger += 5;  // la creature se nourrit
+        crea->Hunger += 3;  // la creature se nourrit, la creature se nourrit peu avec une fourmi
     }
     test_kill_ant(ant);
     test_kill_creature(crea);
@@ -567,10 +593,8 @@ void test_kill_creature(Creature* crea){
 
         if(condition != 0){
             if(debug_msgs){
-                if(debug_msgs){
-                    printf("| DEBUG : crea \"%s\" died : ", crea->Name_ID);
-                    printf(death_message[condition], (condition == 1)? (crea->PV) : ( (condition == 2)? (crea->Life) : (crea->Hunger) ));
-                }
+                printf("| DEBUG : crea \"%s\" died : ", crea->Name_ID);
+                printf(death_message[condition], (condition == 1)? crea->PV : (condition == 2)? crea->Life : crea->Hunger);
             }
             free_creature(crea);
         }
@@ -607,7 +631,7 @@ void free_object(Object* object){
 
 /* -----< Initialisation de la simulation >----- */
 void start(){   // Lancer la simulation 
-    Season* season = init_seasons();
+    Season* season = init_seasons(0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
     // ...
 }
