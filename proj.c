@@ -906,6 +906,7 @@ void simulation(Nest* nest, Exterior* exterior, int iterations) {
     if (iterations == 0) {
         return;
     }
+    
     tick++;
 
     simuler_room(nest->Entry);
