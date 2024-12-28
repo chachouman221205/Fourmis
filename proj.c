@@ -652,8 +652,14 @@ void simuler_room(Room* room) {
         simuler_room(room->Connexion_list[i]);
     }
 }
-void simulation(Nest* nest, Exterior* exterieor int iterations) {
+void simulation(Nest* nest, Exterior* exterior int iterations) {
+    if (iterations == 0) {
+        return;
+    }
+    simuler_room(nest->Entry);
+    simuler_room(exterior->Entry);
 
+    simulation(nest, exterior, iterations-1);
 }
 
 /* -----< Main >----- */
