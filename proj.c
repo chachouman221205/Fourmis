@@ -701,6 +701,36 @@ void start(){   // Lancer la simulation
     dmg_param[1] = 5;
     dmg_param[2] = 1;
     Nest* nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
+
+    /* Structure de la fourmilière initiale voulue:
+     *                 entrée
+     *                /      \
+     * Chambre de repos      Stock de nourriture 1
+     *           |            /       |
+     *           |           /        |
+     *        Stock de nouriture 2    |
+     *         |               \      |
+     *         |                Chambre de la reine
+     *         |               /
+     *       Chambre de larves
+     */
+
+    // Création des salles
+    resting_room = init_room("Resting Room", 50);
+    food_room1 = init_room("Storage Room", 50);
+    food_room2 = init_room("Storage Room", 60);
+    queen_chamber = init_room("Queen chamber", 20);
+    larva_room = init_room("Larva chamber", 30);
+
+    // Connection des salles
+    connect_rooms(nest_entrance, resting_room);
+    connect_rooms(nest_entrance, food_room1);
+    connect_rooms(resting_room, food_room2);
+    connect_rooms(food_room1, food_room2);
+    connect_rooms(food_room1, queen_chamber);
+    connect_rooms(food_room2, queen_chamber);
+    connect_rooms(food_room2, larva_room);
+    connect_rooms(queen_chamber, larva_room);
 }
 
 
