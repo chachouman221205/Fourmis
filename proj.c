@@ -896,11 +896,21 @@ void simuler_room(Room* room) {
         simuler_room(room->Connexion_list[i]);
     }
 }
+void reinitialiser_rooms(Room* room) {
+    if (!room->Visited) {
+        return;
+    }
+    room->Visited = false;
+    for (int i = 0; i < room->Connexion_list_size; i++) {
+        simuler_room(room->Connexion_list[i]);
+    }
+}
 void simulation(Nest* nest, Exterior* exterior, int iterations) {
     if (iterations == 0) {
         return;
     }
     simuler_room(exterior->Entry);
+    reinitialiser_rooms(exterior->Entry);
 
     simulation(nest, exterior, iterations-1);
 }
