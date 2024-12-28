@@ -112,10 +112,16 @@ typedef struct Season {
 /*
 Initialisation de certaines varaiables plus pratiques quand globales
 */
+
 bool debug_msgs = 0;    // Printf de messages si = 1, pour le debug
 
 int tick = 0;           // Temps actuel dans la simulation
-int IDs = 0;            // IDs++ à chaque nouvel(le) room/ant/object/predator, permet de ne jamais avoir 2 fois le meme id
+
+int nest_nb = 0;
+int room_IDs = 0;
+int ant_IDs = 0;        // IDs++ à chaque nouvel(le) room/ant/object/predator, permet de ne jamais avoir 2 fois le meme id
+int obj_IDs = 0;
+int crea_IDs = 0;
 
 
 /* -----< Récupération des variables de départ >----- */
@@ -211,6 +217,8 @@ Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int l
         return NULL;
     }
 
+    nest_nb++;
+
     new_nest->Specie = specie;
     new_nest->Clan = clan;
     new_nest->PV = pv;
@@ -283,7 +291,12 @@ Room* init_room(char* name_ID, int size){
         return NULL;
     }
 
-    new_room->Name_ID = name_ID;
+    if (name_ID != NULL) {
+        new_room->Name_ID = name_ID;
+        room_IDs++;
+    } else {
+        sprintf(new_room->Name_ID, "Room%d", room_IDs++);
+    }
     new_room->Visited = false;  // pas visité à l'initialisation
     new_room->Size = size;
     new_room->Ant_list = malloc(0);
@@ -412,8 +425,9 @@ Ant* init_new_ant(Nest* nest, int ant_type, char *name) {
     // Initialisation des champs de la fourmi, on initialise en fonction de la nest
     if (name != NULL) {
         new_ant->Name_ID = name;
+        ant_IDs++;
     } else {
-        sprintf(new_ant->Name_ID, "Ant%d", IDs++);
+        sprintf(new_ant->Name_ID, "Ant%d", ant_IDs++);
     }
     new_ant->PV = nest->PV[ant_type];
     new_ant->DMG = nest->DMG[ant_type];
@@ -447,8 +461,6 @@ void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvr
 
 }
 */
-
-
 
 void free_ant(Ant* ant){
     if(ant != NULL){
@@ -529,7 +541,12 @@ Creature* init_creature(char* name_ID, int pv, int dmg, int life, int hunger, Ro
         return NULL;
     }
     
-    new_creature->Name_ID = name_ID;
+    if (name_ID != NULL) {
+        new_creature->Name_ID = name_ID;
+        crea_IDs++;
+    } else {
+        sprintf(new_creature->Name_ID, "Crea%d", crea_IDs++);
+    }
     new_creature->PV = pv;
     new_creature->DMG = dmg;
     new_creature->Life = life;
@@ -612,7 +629,12 @@ Object* init_object(char* name_ID, int size, bool held){
         return NULL;
     }
 
-    new_obj->Name_ID = name_ID;
+    if (name_ID != NULL) {
+        new_obj->Name_ID = name_ID;
+        obj_IDs++;
+    } else {
+        sprintf(new_obj->Name_ID, "Obj%d", obj_IDs++);
+    }
     new_obj->Size = size;
     new_obj->Held = held;
 
@@ -628,6 +650,11 @@ void free_object(Object* object){
         }
         free(object);
     }
+}
+
+    // Display
+void print_numbers(){
+    printf("Nests : %d | Rooms : %d | Ants : %d | Creas : %d | Objs : %d\n", nest_nb,room_IDs,ant_IDs,crea_IDs,obj_IDs);
 }
 
 
