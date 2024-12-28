@@ -870,6 +870,11 @@ void print_numbers(){
 }
 
 
+/* -----< Simulation >----- */
+/*
+Ici sont gérées les étapes de la simulation, init et itérations
+*/
+
 void simuler_room(Room* room) {
     if (room->Visited) {
         return;
@@ -885,17 +890,19 @@ void simuler_room(Room* room) {
         simuler_room(room->Connexion_list[i]);
     }
 }
+
 void simulation(Nest* nest, Exterior* exterior, int iterations) {
     if (iterations == 0) {
         return;
     }
+    tick++;
+
     simuler_room(nest->Entry);
     simuler_room(exterior->Entry);
 
     simulation(nest, exterior, iterations-1);
 }
 
-/* -----< Initialisation de la simulation >----- */
 void start(){   // Lancer la simulation 
     Season* season = init_seasons(0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
@@ -927,11 +934,11 @@ void start(){   // Lancer la simulation
      */
 
     // Création des salles
-    resting_room = init_room("Resting Room", 50);
-    food_room1 = init_room("Storage Room", 50);
-    food_room2 = init_room("Storage Room", 60);
-    queen_chamber = init_room("Queen chamber", 20);
-    larva_room = init_room("Larva chamber", 30);
+    Room* resting_room = init_room("Resting Room", 50);
+    Room* food_room1 = init_room("Storage Room", 50);
+    Room* food_room2 = init_room("Storage Room", 60);
+    Room* queen_chamber = init_room("Queen chamber", 20);
+    Room* larva_room = init_room("Larva chamber", 30);
 
     // Connection des salles
     connect_rooms(nest_entrance, resting_room);
@@ -943,7 +950,6 @@ void start(){   // Lancer la simulation
     connect_rooms(food_room2, larva_room);
     connect_rooms(queen_chamber, larva_room);
 }
-
 
 
 /* -----< Main >----- */
