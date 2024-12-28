@@ -483,6 +483,9 @@ int total_size(Ant* ant){
     if(debug_msgs){
         printf("| DEBUG : total size of ant \"%s\" = %d\n", ant->Name_ID, 1 + ant->Held_object->Size);
     }
+    if (ant->Held_object == NULL) {
+        return 1;
+    }
     return 1 + ant->Held_object->Size; // 1 = ant size
 }
 
@@ -926,11 +929,18 @@ void simulation(Nest* nest, Exterior* exterior, int iterations) {
     simulation(nest, exterior, iterations-1);
 }
 
+<<<<<<< HEAD
+/* -----< Initialisation de la simulation >----- */
+void start(Nest** nest, Exterior** exterior){   // Lancer la simulation
+=======
 void start(){   // Lancer la simulation 
+>>>>>>> refs/remotes/origin/main
     Season* season = init_seasons(0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
 
     //Création du monde
+
+    // Création de la fourmilière
     Room* nest_entrance = init_room("Nest Entrance", 20);
     int* pv_param = malloc(3*sizeof(int));
     pv_param[0] = 1;
@@ -940,9 +950,13 @@ void start(){   // Lancer la simulation
     dmg_param[0] = 1;
     dmg_param[1] = 5;
     dmg_param[2] = 1;
+<<<<<<< HEAD
+    *nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
+=======
 
     // Creation d'une fourmilière
     Nest* nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
+>>>>>>> refs/remotes/origin/main
 
     /* Structure de la fourmilière initiale voulue:
      *                 entrée
@@ -976,12 +990,15 @@ void start(){   // Lancer la simulation
 
 
     // Génération de l'extérieur
-    Exterior* exterior = init_exterior(nest_entrance);
+    *exterior = init_exterior(nest_entrance);
     printf("Veuillez choisir une taille d'environnement pour la simulation. Nous recommandons entre 10 (très petit) et 300 (très grand) :\n");
     int room_number;
     scanf("%d", &room_number);
 
     Room** created_rooms = malloc(room_number * sizeof(Room*));
+    if (created_rooms == NULL) {
+        perror("Échec de l'allocation mémoire pour la liste des salles");
+    }
     for (int i = 0; i < room_number; i++) {
         created_rooms[i] = NULL;
     }
@@ -999,6 +1016,7 @@ void start(){   // Lancer la simulation
 
     // On s'assure qu'une des salles est connectée à la fourmilière
     connect_rooms(created_rooms[0], nest_entrance);
+    free(created_rooms);
 }
 
 
