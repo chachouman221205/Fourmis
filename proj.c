@@ -50,7 +50,7 @@ typedef struct Nest {
     int Life_max;
     int Hunger;
 
-    struct Room *Entrance;     // Pointeur vers la pièce d'entrée de la fourmilière
+    struct Room *Entry;     // Pointeur vers la pièce d'entrée de la fourmilière
 
     struct Ant **Ant_list;
     int Ant_number;
@@ -270,7 +270,7 @@ void free_seasons(Season* season){
 }
 
     // Nest
-Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger){
+Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger, Room* entry){
     Nest* new_nest = malloc(sizeof(Nest));
     if(new_nest == NULL){
         perror("Échec de l'allocation mémoire pour la nest");
@@ -288,6 +288,7 @@ Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int l
     new_nest->Hunger = hunger;
     new_nest->Ant_list = malloc(0);
     new_nest->Ant_number = 0;
+    new_nest->Entry = entry;
 
     if(debug_msgs){
         printf("| DEBUG : new nest \"%s\" initialized\n", new_nest->Clan);
@@ -869,12 +870,80 @@ void print_numbers(){
 }
 
 
+void simuler_room(Room* room) {
+    if (room->Visited) {
+        return;
+    }
+    room->Visited = true;
+
+    // Code à éxecuter une fois par room
+
+
+    // Fin du code à éxecuter
+
+    for (int i = 0; i < room->Connexion_list_size; i++) {
+        simuler_room(room->Connexion_list[i]);
+    }
+}
+void simulation(Nest* nest, Exterior* exterior, int iterations) {
+    if (iterations == 0) {
+        return;
+    }
+    simuler_room(nest->Entry);
+    simuler_room(exterior->Entry);
+
+    simulation(nest, exterior, iterations-1);
+}
+
 /* -----< Initialisation de la simulation >----- */
 void start(){   // Lancer la simulation 
     Season* season = init_seasons(0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
     // ...
+
+    //Création du monde
+    Room* nest_entrance = init_room("Nest Entrance", 20);
+    int* pv_param = malloc(3*sizeof(int));
+    pv_param[0] = 1;
+    pv_param[1] = 5;
+    pv_param[2] = 10;
+    int* dmg_param = malloc(3*sizeof(int));
+    dmg_param[0] = 1;
+    dmg_param[1] = 5;
+    dmg_param[2] = 1;
+    Nest* nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
+
+    /* Structure de la fourmilière initiale voulue:
+     *                 entrée
+     *                /      \
+     * Chambre de repos      Stock de nourriture 1
+     *           |            /       |
+     *           |           /        |
+     *        Stock de nouriture 2    |
+     *         |               \      |
+     *         |                Chambre de la reine
+     *         |               /
+     *       Chambre de larves
+     */
+
+    // Création des salles
+    resting_room = init_room("Resting Room", 50);
+    food_room1 = init_room("Storage Room", 50);
+    food_room2 = init_room("Storage Room", 60);
+    queen_chamber = init_room("Queen chamber", 20);
+    larva_room = init_room("Larva chamber", 30);
+
+    // Connection des salles
+    connect_rooms(nest_entrance, resting_room);
+    connect_rooms(nest_entrance, food_room1);
+    connect_rooms(resting_room, food_room2);
+    connect_rooms(food_room1, food_room2);
+    connect_rooms(food_room1, queen_chamber);
+    connect_rooms(food_room2, queen_chamber);
+    connect_rooms(food_room2, larva_room);
+    connect_rooms(queen_chamber, larva_room);
 }
+
 
 
 /* -----< Main >----- */
