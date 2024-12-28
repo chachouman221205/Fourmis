@@ -50,7 +50,7 @@ typedef struct Nest {
     int Life_max;
     int Hunger;
 
-    struct Room *Entrance;     // Pointeur vers la pièce d'entrée de la fourmilière
+    struct Room *Entry;     // Pointeur vers la pièce d'entrée de la fourmilière
 
     struct Ant **Ant_list;
     int Ant_number;
@@ -210,7 +210,7 @@ void free_seasons(Season* season){
 }
 
     // Nest
-Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger){
+Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger, Room* entry){
     Nest* new_nest = malloc(sizeof(Nest));
     if(new_nest == NULL){
         perror("Échec de l'allocation mémoire pour la nest");
@@ -228,6 +228,7 @@ Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int l
     new_nest->Hunger = hunger;
     new_nest->Ant_list = malloc(0);
     new_nest->Ant_number = 0;
+    new_nest->Entry = entry;
 
     if(debug_msgs){
         printf("| DEBUG : new nest \"%s\" initialized\n", new_nest->Clan);
@@ -639,7 +640,7 @@ Object* init_object(char* name_ID, int size, bool held){
     new_obj->Held = held;
 
     if(debug_msgs){
-        printf("| DEBUG : new onj \"%s\" initialized\n", new_obj->Name_ID);est un grap
+        printf("| DEBUG : new onj \"%s\" initialized\n", new_obj->Name_ID);
     }
 }
 
@@ -659,9 +660,10 @@ void print_numbers(){
 
 
 void simuler_room(Room* room) {
-    if (room->visited) {
+    if (room->Visited) {
         return;
     }
+    room->Visited = true;
 
     // Code à éxecuter une fois par room
 
@@ -672,7 +674,7 @@ void simuler_room(Room* room) {
         simuler_room(room->Connexion_list[i]);
     }
 }
-void simulation(Nest* nest, Exterior* exterior int iterations) {
+void simulation(Nest* nest, Exterior* exterior, int iterations) {
     if (iterations == 0) {
         return;
     }
@@ -687,6 +689,18 @@ void start(){   // Lancer la simulation
     Season* season = init_seasons(0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
     // ...
+
+    //Création du monde
+    Room* nest_entrance = init_room("Nest Entrance", 20);
+    int* pv_param = malloc(3*sizeof(int));
+    pv_param[0] = 1;
+    pv_param[1] = 5;
+    pv_param[2] = 10;
+    int* dmg_param = malloc(3*sizeof(int));
+    dmg_param[0] = 1;
+    dmg_param[1] = 5;
+    dmg_param[2] = 1;
+    Nest* nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
 }
 
 
