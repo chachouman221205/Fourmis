@@ -901,6 +901,7 @@ void simuler_room(Room* room) {
         simuler_room(room->Connexion_list[i]);
     }
 }
+
 void reinitialiser_rooms(Room* room) {
     if (!room->Visited) {
         return;
@@ -910,6 +911,7 @@ void reinitialiser_rooms(Room* room) {
         simuler_room(room->Connexion_list[i]);
     }
 }
+
 void simulation(Nest* nest, Exterior* exterior, int iterations) {
     if (iterations == 0) {
         return;
@@ -927,7 +929,6 @@ void simulation(Nest* nest, Exterior* exterior, int iterations) {
 void start(){   // Lancer la simulation 
     Season* season = init_seasons(0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
-    // ...
 
     //Création du monde
     Room* nest_entrance = init_room("Nest Entrance", 20);
@@ -939,6 +940,8 @@ void start(){   // Lancer la simulation
     dmg_param[0] = 1;
     dmg_param[1] = 5;
     dmg_param[2] = 1;
+
+    // Creation d'une fourmilière
     Nest* nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
 
     /* Structure de la fourmilière initiale voulue:
@@ -951,7 +954,7 @@ void start(){   // Lancer la simulation
      *         |               \      |
      *         |                Chambre de la reine
      *         |               /
-     *       Chambre de larves
+     *        Chambre de larves
      */
 
     // Création des salles
@@ -959,7 +962,7 @@ void start(){   // Lancer la simulation
     Room* food_room1 = init_room("Storage Room", 50);
     Room* food_room2 = init_room("Storage Room", 60);
     Room* queen_chamber = init_room("Queen chamber", 20);
-    Room* larva_room = init_room("Larva chamber", 30);
+    Room* larva_room = init_room("Larva chamber", 60);
 
     // Connection des salles
     connect_rooms(nest_entrance, resting_room);
@@ -970,7 +973,6 @@ void start(){   // Lancer la simulation
     connect_rooms(food_room2, queen_chamber);
     connect_rooms(food_room2, larva_room);
     connect_rooms(queen_chamber, larva_room);
-
 
 
     // Génération de l'extérieur
