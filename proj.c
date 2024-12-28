@@ -617,7 +617,7 @@ Object* init_object(char* name_ID, int size, bool held){
     new_obj->Held = held;
 
     if(debug_msgs){
-        printf("| DEBUG : new onj \"%s\" initialized\n", new_obj->Name_ID);
+        printf("| DEBUG : new onj \"%s\" initialized\n", new_obj->Name_ID);est un grap
     }
 }
 
@@ -638,6 +638,23 @@ void start(){   // Lancer la simulation
     // ...
 }
 
+void simuler_room(Room* room) {
+    if (room->visited) {
+        return;
+    }
+
+    // Code à éxecuter une fois par room
+
+
+    // Fin du code à éxecuter
+
+    for (int i = 0; i < room->Connexion_list_size; i++) {
+        simuler_room(room->Connexion_list[i]);
+    }
+}
+void simulation(Nest* nest, Exterior* exterieor int iterations) {
+
+}
 
 /* -----< Main >----- */
 int main(){
