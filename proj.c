@@ -650,8 +650,8 @@ void attach_ant_to_nest(Ant* ant, Nest* nest) {
 
 
     ant->Nest = nest;
-    ant->Clan = nest->clan;
-    nest->Ant_list = realloc(nest->Ant_list, (nest->++Ant_number) * sizeof(Ant*));
+    ant->Clan = nest->Clan;
+    nest->Ant_list = realloc(nest->Ant_list, (nest->Ant_number++) * sizeof(Ant*));
 }
 
 Ant* init_new_ant(Larve* larve) {
