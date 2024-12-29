@@ -25,6 +25,8 @@ Object* init_object(Simulation_data* simulation_data, char* name_ID, int size, b
     if(debug_msgs){
         printf("| DEBUG : new obj \"%s\" initialized\n", new_obj->Name_ID);
     }
+
+    return new_obj;
 }
 
 void free_object(Simulation_data* simulation_data, Object* object){
