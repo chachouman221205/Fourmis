@@ -688,28 +688,27 @@ Ant* init_new_ant(Larve* larve) {
 
 void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle 
     char salle_de_ponte[] = "salle de ponte";
-    int id = strcmp(ant->position, salle_de_ponte);
-    if(ant->type == 0){  // actions possibles des reines
+    int condition = strcmp(ant->Position, salle_de_ponte);
+    if(ant->Ant_type == 0){  // actions possibles des reines
 
         //si hunger < 10 --> aller manger
         //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
 
-        if(ant->Hunger > 10 && id == 0){ // si reinne a bien la nourriture requise (ici 10 pr l'expml ) et que reine bien doans "salle de ponte " alors --> ponte
+        if(ant->Hunger > 10 && condition == 0){ // si reinne a bien la nourriture requise (ici 10 pr l'exemple) et que reine est bien dans "salle de ponte"
             ant->Hunger = ant->Hunger - 10;   // on lui retire la nouriture utilisée
-            init_new_egg(ant->nest, egg_IDs , 0 , ant->position ); //REGARDER COMMENT DEFINIR LE ANT_TYPE
+            init_new_egg(ant->Nest, egg_IDs , 0 , ant->Position ); //REGARDER COMMENT DEFINIR LE ANT_TYPE
             egg_IDs++;
              // ici faut rajouter une phéromnone qui indique qu'il faut déplacer l'oeuf
-
         }
 
 
 
     }
-    else if(ant->type == 1){ // actions possibles des ouvrières
+    else if(ant->Ant_type == 1){ // actions possibles des ouvrières
         pass();
     }
-    ant->hunger--;
-    ant->life--;
+    ant->Hunger--;
+    ant->Life--;
     //faire vérif si il meurt ou pas
 }
 
@@ -920,11 +919,11 @@ void simuler_room(Room* room) {
     room->Visited = true;
 
     // Code à éxecuter une fois par room
-    if (room->ant_count == 0 && room->Creature_count == 0){//peut etre vérifier larve et oeufs aussi
+    if (room->Ant_count == 0 && room->Creature_count == 0){//peut etre vérifier larve et oeufs aussi
         return 0;
     }
-    for (i = room->ant_count ; i > 0 ; i--){ //effectuer l'action sur chaque fourmis
-        Action_ant();  
+    for (int i = room->Ant_count ; i > 0 ; i--){ //effectuer l'action sur chaque fourmis
+        Action_ant(room->Ant_list[i]);
     }
 
     // Fin du code à éxecuter
