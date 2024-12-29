@@ -152,14 +152,21 @@ bool debug_msgs = 0;    // Printf de messages si = 1, pour le debug
 
 int tick = 0;           // Temps actuel dans la simulation
 
-int nest_nb = 0;
+    // IDs
+//int nest_IDs = 0;
 int room_IDs = 0;
-int egg_IDs = 0;
-int larve_IDs = 0;
-int ant_IDs = 0;        // IDs++ à chaque nouvel(le) room/ant/object/predator, permet de ne jamais avoir 2 fois le meme id
+int egg_IDs = 0;        // IDs++ à chaque nouvel(le) room/ant/object/predator, permet de ne jamais avoir 2 fois le meme id
 int obj_IDs = 0;
 int crea_IDs = 0;
 
+    // Counts
+int nest_NB = 0;
+int room_NB = 0;
+int egg_NB = 0;
+int larve_NB = 0;
+int ant_NB = 0;
+int obj_NB = 0;
+int crea_NB = 0;
 
 /* -----< Récupération des variables de départ >----- */
 void init_variables(){  // Récupère les scanf pour inititaliser des variables
@@ -279,7 +286,7 @@ Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int l
         return NULL;
     }
 
-    nest_nb++;
+    nest_NB++;
 
     new_nest->Specie = specie;
     new_nest->Clan = clan;
@@ -310,6 +317,7 @@ void free_nest(Nest* nest){ // à modifier par nassim
         }
         */
         free(nest);
+        nest_NB--;
     }
 }
 
@@ -353,6 +361,8 @@ Room* init_room(char* name_ID, int size){
         perror("Échec de l'allocation mémoire pour la pièce");
         return NULL;
     }
+
+    room_NB++;
 
     if (name_ID != NULL) {
         new_room->Name_ID = name_ID;
@@ -456,6 +466,8 @@ void free_room(Room* room){
         free(room->Creature_list);
         free(room->Connexion_list);
         free(room);
+
+        room_NB--;
     }
 }
 
@@ -499,12 +511,13 @@ Egg* init_new_egg(Nest* nest, char *name, int ant_type, Room* room) {
         return NULL;
     }
 
+    egg_NB++;
+
     // Initialisation des champs de l'oeuf, on initialise en fonction de la nest
     if (name != NULL) {
         new_egg->Name_ID = name;
-        ant_IDs++;
     } else {
-        sprintf(new_egg->Name_ID, "Ant%d", ant_IDs++);
+        sprintf(new_egg->Name_ID, "Ant%d", egg_IDs++);
     }
     new_egg->Ant_type = ant_type;
     new_egg->PV = 1;
@@ -527,6 +540,7 @@ void free_egg(Egg* egg){
             printf("| DEBUG : egg \"%s\" freed\n", egg->Name_ID);
         }
         free(egg);
+        egg_NB--;
     }
 }
 
@@ -579,8 +593,7 @@ Larve* init_new_larve(Egg* egg) {
 
     // Initialisation des champs de la larve, on initialise en fonction de l'oeuf
     new_larve->Name_ID = egg->Name_ID;
-    larve_IDs++;
-    egg_IDs--;
+    larve_NB++;
 
     new_larve->Ant_type = egg->Ant_type;
     new_larve->PV = egg->Nest->PV[new_larve->Ant_type]/2;
@@ -603,6 +616,7 @@ void free_larve(Larve* larve){
             printf("| DEBUG : larve \"%s\" freed\n", larve->Name_ID);
         }
         free(larve);
+        larve_NB--;
     }
 }
 
@@ -646,10 +660,7 @@ bool test_grow_larve(Larve* larve){
 }
 
     // Ants
-
 void attach_ant_to_nest(Ant* ant, Nest* nest) {
-
-
     ant->Nest = nest;
     ant->Clan = nest->Clan;
     nest->Ant_list = realloc(nest->Ant_list, (nest->Ant_number++) * sizeof(Ant*));
@@ -664,8 +675,7 @@ Ant* init_new_ant(Larve* larve) {
 
     // Initialisation des champs de la fourmi, on initialise en fonction de la larve
     new_ant->Name_ID = larve->Name_ID;
-    ant_IDs++;
-    larve--;
+    ant_NB++;
 
     new_ant->PV = larve->Nest->PV[larve->Ant_type];
     new_ant->DMG = larve->Nest->DMG[larve->Ant_type];
@@ -684,7 +694,6 @@ Ant* init_new_ant(Larve* larve) {
     free_larve(larve);
     return new_ant;
 }
-
 
 void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle 
     char salle_de_ponte[] = "salle de ponte";
@@ -712,8 +721,6 @@ void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvr
     //faire vérif si il meurt ou pas
 }
 
-
-
 void free_ant(Ant* ant){
     if(ant != NULL){
         if(ant->Held_object != NULL){ // Si la fourmi porte un objet, on le pose dans la salle avant de free la fourmi
@@ -726,6 +733,7 @@ void free_ant(Ant* ant){
             printf("| DEBUG : ant \"%s\" freed\n", ant->Name_ID);
         }
         free(ant);
+        ant_NB--;
     }
 }
 
@@ -790,6 +798,8 @@ Creature* init_creature(char* name_ID, int pv, int dmg, int life, int hunger, Ro
         return NULL;
     }
     
+    crea_NB++;
+
     if (name_ID != NULL) {
         new_creature->Name_ID = name_ID;
         crea_IDs++;
@@ -813,6 +823,7 @@ void free_creature(Creature* creature){
             printf("| DEBUG : creature \"%s\" freed\n", creature->Name_ID);
         }
         free(creature);
+        crea_NB--;
     }
 }
 
@@ -878,6 +889,8 @@ Object* init_object(char* name_ID, int size, bool held){
         return NULL;
     }
 
+    obj_NB++;
+
     if (name_ID != NULL) {
         new_obj->Name_ID = name_ID;
         obj_IDs++;
@@ -898,12 +911,13 @@ void free_object(Object* object){
             printf("| DEBUG : object \"%s\" freed\n", object->Name_ID);
         }
         free(object);
+        obj_NB--;
     }
 }
 
     // Display
 void print_numbers(){
-    printf("Nests : %d | Rooms : %d | Eggs : %d | Larves : %d | Ants : %d | Creas : %d | Objs : %d\n", nest_nb,room_IDs,egg_IDs,larve_IDs,ant_IDs,crea_IDs,obj_IDs);
+    printf("Nests : %d | Rooms : %d | Eggs : %d | Larves : %d | Ants : %d | Creas : %d | Objs : %d\n", nest_NB,room_IDs,egg_NB,larve_NB,ant_NB,crea_NB,obj_NB);
 }
 
 
