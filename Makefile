@@ -20,16 +20,12 @@ compile:
 temp:
 	mkdir temp
 temp/simulation.o: simulation.c
-	make temp
 	gcc $(CFLAGS) -c simulation.c -o temp/simulation.o
 temp/objects.o: objects.c
-	make temp
 	gcc $(CFLAGS) -c objects.c -o temp/objects.o
 temp/ants.o: ants.c
-	make temp
 	gcc $(CFLAGS) -c ants.c -o temp/ants.o
 temp/rooms.o: rooms.c
-	make temp
 	gcc $(CFLAGS) -c rooms.c -o temp/rooms.o
 
 
