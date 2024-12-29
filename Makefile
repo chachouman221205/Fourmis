@@ -1,13 +1,20 @@
 CFLAGS = -Wall -Wfatal-errors -Werror
 
-# Compile (.c -> .o)
-compile_all:
+MAIN_FILE = proj.c
+
+# Compile dependencies (.c/.h -> .o)
+compile:
+	clear
 	make temp
 	make temp/simulation.o
 	make temp/objects.o
 	make temp/ants.o
 	make temp/rooms.o
+	make temp/main.o
 
+	make Fourmi.exe
+
+# dependencies
 temp:
 	mkdir temp
 temp/simulation.o: simulation.c
@@ -23,3 +30,11 @@ temp/rooms.o: rooms.c
 	make temp
 	gcc $(CFLAGS) -c rooms.c -o temp/rooms.o
 
+
+# main file
+temp/main.o: $(MAIN_FILE)
+	make temp
+	gcc $(CFLAGS) -c $(MAIN_FILE) -o temp/proj.o
+
+Fourmi.exe: temp/simulation.o temp/objects.o temp/ants.o temp/rooms.o
+	gcc $(CFLAGS) temp/main.o temp/simulation.o temp/objects.o temp/ants.o temp/rooms.o -o Fourmi.exe
