@@ -10,9 +10,11 @@ compile:
 	make temp/objects.o
 	make temp/ants.o
 	make temp/rooms.o
-	make temp/main.o
 
+	make temp/main.o
 	make Fourmi.exe
+
+	make clean
 
 # dependencies
 temp:
@@ -34,7 +36,12 @@ temp/rooms.o: rooms.c
 # main file
 temp/main.o: $(MAIN_FILE)
 	make temp
-	gcc $(CFLAGS) -c $(MAIN_FILE) -o temp/proj.o
+	gcc $(CFLAGS) -c $(MAIN_FILE) -o temp/main.o
 
 Fourmi.exe: temp/simulation.o temp/objects.o temp/ants.o temp/rooms.o
 	gcc $(CFLAGS) temp/main.o temp/simulation.o temp/objects.o temp/ants.o temp/rooms.o -o Fourmi.exe
+
+#cleanup
+clean:
+	rm -r temp
+
