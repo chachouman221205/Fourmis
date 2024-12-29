@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
+#include <string.h>
 
 /* -----< Structures Principales >----- */
 /*
@@ -36,6 +37,9 @@ typedef struct Exterior {
 
     struct Ant **Ant_list;
     int Ant_number;
+
+    struct Ant **All_Ant_list;
+    int Total_Ant_number;
 } Exterior;
 
     // Représente une fourmilière (graphe de "Room")
@@ -50,9 +54,10 @@ typedef struct Nest {
     int Life_max;
     int Hunger;
 
-    struct Room *Entry;     // Pointeur vers la pièce d'entrée de la fourmilière
+    struct Room* Entry;     // Pointeur vers la pièce d'entrée de la fourmilière
+    struct Exterior* Exterior;
 
-    struct Ant **Ant_list;
+    struct Ant** Ant_list;
     int Ant_number;
 } Nest;
 
@@ -324,6 +329,9 @@ Exterior* init_exterior(Room* entry){
     new_exterior->Ant_list = malloc(0);
     new_exterior->Ant_number = 0;
 
+    new_exterior->All_Ant_list = malloc(0);
+    new_exterior->Total_Ant_number = 0;
+
     if(debug_msgs){
         printf("| DEBUG : new exterior initialized\n");
     }
@@ -438,14 +446,15 @@ void free_room(Room* room){
             printf("| DEBUG : room \"%s\" freed\n", room->Name_ID);
         }
 
-        // On retire les connections avec les autres Rooms
-        Room* R;
+        // On retire les connections avec les autres R2ooms
+        Room* R2;
         for (int i = 0; i < room->Connexion_list_size; i++) {
-            R = room->Connexion_list[i];
+            R2 = room->Connexion_list[i];
             // chercher la connection
-            for (int j = 0; j < R->Connexion_list_size; j++) {
-                if (R->Connexion_list[j] == room) {
-                    R->Connexion_list[j] = NULL; // On retire la connection
+            for (int j = 0; j < R2->Connexion_list_size; j++) {
+                if (R2->Connexion_list[j] == room) {
+                    R2->Connexion_list[j] = R2->Connexion_list[--R2->Connexion_list_size]; // On retire la connection
+                    R2->Connexion_list = realloc(R2->Connexion_list, R2->Connexion_list_size);
                 }
             }
         }
@@ -485,7 +494,7 @@ int total_size(Ant* ant){
         printf("| DEBUG : total size of ant \"%s\" = %d\n", ant->Name_ID, 1 + ant->Held_object->Size);
     }
     if (ant->Held_object == NULL) {
-        return 1;
+        return 1; // 1 = Ant size
     }
     return 1 + ant->Held_object->Size; // 1 = ant size
 }
@@ -647,11 +656,20 @@ bool test_grow_larve(Larve* larve){
     // Ants
 
 void attach_ant_to_nest(Ant* ant, Nest* nest) {
+    // On retire les liens avec l'ancienne colonie
+    if (ant->Nest != NULL) {
+        for (int i = 0; i < ant->Nest->Ant_number; i++) {
+            if (ant->Nest->Ant_list[i] == ant) {
+                ant->Nest->Ant_list[i] = ant->Nest->Ant_list[--ant->Nest->Ant_number];
+            }
+        }
+    }
 
-
+    // On établi le lien avec la nouvelle colonie
     ant->Nest = nest;
-    ant->Clan = nest->clan;
-    nest->Ant_list = realloc(nest->Ant_list, (nest->++Ant_number) * sizeof(Ant*));
+    ant->Clan = nest->Clan;
+    nest->Ant_list = realloc(nest->Ant_list, (++nest->Ant_number) * sizeof(Ant*));
+    nest->Ant_list[nest->Ant_number-1] = ant;
 }
 
 Ant* init_new_ant(Larve* larve) {
@@ -674,6 +692,7 @@ Ant* init_new_ant(Larve* larve) {
     new_ant->Held_object = NULL;  // Pas d'objet au départ
     new_ant->Action = NULL;       // Pas de phéromone assignée au départ
 
+    attach_ant_to_nest(new_ant, larve->Nest);
 
 
     if(debug_msgs){
@@ -700,6 +719,22 @@ void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvr
 
 }
 */
+
+Ant* search_AntID(char* AntID, Exterior* Exterior) {
+    if (Exterior == NULL) {
+        perror("| ERROR : Cannot search a non existing Exterior");
+        exit(1);
+    }
+    if (AntID == NULL) {
+        perror("| ERROR : Cannot search NULL ant ID");
+        exit(1);
+    }
+    for (int i = 0; i < Exterior->Total_Ant_number; i++) {
+        if (strcmp(Exterior->All_Ant_list[i]->Name_ID, AntID) == 0) {
+            return Exterior->All_Ant_list[i];
+        }
+    }
+}
 
 void free_ant(Ant* ant){
     if(ant != NULL){
