@@ -138,12 +138,16 @@ typedef struct Creature {
     // Représente les saisons (liste chainée bouclée)
 typedef struct Season {
     char *Name;
-    int Number;               // Numéro de la saison (0 à 3)
+    int Number;               // Numéro de la saison (1 à 4)
     struct Season *Next;
 } Season;
 
 typedef struct Simulation_data {
     int tick;           // Temps actuel dans la simulation
+    int start_season;
+    int counter;        // On change de saison et counter = 0 quand counter = 30;
+    int current_season;
+    struct Season* season_chain;
 
         // IDs
     int room_IDs;
@@ -171,8 +175,12 @@ bool debug_msgs = 0;    // Printf de messages si = 1, pour le debug
 
 
 /* -----< Récupération des variables de départ >----- */
-void init_variables(){  // Récupère les scanf pour inititaliser des variables
-    scanf(" %d"); // à modifier
+
+
+void init_variables(Simulation_data* simulation){  // Récupère les scanf pour inititaliser des variables
+    printf("Saison de départ : (1: Spring, 2: Summer, 3: Autumn, 4: Winter)");
+    scanf(" %d", &simulation->start_season);
+    
     // ...
 }
 
@@ -208,14 +216,14 @@ void free_object();
 */
 
     // Seasons
-Season* init_seasons(int start_season){     // Saison de départ (0 à 3) : 0 = spring, 1 = summer, 2 = autumn, 3 = winter
+void init_seasons(Simulation_data* simulation_data, int start_season){     // Saison de départ (0 à 3) : 0 = spring, 1 = summer, 2 = autumn, 3 = winter
     Season *spring = malloc(sizeof(Season));
     if(spring == NULL){
         perror("Échec de l'allocation pour spring");
         exit(1);
     }
     spring->Name = "Spring";
-    spring->Number = 0;
+    spring->Number = 1;
 
     Season *summer = malloc(sizeof(Season));
     if(summer == NULL){     // Si echec d'allocation, on free toutes les saisons déjà allouées
@@ -224,7 +232,7 @@ Season* init_seasons(int start_season){     // Saison de départ (0 à 3) : 0 = 
         exit(1);
     }
     summer->Name = "Summer";
-    summer->Number = 1;
+    summer->Number = 2;
 
     Season *autumn = malloc(sizeof(Season));
     if(autumn == NULL){
@@ -234,7 +242,7 @@ Season* init_seasons(int start_season){     // Saison de départ (0 à 3) : 0 = 
         exit(1);
     }
     autumn->Name = "Autumn";
-    autumn->Number = 2;
+    autumn->Number = 3;
 
     Season *winter = malloc(sizeof(Season));
     if(winter == NULL){
@@ -245,7 +253,7 @@ Season* init_seasons(int start_season){     // Saison de départ (0 à 3) : 0 = 
         exit(1);
     }
     winter->Name = "Winter";
-    winter->Number = 3;
+    winter->Number = 4;
 
     // Chaînage des saisons : Boucle cyclique
     spring->Next = summer;
@@ -259,7 +267,7 @@ Season* init_seasons(int start_season){     // Saison de départ (0 à 3) : 0 = 
         printf("| DEBUG : seasons initialized (start season \"%s\"\n", tab[start_season]->Name);
     }
     
-    return tab[start_season];
+    simulation_data->season_chain = tab[start_season-1];
 }
 
 void free_seasons(Season* season){
@@ -966,17 +974,25 @@ void simulation(Simulation_data* simulation_data, Nest* nest, Exterior* exterior
     }
     
     simulation_data->tick++;
+    simulation_data->counter++;
+
+    if(simulation_data->counter >= 50){     // Passage à la saison suivante
+        simulation_data->counter = 0;
+
+        simulation_data->season_chain = simulation_data->season_chain->Next;
+        simulation_data->current_season = simulation_data->season_chain->Number;
+    }
 
     simuler_room(simulation_data, nest->Entry);
     simuler_room(simulation_data, exterior->Entry);
     reinitialiser_rooms(simulation_data, exterior->Entry);
+    reinitialiser_rooms(simulation_data, nest->Entry);
 
     simulation(simulation_data, nest, exterior, iterations-1);
 }
 
 /* -----< Initialisation de la simulation >----- */
 void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior){   // Lancer la simulation
-    Season* season = init_seasons(0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
 
     //Création du monde
@@ -990,7 +1006,7 @@ void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior){ 
     dmg_param[0] = 1;
     dmg_param[1] = 5;
 
-    *nest = init_nest(simulation, "fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 10, 100, 20, nest_entrance);
+    *nest = init_nest(simulation_data, "fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 10, 100, 20, nest_entrance);
 
     /* Structure de la fourmilière initiale voulue:
      *                 entrée
@@ -1058,8 +1074,19 @@ void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior){ 
 int main(){
     printf(" \b"); // Pour éviter les problèmes de scanf, peut etre supprimé
 
+        // Simulation
+    Simulation_data* simulation_1 = malloc(sizeof(Simulation_data));
+    init_variables(simulation_1);
+    init_seasons(simulation_1, simulation_1->start_season);
 
     // ...
+
+    // start(simulation_1, );
+
+    // ...
+
+    free(simulation_1);
+        // Fin de la simulation
 
     return 0;
 }
