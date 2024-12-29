@@ -1,0 +1,93 @@
+#ifndef ANTS_H
+#define ANTS_H
+
+#include "simulation.h"
+
+
+// Représente un oeuf de fourmi
+typedef struct Egg {
+    char *Name_ID;
+    int Ant_type;
+
+    int PV;
+
+    int Grow;       // nombre de ticks avant que la fourmi passe au stade supérieur
+    int Hunger;     // Nombre d'itérations avant que la fourmi ait besoin de manger, meurt si <= -5
+    // La fourmi a faim quand hunger = 0, et doit manger en moins de 5 itérations pour survivre
+
+    char *Clan;
+    Nest* Nest;
+    struct Room *Position;      // Pointeur vers la pièce où se trouve la fourmi
+} Egg;
+
+// Représente une larve de fourmi
+typedef struct Larve {
+    char *Name_ID;
+    int Ant_type;
+
+    int PV;
+
+    int Grow;       // nombre de ticks avant que la fourmi passe au stade supérieur
+    int Hunger;     // Nombre d'itérations avant que la fourmi ait besoin de manger, meurt si <= -5
+    // La fourmi a faim quand hunger = 0, et doit manger en moins de 5 itérations pour survivre
+
+    char *Clan;
+    Nest* Nest;
+    struct Room *Position;      // Pointeur vers la pièce où se trouve la fourmi
+} Larve;
+
+// Représente une fourmi
+typedef struct Ant {
+    char *Name_ID;
+    int Ant_type;
+
+    int PV;
+    int DMG;
+
+    int Life;       // Itérations restantes pour la fourmis, elle meurt quand Life = 0
+    int Hunger;     // Nombre d'itérations avant que la fourmi ait besoin de manger, meurt si <= -5
+    // La fourmi a faim quand hunger = 0, et doit manger en moins de 5 itérations pour survivre
+
+    char *Clan;
+    Nest* Nest;
+    struct Room *Position;      // Pointeur vers la pièce où se trouve la fourmi
+    struct Object *Held_object; // Pointeur vers l'objet que la fourmi transporte (NULL si aucun)
+    struct Pheromone *Action;   // Pointeur vers la phéromone qui détermine son objectif
+} Ant;
+
+// Egg
+Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int ant_type, Room* room);
+
+void free_egg(Simulation_data* simulation_data, Egg* egg);
+
+void test_kill_egg(Simulation_data* simulation_data, Egg* egg);
+
+
+bool test_grow_egg(Egg* egg);
+
+// Larve
+Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg);
+
+void free_larve(Simulation_data* simulation_data, Larve* larve);
+
+void test_kill_larve(Simulation_data* simulation_data, Larve* larve);
+
+bool test_grow_larve(Larve* larve);
+// Ants
+
+void attach_ant_to_nest(Ant* ant, Nest* nest);
+
+Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve);
+
+void Action_ant(Simulation_data* simulation_data, Ant* ant);
+
+Ant* search_AntID(char* AntID, Exterior* Exterior);
+
+void free_ant(Simulation_data* simulation_data, Ant* ant);
+void test_kill_ant(Simulation_data* simulation_data, Ant* ant);
+
+void combat_ants(Simulation_data* simulation_data, Ant* ant1, Ant* ant2);
+int total_size(Ant* ant);
+
+
+#endif
