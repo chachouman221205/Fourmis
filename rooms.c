@@ -1,25 +1,7 @@
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "simulation.h"
-
-// Représente une pièce dans l'environnement
-typedef struct Room {
-    char *Name_ID;
-    bool Visited;   // Pour l'exploration du graphe (graphe d'objets "Room")
-    int Size;       // Taille max de la Room, limite d'objet et de fourmis pouvant entrer
-
-    struct Ant **Ant_list;
-    int Ant_count;
-
-    struct Object **Obj_list;
-    int Obj_count;
-
-    struct Object **Creature_list;
-    int Creature_count;
-
-    struct Room **Connexion_list;
-    int Connexion_list_size;
-
-    struct Pheromone **Pheromone_stack;
-} Room;
 
 // Rooms
 Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
@@ -50,7 +32,7 @@ Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
 
     new_room->Pheromone_stack = NULL;
 
-    if(debug_msgs){
+    if(simulation_data->debug_msgs){
         printf("| DEBUG : new room \"%s\" initialized\n", new_room->Name_ID);
     }
 
@@ -110,9 +92,9 @@ void connect_rooms(Room* room1, Room* room2) {
     room2->Connexion_list[room2->Connexion_list_size-1] = room1;
 }
 
-void free_room(Room* room){
+void free_room(Simulation_data* simulation_data, Room* room){
     if(room != NULL){
-        if(debug_msgs){
+        if(simulation_data->debug_msgs){
             printf("| DEBUG : room \"%s\" freed\n", room->Name_ID);
         }
 

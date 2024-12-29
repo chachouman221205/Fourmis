@@ -63,7 +63,7 @@ void free_egg(Simulation_data* simulation_data, Egg* egg);
 void test_kill_egg(Simulation_data* simulation_data, Egg* egg);
 
 
-bool test_grow_egg(Egg* egg);
+bool test_grow_egg(Simulation_data* simulation_data, Egg* egg);
 
 // Larve
 Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg);
@@ -72,7 +72,7 @@ void free_larve(Simulation_data* simulation_data, Larve* larve);
 
 void test_kill_larve(Simulation_data* simulation_data, Larve* larve);
 
-bool test_grow_larve(Larve* larve);
+bool test_grow_larve(Simulation_data* simulation_data, Larve* larve);
 // Ants
 
 void attach_ant_to_nest(Ant* ant, Nest* nest);

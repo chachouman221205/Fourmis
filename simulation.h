@@ -16,7 +16,7 @@
 #define SIMULATION_H
 
 
-bool debug_msgs;    // Printf de messages si = 1, pour le debug
+
 
 
 // Représente l'extérieur de l'environnement (graphe de "Room")
@@ -86,6 +86,8 @@ typedef struct Simulation_data {
     int ant_NB;
     int obj_NB;
     int crea_NB;
+
+    bool debug_msgs; // Printf de messages si = 1, pour le debug
 } Simulation_data;
 
 

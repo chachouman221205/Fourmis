@@ -28,7 +28,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     new_egg->Clan = nest->Clan;
     new_egg->Position = room;     // Position NULL au départ, assignation plus tard
 
-    if(debug_msgs){
+    if(simulation_data->debug_msgs){
         printf("| DEBUG : new egg \"%s\" initialized in nest \"%s\"\n", new_egg->Name_ID, nest->Clan);
     }
 
@@ -37,7 +37,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
 
 void free_egg(Simulation_data* simulation_data, Egg* egg){
     if(egg != NULL){
-        if(debug_msgs){
+        if(simulation_data->debug_msgs){
             printf("| DEBUG : egg \"%s\" freed\n", egg->Name_ID);
         }
         free(egg);
@@ -58,7 +58,7 @@ void test_kill_egg(Simulation_data* simulation_data, Egg* egg){
         }
 
         if(condition != 0){
-            if(debug_msgs){
+            if(simulation_data->debug_msgs){
                 printf("| DEBUG : egg \"%s\" died : ", egg->Name_ID);
                 printf(death_message[condition-1], (condition == 1)? egg->PV : egg->Hunger);
             }
@@ -69,20 +69,21 @@ void test_kill_egg(Simulation_data* simulation_data, Egg* egg){
 }
 
 
-bool test_grow_egg(Egg* egg){
+bool test_grow_egg(Simulation_data* simulation_data, Egg* egg){
     if(egg != NULL){
         if(egg->Grow <= 0){
-            if(debug_msgs){
+            if(simulation_data->debug_msgs){
                 printf("| DEBUG : egg \"%s\" can evolve", egg->Name_ID);
             }
             return true;
         }
 
-        if(debug_msgs){
+        if(simulation_data->debug_msgs){
             printf("| DEBUG : egg \"%s\" cannot evolve", egg->Name_ID);
         }
         return false;
     }
+    return false;
 }
 
 // Larve
@@ -105,7 +106,7 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     new_larve->Nest = egg->Nest;
     new_larve->Position = egg->Position;     // Position NULL au départ, assignation plus tard
 
-    if(debug_msgs){
+    if(simulation_data->debug_msgs){
         printf("| DEBUG : new larve \"%s\" initialized in nest \"%s\"\n", new_larve->Name_ID, egg->Nest->Clan);
     }
     free_egg(simulation_data, egg);
@@ -114,7 +115,7 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
 
 void free_larve(Simulation_data* simulation_data, Larve* larve){
     if(larve != NULL){
-        if(debug_msgs){
+        if(simulation_data->debug_msgs){
             printf("| DEBUG : larve \"%s\" freed\n", larve->Name_ID);
         }
         free(larve);
@@ -135,7 +136,7 @@ void test_kill_larve(Simulation_data* simulation_data, Larve* larve){
         }
 
         if(condition != 0){
-            if(debug_msgs){
+            if(simulation_data->debug_msgs){
                 printf("| DEBUG : larve \"%s\" died : ", larve->Name_ID);
                 printf(death_message[condition-1], (condition == 1)? larve->PV : larve->Hunger);
             }
@@ -145,20 +146,21 @@ void test_kill_larve(Simulation_data* simulation_data, Larve* larve){
 
 }
 
-bool test_grow_larve(Larve* larve){
+bool test_grow_larve(Simulation_data* simulation_data, Larve* larve){
     if(larve != NULL){
         if(larve->Grow <= 0){
-            if(debug_msgs){
+            if(simulation_data->debug_msgs){
                 printf("| DEBUG : larve \"%s\" can evolve", larve->Name_ID);
             }
             return true;
         }
 
-        if(debug_msgs){
+        if(simulation_data->debug_msgs){
             printf("| DEBUG : larve \"%s\" cannot evolve", larve->Name_ID);
         }
         return false;
     }
+    return false;
 }
 
 // Ants
@@ -202,7 +204,7 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     attach_ant_to_nest(new_ant, larve->Nest);
 
 
-    if(debug_msgs){
+    if(simulation_data->debug_msgs){
         printf("| DEBUG : new ant \"%s\" initialized in nest \"%s\"\n", new_ant->Name_ID, larve->Nest->Clan);
     }
 
@@ -250,6 +252,8 @@ Ant* search_AntID(char* AntID, Exterior* Exterior) {
             return Exterior->All_Ant_list[i];
         }
     }
+    printf("| ERROR : \"%s\" does not exist", AntID);
+    exit(1);
 }
 
 void free_ant(Simulation_data* simulation_data, Ant* ant){
@@ -260,7 +264,7 @@ void free_ant(Simulation_data* simulation_data, Ant* ant){
             ant->Position->Obj_list = realloc(ant->Position->Obj_list, ant->Position->Obj_count * sizeof(Object*));
             ant->Position->Obj_list[ant->Position->Obj_count-1] = ant->Held_object;
         }
-        if(debug_msgs){
+        if(simulation_data->debug_msgs){
             printf("| DEBUG : ant \"%s\" freed\n", ant->Name_ID);
         }
         free(ant);
@@ -284,7 +288,7 @@ void test_kill_ant(Simulation_data* simulation_data, Ant* ant){
         }
 
         if(condition != 0){
-            if(debug_msgs){
+            if(simulation_data->debug_msgs){
                 printf("| DEBUG : ant \"%s\" died : ", ant->Name_ID);
                 printf(death_message[condition-1], (condition == 1)? ant->PV : (condition == 2)? ant->Life : ant->Hunger);
             }
@@ -306,7 +310,7 @@ void combat_ants(Simulation_data* simulation_data, Ant* ant1, Ant* ant2){
     ant1->PV -= ant2->DMG;
     ant2->PV -= ant1->DMG;
 
-    if(debug_msgs){
+    if(simulation_data->debug_msgs){
         printf("| DEBUG : ant \"%s\" : %d PV\n", ant1->Name_ID, ant1->PV);
         printf("| DEBUG : ant \"%s\" : %d PV\n", ant2->Name_ID, ant2->PV);
     }
@@ -322,9 +326,6 @@ void combat_ants(Simulation_data* simulation_data, Ant* ant1, Ant* ant2){
 }
 
 int total_size(Ant* ant){
-    if(debug_msgs){
-        printf("| DEBUG : total size of ant \"%s\" = %d\n", ant->Name_ID, 1 + ant->Held_object->Size);
-    }
     if (ant->Held_object == NULL) {
         return 1; // 1 = Ant size
     }

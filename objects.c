@@ -22,7 +22,7 @@ Object* init_object(Simulation_data* simulation_data, char* name_ID, int size, b
     new_obj->Size = size;
     new_obj->Held = held;
 
-    if(debug_msgs){
+    if(simulation_data->debug_msgs){
         printf("| DEBUG : new obj \"%s\" initialized\n", new_obj->Name_ID);
     }
 
@@ -31,7 +31,7 @@ Object* init_object(Simulation_data* simulation_data, char* name_ID, int size, b
 
 void free_object(Simulation_data* simulation_data, Object* object){
     if(object != NULL){
-        if(debug_msgs){
+        if(simulation_data->debug_msgs){
             printf("| DEBUG : object \"%s\" freed\n", object->Name_ID);
         }
         free(object);
