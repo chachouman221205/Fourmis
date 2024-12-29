@@ -142,6 +142,25 @@ typedef struct Season {
     struct Season *Next;
 } Season;
 
+typedef struct Simulation_data {
+    int tick;           // Temps actuel dans la simulation
+
+        // IDs
+    int room_IDs;
+    int egg_IDs;        // IDs++ à chaque nouvel(le) room/ant/object/predator, permet de ne jamais avoir 2 fois le meme id
+    int obj_IDs;
+    int crea_IDs;
+
+        // Counts
+    int nest_NB;
+    int room_NB;
+    int egg_NB;
+    int larve_NB;
+    int ant_NB;
+    int obj_NB;
+    int crea_NB;
+} Simulation_data;
+
 
 /* -----< Initialisation des variables globales >----- */
 /*
@@ -150,27 +169,10 @@ Initialisation de certaines varaiables plus pratiques quand globales
 
 bool debug_msgs = 0;    // Printf de messages si = 1, pour le debug
 
-int tick = 0;           // Temps actuel dans la simulation
-
-    // IDs
-//int nest_IDs = 0;
-int room_IDs = 0;
-int egg_IDs = 0;        // IDs++ à chaque nouvel(le) room/ant/object/predator, permet de ne jamais avoir 2 fois le meme id
-int obj_IDs = 0;
-int crea_IDs = 0;
-
-    // Counts
-int nest_NB = 0;
-int room_NB = 0;
-int egg_NB = 0;
-int larve_NB = 0;
-int ant_NB = 0;
-int obj_NB = 0;
-int crea_NB = 0;
 
 /* -----< Récupération des variables de départ >----- */
 void init_variables(){  // Récupère les scanf pour inititaliser des variables
-    scanf(" %d", &tick); // à modifier
+    scanf(" %d"); // à modifier
     // ...
 }
 
@@ -279,14 +281,14 @@ void free_seasons(Season* season){
 }
 
     // Nest
-Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger, Room* entry){
+Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger, Room* entry){
     Nest* new_nest = malloc(sizeof(Nest));
     if(new_nest == NULL){
         perror("Échec de l'allocation mémoire pour la nest");
         return NULL;
     }
 
-    nest_NB++;
+    simulation_data->nest_NB++;
 
     new_nest->Specie = specie;
     new_nest->Clan = clan;
@@ -306,7 +308,7 @@ Nest* init_nest(char* specie, char* clan, int* pv, int* dmg, int life_min, int l
     return new_nest;
 }
 
-void free_nest(Nest* nest){ // à modifier par nassim
+void free_nest(Simulation_data* simulation_data, Nest* nest){ // à modifier par nassim
     if(nest != NULL){
         if(debug_msgs){
             printf("| DEBUG : ant \"%s\" freed\n", nest->Clan);
@@ -317,7 +319,7 @@ void free_nest(Nest* nest){ // à modifier par nassim
         }
         */
         free(nest);
-        nest_NB--;
+        simulation_data->nest_NB--;
     }
 }
 
@@ -355,20 +357,20 @@ void free_exterior(Exterior* exterior){ // à modifier par nassim
 }
 
     // Rooms
-Room* init_room(char* name_ID, int size){
+Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
     Room* new_room = malloc(sizeof(Room));
     if(new_room == NULL){
         perror("Échec de l'allocation mémoire pour la pièce");
         return NULL;
     }
 
-    room_NB++;
+    simulation_data->room_NB++;
 
     if (name_ID != NULL) {
         new_room->Name_ID = name_ID;
-        room_IDs++;
+        simulation_data->room_IDs++;
     } else {
-        sprintf(new_room->Name_ID, "Room%d", room_IDs++);
+        sprintf(new_room->Name_ID, "Room%d", simulation_data->room_IDs++);
     }
     new_room->Visited = false;  // pas visité à l'initialisation
     new_room->Size = size;
@@ -443,7 +445,7 @@ void connect_rooms(Room* room1, Room* room2) {
     room2->Connexion_list[room2->Connexion_list_size-1] = room1;
 }
 
-void free_room(Room* room){
+void free_room(Simulation_data* simulation_data, Room* room){
     if(room != NULL){
         if(debug_msgs){
             printf("| DEBUG : room \"%s\" freed\n", room->Name_ID);
@@ -467,7 +469,7 @@ void free_room(Room* room){
         free(room->Connexion_list);
         free(room);
 
-        room_NB--;
+        simulation_data->room_NB--;
     }
 }
 
@@ -504,20 +506,20 @@ int total_size(Ant* ant){
 }
 
     // Egg
-Egg* init_new_egg(Nest* nest, char *name, int ant_type, Room* room) {
+Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int ant_type, Room* room) {
     Egg* new_egg = malloc(sizeof(Egg));
     if(new_egg == NULL){
         perror("Échec de l'allocation mémoire pour la fourmi");
         return NULL;
     }
 
-    egg_NB++;
+    simulation_data->egg_NB++;
 
     // Initialisation des champs de l'oeuf, on initialise en fonction de la nest
     if (name != NULL) {
         new_egg->Name_ID = name;
     } else {
-        sprintf(new_egg->Name_ID, "Ant%d", egg_IDs++);
+        sprintf(new_egg->Name_ID, "Ant%d", simulation_data->egg_IDs++);
     }
     new_egg->Ant_type = ant_type;
     new_egg->PV = 1;
@@ -534,17 +536,17 @@ Egg* init_new_egg(Nest* nest, char *name, int ant_type, Room* room) {
     return new_egg;
 }
 
-void free_egg(Egg* egg){
+void free_egg(Simulation_data* simulation_data, Egg* egg){
     if(egg != NULL){
         if(debug_msgs){
             printf("| DEBUG : egg \"%s\" freed\n", egg->Name_ID);
         }
         free(egg);
-        egg_NB--;
+        simulation_data->egg_NB--;
     }
 }
 
-void test_kill_egg(Egg* egg){
+void test_kill_egg(Simulation_data* simulation_data, Egg* egg){
     if(egg != NULL){
         char* death_message[] = {"PV <= %d", "Hunger <= %d"};
         int condition = 0;
@@ -561,7 +563,7 @@ void test_kill_egg(Egg* egg){
                 printf("| DEBUG : egg \"%s\" died : ", egg->Name_ID);
                 printf(death_message[condition-1], (condition == 1)? egg->PV : egg->Hunger);
             }
-            free_egg(egg);
+            free_egg(simulation_data, egg);
         }
     }
 
@@ -584,7 +586,7 @@ bool test_grow_egg(Egg* egg){
 }
 
     // Larve
-Larve* init_new_larve(Egg* egg) {
+Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     Larve* new_larve = malloc(sizeof(Larve));
     if(new_larve == NULL){
         perror("Échec de l'allocation mémoire pour la fourmi");
@@ -593,7 +595,7 @@ Larve* init_new_larve(Egg* egg) {
 
     // Initialisation des champs de la larve, on initialise en fonction de l'oeuf
     new_larve->Name_ID = egg->Name_ID;
-    larve_NB++;
+    simulation_data->larve_NB++;
 
     new_larve->Ant_type = egg->Ant_type;
     new_larve->PV = egg->Nest->PV[new_larve->Ant_type]/2;
@@ -606,21 +608,21 @@ Larve* init_new_larve(Egg* egg) {
     if(debug_msgs){
         printf("| DEBUG : new larve \"%s\" initialized in nest \"%s\"\n", new_larve->Name_ID, egg->Nest->Clan);
     }
-    free_egg(egg);
+    free_egg(simulation_data, egg);
     return new_larve;
 }
 
-void free_larve(Larve* larve){
+void free_larve(Simulation_data* simulation_data, Larve* larve){
     if(larve != NULL){
         if(debug_msgs){
             printf("| DEBUG : larve \"%s\" freed\n", larve->Name_ID);
         }
         free(larve);
-        larve_NB--;
+        simulation_data->larve_NB--;
     }
 }
 
-void test_kill_larve(Larve* larve){
+void test_kill_larve(Simulation_data* simulation_data, Larve* larve){
     if(larve != NULL){
         char* death_message[] = {"PV <= %d", "Hunger <= %d"};
         int condition = 0;
@@ -637,7 +639,7 @@ void test_kill_larve(Larve* larve){
                 printf("| DEBUG : larve \"%s\" died : ", larve->Name_ID);
                 printf(death_message[condition-1], (condition == 1)? larve->PV : larve->Hunger);
             }
-            free_larve(larve);
+            free_larve(simulation_data, larve);
         }
     }
 
@@ -660,13 +662,7 @@ bool test_grow_larve(Larve* larve){
 }
 
     // Ants
-void attach_ant_to_nest(Ant* ant, Nest* nest) {
-    ant->Nest = nest;
-    ant->Clan = nest->Clan;
-    nest->Ant_list = realloc(nest->Ant_list, (nest->Ant_number++) * sizeof(Ant*));
-}
-
-Ant* init_new_ant(Larve* larve) {
+Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     Ant* new_ant = malloc(sizeof(Ant));
     if(new_ant == NULL){
         perror("Échec de l'allocation mémoire pour la fourmi");
@@ -675,7 +671,7 @@ Ant* init_new_ant(Larve* larve) {
 
     // Initialisation des champs de la fourmi, on initialise en fonction de la larve
     new_ant->Name_ID = larve->Name_ID;
-    ant_NB++;
+    simulation_data->ant_NB++;
 
     new_ant->PV = larve->Nest->PV[larve->Ant_type];
     new_ant->DMG = larve->Nest->DMG[larve->Ant_type];
@@ -691,11 +687,17 @@ Ant* init_new_ant(Larve* larve) {
         printf("| DEBUG : new ant \"%s\" initialized in nest \"%s\"\n", new_ant->Name_ID, larve->Nest->Clan);
     }
 
-    free_larve(larve);
+    free_larve(simulation_data, larve);
     return new_ant;
 }
 
-void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle 
+void attach_ant_to_nest(Ant* ant, Nest* nest) {
+    ant->Nest = nest;
+    ant->Clan = nest->Clan;
+    nest->Ant_list = realloc(nest->Ant_list, (nest->Ant_number++) * sizeof(Ant*));
+}
+
+void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle 
     char salle_de_ponte[] = "salle de ponte";
     int condition = strcmp(ant->Position, salle_de_ponte);
     if(ant->Ant_type == 0){  // actions possibles des reines
@@ -705,8 +707,8 @@ void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvr
 
         if(ant->Hunger > 10 && condition == 0){ // si reinne a bien la nourriture requise (ici 10 pr l'exemple) et que reine est bien dans "salle de ponte"
             ant->Hunger = ant->Hunger - 10;   // on lui retire la nouriture utilisée
-            init_new_egg(ant->Nest, egg_IDs , 0 , ant->Position ); //REGARDER COMMENT DEFINIR LE ANT_TYPE
-            egg_IDs++;
+            init_new_egg(simulation_data, ant->Nest, NULL , 0 , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
+            simulation_data->egg_IDs++;
              // ici faut rajouter une phéromnone qui indique qu'il faut déplacer l'oeuf
         }
 
@@ -721,7 +723,7 @@ void Action_ant(Ant* ant){    //fonction qui défini l'action d'une fourmis ouvr
     //faire vérif si il meurt ou pas
 }
 
-void free_ant(Ant* ant){
+void free_ant(Simulation_data* simulation_data, Ant* ant){
     if(ant != NULL){
         if(ant->Held_object != NULL){ // Si la fourmi porte un objet, on le pose dans la salle avant de free la fourmi
             ant->Held_object->Held = false;
@@ -733,11 +735,11 @@ void free_ant(Ant* ant){
             printf("| DEBUG : ant \"%s\" freed\n", ant->Name_ID);
         }
         free(ant);
-        ant_NB--;
+        simulation_data->ant_NB--;
     }
 }
 
-void test_kill_ant(Ant* ant){
+void test_kill_ant(Simulation_data* simulation_data, Ant* ant){
     if(ant != NULL){
         char* death_message[] = {"PV <= %d", "Life = %d", "Hunger <= %d"};
         int condition = 0;
@@ -757,12 +759,12 @@ void test_kill_ant(Ant* ant){
                 printf("| DEBUG : ant \"%s\" died : ", ant->Name_ID);
                 printf(death_message[condition-1], (condition == 1)? ant->PV : (condition == 2)? ant->Life : ant->Hunger);
             }
-            free_ant(ant);
+            free_ant(simulation_data, ant);
         }
     }
 }
 
-void combat_ants(Ant* ant1, Ant* ant2){
+void combat_ants(Simulation_data* simulation_data, Ant* ant1, Ant* ant2){
     if(ant1 == NULL){
         perror("Échec du combat_ants : ant1 NULL");
         return;
@@ -786,25 +788,25 @@ void combat_ants(Ant* ant1, Ant* ant2){
     if(ant2->PV <= 0){
         ant1->Hunger += 10;  // ant1 se nourrit
     }
-    test_kill_ant(ant1);
-    test_kill_ant(ant2);
+    test_kill_ant(simulation_data, ant1);
+    test_kill_ant(simulation_data, ant2);
 }
 
     // Creatures
-Creature* init_creature(char* name_ID, int pv, int dmg, int life, int hunger, Room* position){
+Creature* init_creature(Simulation_data* simulation_data, char* name_ID, int pv, int dmg, int life, int hunger, Room* position){
     Creature* new_creature = malloc(sizeof(Creature));
     if(new_creature == NULL){
         perror("Échec de l'allocation mémoire pour la creature");
         return NULL;
     }
     
-    crea_NB++;
+    simulation_data->crea_NB++;
 
     if (name_ID != NULL) {
         new_creature->Name_ID = name_ID;
-        crea_IDs++;
+        simulation_data->crea_IDs++;
     } else {
-        sprintf(new_creature->Name_ID, "Crea%d", crea_IDs++);
+        sprintf(new_creature->Name_ID, "Crea%d", simulation_data->crea_IDs++);
     }
     new_creature->PV = pv;
     new_creature->DMG = dmg;
@@ -817,17 +819,17 @@ Creature* init_creature(char* name_ID, int pv, int dmg, int life, int hunger, Ro
     }
 }
 
-void free_creature(Creature* creature){
+void free_creature(Simulation_data* simulation_data, Creature* creature){
     if(creature != NULL){
         if(debug_msgs){
             printf("| DEBUG : creature \"%s\" freed\n", creature->Name_ID);
         }
         free(creature);
-        crea_NB--;
+        simulation_data->crea_NB--;
     }
 }
 
-void test_kill_creature(Creature* crea){
+void test_kill_creature(Simulation_data* simulation_data, Creature* crea){
     if(crea != NULL){
         char* death_message[] = {"PV <= %d", "Life = %d", "Hunger <= %d"};
         int condition = 0;
@@ -847,13 +849,13 @@ void test_kill_creature(Creature* crea){
                 printf("| DEBUG : crea \"%s\" died : ", crea->Name_ID);
                 printf(death_message[condition], (condition == 1)? crea->PV : (condition == 2)? crea->Life : crea->Hunger);
             }
-            free_creature(crea);
+            free_creature(simulation_data, crea);
         }
     }
 
 }
 
-void combat_ant_creature(Ant* ant, Creature* crea){
+void combat_ant_creature(Simulation_data* simulation_data, Ant* ant, Creature* crea){
     if(ant == NULL){
         perror("Échec du combat_ant_crea : ant NULL");
         return;
@@ -877,25 +879,25 @@ void combat_ant_creature(Ant* ant, Creature* crea){
     if(ant->PV <= 0){
         crea->Hunger += 3;  // la creature se nourrit, la creature se nourrit peu avec une fourmi
     }
-    test_kill_ant(ant);
-    test_kill_creature(crea);
+    test_kill_ant(simulation_data, ant);
+    test_kill_creature(simulation_data, crea);
 }
 
     // Objects
-Object* init_object(char* name_ID, int size, bool held){
+Object* init_object(Simulation_data* simulation_data, char* name_ID, int size, bool held){
     Object* new_obj = malloc(sizeof(Object));
     if(new_obj == NULL){
         perror("Échec de l'allocation mémoire pour l'objet");
         return NULL;
     }
 
-    obj_NB++;
+    simulation_data->obj_NB++;
 
     if (name_ID != NULL) {
         new_obj->Name_ID = name_ID;
-        obj_IDs++;
+        simulation_data->obj_IDs++;
     } else {
-        sprintf(new_obj->Name_ID, "Obj%d", obj_IDs++);
+        sprintf(new_obj->Name_ID, "Obj%d", simulation_data->obj_IDs++);
     }
     new_obj->Size = size;
     new_obj->Held = held;
@@ -905,19 +907,20 @@ Object* init_object(char* name_ID, int size, bool held){
     }
 }
 
-void free_object(Object* object){
+void free_object(Simulation_data* simulation_data, Object* object){
     if(object != NULL){
         if(debug_msgs){
             printf("| DEBUG : object \"%s\" freed\n", object->Name_ID);
         }
         free(object);
-        obj_NB--;
+        simulation_data->obj_NB--;
     }
 }
 
     // Display
-void print_numbers(){
-    printf("Nests : %d | Rooms : %d | Eggs : %d | Larves : %d | Ants : %d | Creas : %d | Objs : %d\n", nest_NB,room_IDs,egg_NB,larve_NB,ant_NB,crea_NB,obj_NB);
+void print_numbers(Simulation_data* sim){
+    printf("Nests : %d | Rooms : %d | Eggs : %d | Larves : %d | Ants : %d | Creas : %d | Objs : %d\n", 
+    sim->nest_NB, sim->room_IDs, sim->egg_NB, sim->larve_NB, sim->ant_NB, sim->crea_NB, sim->obj_NB);
 }
 
 
@@ -926,7 +929,7 @@ void print_numbers(){
 Ici sont gérées les étapes de la simulation, init et itérations
 */
 
-void simuler_room(Room* room) {
+void simuler_room(Simulation_data* simulation_data, Room* room) {
     if (room->Visited) {
         return;
     }
@@ -937,59 +940,57 @@ void simuler_room(Room* room) {
         return 0;
     }
     for (int i = room->Ant_count ; i > 0 ; i--){ //effectuer l'action sur chaque fourmis
-        Action_ant(room->Ant_list[i]);
+        Action_ant(simulation_data, room->Ant_list[i]);
     }
 
     // Fin du code à éxecuter
 
     for (int i = 0; i < room->Connexion_list_size; i++) {
-        simuler_room(room->Connexion_list[i]);
+        simuler_room(simulation_data, room->Connexion_list[i]);
     }
 }
 
-void reinitialiser_rooms(Room* room) {
+void reinitialiser_rooms(Simulation_data* simulation_data, Room* room) {
     if (!room->Visited) {
         return;
     }
     room->Visited = false;
     for (int i = 0; i < room->Connexion_list_size; i++) {
-        simuler_room(room->Connexion_list[i]);
+        simuler_room(simulation_data, room->Connexion_list[i]);
     }
 }
 
-void simulation(Nest* nest, Exterior* exterior, int iterations) {
+void simulation(Simulation_data* simulation_data, Nest* nest, Exterior* exterior, int iterations) {
     if (iterations == 0) {
         return;
     }
     
-    tick++;
+    simulation_data->tick++;
 
-    simuler_room(nest->Entry);
-    simuler_room(exterior->Entry);
-    reinitialiser_rooms(exterior->Entry);
+    simuler_room(simulation_data, nest->Entry);
+    simuler_room(simulation_data, exterior->Entry);
+    reinitialiser_rooms(simulation_data, exterior->Entry);
 
-    simulation(nest, exterior, iterations-1);
+    simulation(simulation_data, nest, exterior, iterations-1);
 }
 
 /* -----< Initialisation de la simulation >----- */
-void start(Nest** nest, Exterior** exterior){   // Lancer la simulation
+void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior){   // Lancer la simulation
     Season* season = init_seasons(0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
 
     //Création du monde
 
     // Création de la fourmilière
-    Room* nest_entrance = init_room("Nest Entrance", 20);
-    int* pv_param = malloc(3*sizeof(int));
-    pv_param[0] = 1;
+    Room* nest_entrance = init_room(simulation_data, "Nest Entrance", 20);
+    int* pv_param = malloc(2*sizeof(int));
+    pv_param[0] = 15;
     pv_param[1] = 5;
-    pv_param[2] = 10;
-    int* dmg_param = malloc(3*sizeof(int));
+    int* dmg_param = malloc(2*sizeof(int));
     dmg_param[0] = 1;
     dmg_param[1] = 5;
-    dmg_param[2] = 1;
 
-    *nest = init_nest("fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 1, 10, 50, nest_entrance);
+    *nest = init_nest(simulation, "fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 10, 100, 20, nest_entrance);
 
     /* Structure de la fourmilière initiale voulue:
      *                 entrée
@@ -1005,11 +1006,11 @@ void start(Nest** nest, Exterior** exterior){   // Lancer la simulation
      */
 
     // Création des salles
-    Room* resting_room = init_room("Resting Room", 50);
-    Room* food_room1 = init_room("Storage Room", 50);
-    Room* food_room2 = init_room("Storage Room", 60);
-    Room* queen_chamber = init_room("Queen chamber", 20);
-    Room* larva_room = init_room("Larva chamber", 60);
+    Room* resting_room = init_room(simulation_data, "Resting Room", 50);
+    Room* food_room1 = init_room(simulation_data, "Storage Room", 50);
+    Room* food_room2 = init_room(simulation_data, "Storage Room", 60);
+    Room* queen_chamber = init_room(simulation_data, "Queen chamber", 20);
+    Room* larva_room = init_room(simulation_data, "Larva chamber", 60);
 
     // Connection des salles
     connect_rooms(nest_entrance, resting_room);
@@ -1038,7 +1039,7 @@ void start(Nest** nest, Exterior** exterior){   // Lancer la simulation
 
 
     for (int i = 0; i < room_number; i++) {
-        created_rooms[i] = init_room("Exterior", rand()%(600-500)+500); // Chaque salle a une taille aléatoire entre 500 et 600
+        created_rooms[i] = init_room(simulation_data, "Exterior", rand()%(600-500)+500); // Chaque salle a une taille aléatoire entre 500 et 600
 
 
         // On connecte la salle crée à jusqu'à trois autres salles
