@@ -18,7 +18,7 @@ typedef struct Room {
     struct Egg** Egg_list;
     int Egg_count;
 
-    struct Object **Creature_list;
+    struct Creature **Creature_list;
     int Creature_count;
 
     struct Room **Connexion_list;
@@ -26,6 +26,12 @@ typedef struct Room {
 
     struct Pheromone *Pheromone_stack;
 } Room;
+
+typedef struct Path {
+    struct Room* room;
+    struct Path* next;
+    int length;
+} Path;
 
 Room* init_room(Simulation_data* simulation_data, char* name_ID, int size);
 
@@ -41,5 +47,8 @@ int remaining_space(Room* room);
 
 void reinitialiser_rooms(Simulation_data* simulation_data, Room* room);
 
+void free_Path(Path* p);
+
+Path* find_path_to_food(Room* start, bool entry_blocked);
 
 #endif
