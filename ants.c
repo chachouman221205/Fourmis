@@ -323,7 +323,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                         ant->Action = ant->Action->next;
                         free(old_ph);
 
-                        free_path(ant->Path);    //1 seul elmt à free
+                        free_Path(ant->Path);    //1 seul elmt à free
                     }
                     else{       //move closer to food
                         move_ant(ant, ant->Path->room);
@@ -370,11 +370,11 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                 if(ant->Path != NULL){  // if path succeeded
                     // forcement un chemin
                     if(ant->Path->length == 0 && !strcmp(ant->Position->Name_ID, "Exterior") && search_object(ant->Position, "food") == NULL){
-                        free_path(ant->Path);
+                        free_Path(ant->Path);
                     }
-                    else if(ant->Path->Length == 0 && !strcmp(ant->Position->Name_ID, "Exterior")){
+                    else if(ant->Path->length == 0 && !strcmp(ant->Position->Name_ID, "Exterior")){
                         pick_up(ant, search_object(ant->Position, "food"));
-                        free_path(ant->Path);
+                        free_Path(ant->Path);
                     }
                     else{       //move closer to destination
                         move_ant(ant, ant->Path->room);
@@ -399,7 +399,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                         ant->Action = ant->Action->next;
                         free(old_ph);
 
-                        free_path(ant->Path);    //1 seul elmt à free
+                        free_Path(ant->Path);    //1 seul elmt à free
                     }
                     else{       //move closer to food
                         move_ant(ant, ant->Path->room);
@@ -411,7 +411,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
         }
         
         //manger
-        if(ant->Hunger < 10 && ant->Held_object != NULL && ant->Held_object >= 2){
+        if(ant->Hunger < 10 && ant->Held_object != NULL && ant->Held_object->Size >= 2){
             ant->Held_object->Size--;
             ant->Hunger += 15;
         }
