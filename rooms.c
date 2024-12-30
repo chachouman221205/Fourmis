@@ -210,6 +210,10 @@ void free_Path(Path* p) {
 }
 
 Path* find_path_to_food(Room* start, bool entry_blocked) {
+    if (start == NULL) {
+        perror("| ERROR : Need a starting point for pathfinding");
+    }
+
     if (start->Visited || (start->Name_ID && entry_blocked)) {
         return NULL;
     }
@@ -222,6 +226,55 @@ Path* find_path_to_food(Room* start, bool entry_blocked) {
     // Si un objet se trouve dans la salle actuelle
     if (search_obj(start, "food") != NULL) {
 
+
+        result->room = start;
+        result->next = NULL;
+        result->length = 0;
+
+        return result;
+    }
+
+    // Liste de touts les chemins générés récursivement
+    Path** paths= malloc(start->Connexion_list_size * sizeof(Path*));
+    for (int i = 0; i < start->Connexion_list_size; i++) {
+        paths[i] = find_path_to_food(start->Connexion_list[i], entry_blocked);
+    }
+
+    // recherche du chemin trouvé le plus court
+    unsigned int min_distance = -1;
+    result->next = NULL;
+    result->room = NULL;
+    for (int i = 0; i < start->Connexion_list_size; i++) {
+        if (paths[i]->length < min_distance) {
+            free_Path(result);
+            result = paths[i];
+            min_distance = result->length;
+
+        } else if (paths[i] != NULL) {
+            free_Path(paths[i]);
+        }
+    }
+
+    return result;
+}
+
+
+Path* find_path_to_name(Room* start, char* NameID) {
+    if (start == NULL) {
+        perror("| ERROR : Need a starting point for pathfinding");
+    }
+
+    if (start->Visited) {
+        return NULL;
+    }
+
+    Path* result = malloc(sizeof(Path));
+    if (result == NULL) {
+        perror("échec de l'allocation mémoire pour un chemin");
+    }
+
+    // Si un objet se trouve dans la salle actuelle
+    if (strcmp(start->Name_ID, Name_ID)) {
 
         result->room = start;
         result->next = NULL;
@@ -248,4 +301,6 @@ Path* find_path_to_food(Room* start, bool entry_blocked) {
             free_Path(paths[i]);
         }
     }
+
+    return result;
 }

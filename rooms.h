@@ -51,4 +51,6 @@ void free_Path(Path* p);
 
 Path* find_path_to_food(Room* start, bool entry_blocked);
 
+Path* find_path_to_name(Room* start, char* NameID);
+
 #endif
