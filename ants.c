@@ -255,6 +255,8 @@ void move_ant(Ant* ant, Room* room) {
 
 }
 
+
+
 void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle
     if(ant->Ant_type == 0){  // actions possibles des reines
         int egg_cost = 4;

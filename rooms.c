@@ -213,6 +213,14 @@ void free_Path(Path* p) {
     free(p->next);
 }
 
+void use_path(Path* p) {
+    Path* second = p->next;
+    p->next = second->next;
+    p->room = second->room;
+    p->length = second->length;
+    free(second);
+}
+
 Path* find_path_to_food(Room* start, bool entry_blocked) {
     if (start == NULL) {
         perror("| ERROR : Need a starting point for pathfinding");
@@ -247,11 +255,11 @@ Path* find_path_to_food(Room* start, bool entry_blocked) {
     // recherche du chemin trouvé le plus court
     unsigned int min_distance = -1;
     result->next = NULL;
-    result->room = NULL;
+    result->room = start;
     for (int i = 0; i < start->Connexion_list_size; i++) {
         if (paths[i]->length < min_distance) {
             free_Path(result);
-            result = paths[i];
+            result->next = paths[i];
             min_distance = result->length;
 
         } else if (paths[i] != NULL) {
