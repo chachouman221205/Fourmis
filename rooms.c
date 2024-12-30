@@ -63,7 +63,6 @@ void connect_rooms(Room* room1, Room* room2) {
         if (room2->Connexion_list[i] == room1) {
             existing_connection_status++;
             break;
-
         }
     }
 
