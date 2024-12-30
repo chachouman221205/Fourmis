@@ -67,6 +67,7 @@ typedef struct Pheromone {
 typedef struct Season {
     char *Name;
     int Number;               // Numéro de la saison (0 à 3)
+    int Chance;
     struct Season *Next;
 } Season;
 

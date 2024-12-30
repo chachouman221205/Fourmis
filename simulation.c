@@ -26,6 +26,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
     }
     spring->Name = "Spring";
     spring->Number = 1;
+    spring->Chance = 25;  //en %
 
     Season *summer = malloc(sizeof(Season));
     if(summer == NULL){     // Si echec d'allocation, on free toutes les saisons déjà allouées
@@ -34,7 +35,8 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
         exit(1);
     }
     summer->Name = "Summer";
-    summer->Number = 2;
+    summer->Number = 3;
+    summer->Chance = 40;
 
     Season *autumn = malloc(sizeof(Season));
     if(autumn == NULL){
@@ -45,6 +47,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
     }
     autumn->Name = "Autumn";
     autumn->Number = 3;
+    autumn->Chance = 25;
 
     Season *winter = malloc(sizeof(Season));
     if(winter == NULL){
@@ -55,7 +58,8 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
         exit(1);
     }
     winter->Name = "Winter";
-    winter->Number = 4;
+    winter->Number = 5;
+    winter->Chance = 5;
 
     // Chaînage des saisons : Boucle cyclique
     spring->Next = summer;
@@ -243,12 +247,21 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     }
     room->Visited = true;
 
-    // Code à éxecuter une fois par room
-    if (room->Ant_count == 0 && room->Creature_count == 0){//peut etre vérifier larve et oeufs aussi
-        return;
-    }
-    for (int i =  0; i < room->Ant_count; i++){ //effectuer l'action sur chaque fourmis
-        Action_ant(simulation_data, room->Ant_list[i]);
+    // refill food
+    int tries = 10;
+    int chance = simulation_data->season_chain->Chance;
+    int size_max = 20;
+    for(i = 0; i < rand()% tries + 1; i++){
+        if(rand()% 100 <= chance){
+            Object* food = init_object(simulation_data, "food", rand()% size_max + 2, false);
+            room->Obj_list = realloc(room->Obj_list, room->Obj_count+1);
+            if(room->Obj_list == NULL){
+                perror("Échec de l'allocation mémoire pour la liste des salles");
+                exit(1);
+            }
+            room->Obj_list[room->Obj_count] = food;
+            room->Obj_count++;
+        }
     }
 
     // Fin du code à éxecuter
@@ -273,7 +286,6 @@ void simulation(Simulation_data* simulation_data, int iterations) {
         simulation_data->season_chain = simulation_data->season_chain->Next;
         simulation_data->current_season = simulation_data->season_chain->Number;
     }
-
 
     simuler_room(simulation_data, simulation_data->Exterior->Entry);
     reinitialiser_rooms(simulation_data, simulation_data->Exterior->Entry);
