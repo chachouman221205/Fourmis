@@ -265,7 +265,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg));
             if(ant->Position->Egg_list == NULL){
                 perror("Échec de la réallocation mémoire pour Egg_list");
-                return;
+                return NULL;
             }
             //ant_type_choice
             int ant_type_choice;
@@ -359,7 +359,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                 }
             }      
         }
-        else if(ant->Pheromone->ph_ID == 1){
+        if(ant->Pheromone->ph_ID == 1){
             
         }
     }
