@@ -35,7 +35,7 @@ Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
     new_room->Pheromone_stack = malloc(0);
 
     if(simulation_data->debug_msgs){
-        printf("| DEBUG : new room \"%s\" initialized\n", new_room->Name_ID);
+        printf("| DEBUG : new room \"%s\" %p initialized\n", new_room->Name_ID, new_room);
     }
 
     return new_room;
@@ -164,20 +164,16 @@ void free_room(Simulation_data* simulation_data, Room* room){
         free(room);
     }
 }
-
 void free_room_rec(Simulation_data* simulation_data, Room* room) {
-    if (room != NULL) {
-        if (room->Visited) {
-            return;
-        }
+    if (room != NULL && !room->Visited) {
 
         if (simulation_data->debug_msgs) {
-            printf("| DEBUG : freeing room \"%s\" recursively\n", room->Name_ID);
+            printf("| DEBUG : freeing room \"%s\" %p recursively\n", room->Name_ID, room);
         }
 
         room->Visited = true;
-        for (int i = 0; i < room->Connexion_list_size; i++) {
-            free_room_rec(simulation_data, room->Connexion_list[i]);
+        for (int i = 0; room->Connexion_list_size-i > 0; i++) {
+            free_room_rec(simulation_data, room);
         }
         free_room(simulation_data, room);
     }
@@ -222,7 +218,7 @@ void free_Path(Path* p) {
     if (p->next != NULL) {
         free_Path(p->next);
     }
-    free(p->next);
+    free(p);
 }
 
 void use_path(Path* p) {
