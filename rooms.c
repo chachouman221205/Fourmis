@@ -132,6 +132,8 @@ void free_room(Simulation_data* simulation_data, Room* room){
 
         simulation_data->room_NB--;
 
+        free_all_pheromones(room->Pheromone_stack);
+
         free(room->Ant_list);
         free(room->Obj_list);
         free(room->Creature_list);
