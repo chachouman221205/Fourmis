@@ -112,10 +112,6 @@ void disconnect_rooms(Room* room1, Room* room2) {
 
 void free_room(Simulation_data* simulation_data, Room* room){
     if(room != NULL){
-        if(simulation_data->debug_msgs){
-            printf("| DEBUG : room \"%s\" freed\n", room->Name_ID);
-        }
-
         // On retire les connections avec les autres R2ooms
         Room* R2;
         for (int i = 0; i < room->Connexion_list_size; i++) {
@@ -128,15 +124,33 @@ void free_room(Simulation_data* simulation_data, Room* room){
                 }
             }
         }
+        free(room->Connexion_list);
 
         simulation_data->room_NB--;
 
         free_all_pheromones(room->Pheromone_stack);
 
+        // free Ants
+        for (int i = 0; i < room->Ant_count; i++) {
+            free_ant(room->Ant_list[i]);
+        }
         free(room->Ant_list);
+
+        // free Objects
+        for (int i = 0; i < room->Obj_count; i++) {
+            free_ant(room->Obj_list[i]);
+        }
         free(room->Obj_list);
+
+        // free Creatures
+        for (int i = 0; i < room->Creature_count; i++) {
+            free_ant(room->Creature_list[i]);
+        }
         free(room->Creature_list);
-        free(room->Connexion_list);
+
+        if(simulation_data->debug_msgs){
+            printf("| DEBUG : room \"%s\" freed\n", room->Name_ID);
+        }
         free(room);
     }
 }
