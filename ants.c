@@ -292,7 +292,19 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
         else{
             food->Size--;
             if(food->Size == 0){
+                int pos;
+                for(int i = 0; i < ant->Position->Obj_count; i++){
+                    if(food == Obj_list[i]){
+                        pos = i;
+                    }
+                }
+                ant->Position->Obj_list[pos] = ant->Position->Obj_list[--ant->Position->Obj_count];
                 free_object(simulation_data, food);
+                ant->Position->Obj_list = realloc(ant->Position->Obj_list, ant->Position->Obj_count * sizeof(Object*));
+                if(ant->Position->Obj_list == NULL){
+                    perror("Échec de la réallocation mémoire pour ant->Position->Obj_list in \"Action_ant\"");
+                    return NULL;
+                }
             }
             ant->Hunger += egg_cost + 1;
         }
@@ -516,8 +528,3 @@ int total_size(Ant* ant){
     }
     return 1 + ant->Held_object->Size; // 1 = ant size
 }
-
-
-
-
-

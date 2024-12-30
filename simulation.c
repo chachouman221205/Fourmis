@@ -383,9 +383,17 @@ void start(Simulation_data* simulation_data){   // Lancer la simulation
     // Création de la fourmilière
     Room* entry = init_room(simulation_data, "Nest Entrance", 20);
     int* pv_param = malloc(2*sizeof(int));
+    if(pv_param == NULL){
+        perror("Erreur d'allocation de mémoire");
+        return NULL;
+    }
     pv_param[0] = 15;
     pv_param[1] = 5;
     int* dmg_param = malloc(2*sizeof(int));
+    if(dmg_param == NULL){
+        perror("Erreur d'allocation de mémoire");
+        return NULL;
+    }
     dmg_param[0] = 1;
     dmg_param[1] = 5;
 
