@@ -30,7 +30,7 @@ Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
     new_room->Connexion_list = malloc(0);
     new_room->Connexion_list_size = 0;
 
-    new_room->Pheromone_stack = NULL;
+    new_room->Pheromone_stack = malloc(0);
 
     if(simulation_data->debug_msgs){
         printf("| DEBUG : new room \"%s\" initialized\n", new_room->Name_ID);
