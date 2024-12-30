@@ -214,38 +214,114 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
 
 void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle
     if(ant->Ant_type == 0){  // actions possibles des reines
+        int egg_cost = 4
         //si hunger < 10 --> aller manger
         //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
-        if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "salle de ponte")){ // si reinne a bien la nourriture requise (ici 10 pr l'exemple) et que reine est bien dans "salle de ponte"
-            ant->Hunger = ant->Hunger - 10;   // on lui retire la nouriture utilisée
+        if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "Queen chamber")){ // si reinne a bien la nourriture requise (ici 10 pr l'exemple) et que reine est bien dans "salle de ponte"
+            ant->Hunger = ant->Hunger - egg_cost;   // on lui retire la nouriture utilisée
             ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg));
             if(ant->Position->Egg_list == NULL){
                 perror("Échec de la réallocation mémoire pour Egg_list");
                 return;
             }
-            ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , 0 , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
+            //ant_type_choice
+            int ant_type_choice;
+            if(ant->Life < ant->Nest->Life_min){
+                ant_type_choice = 0; // on veut une reine
+            }
+            else{
+                ant_type_choice = 1;
+            }
+            //egg creation
+            ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , ant_type_choice , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
             ant->Position->Egg_count++;
             simulation_data->egg_IDs++;
         }
-        if(ant->Hunger <= 10){
-            ant->Position->Pheromone
+        if(ant->Hunger <= egg_cost){
+            insert_pheromone(&(ant->Position->Pheromone_stack), init_pheromone("bring_me_food", 10, 0));
+        }
+
+        //manger
+        Object* food = search_object(ant->position, "food");
+        if(food == NULL){
+            insert_pheromone(&(ant->Position->Pheromone_stack), init_pheromone("bring_me_food", 5, 0));
+        }
+        else{
+            food->size--;
+            if(food->size == 0){
+                free_object(food);
+            }
+            ant->Hunger += egg_cost + 1;
         }
     }
+
     else if(ant->Ant_type == 1){ // actions possibles des ouvrières
-        switch(ant->Pheromone->ph_ID){
-            case 0 :
-                break;
-            case 1 :
-                break;
-            case 2 :
-                break;
-            default:
-                break;
+        if(ant->Pheromone == NULL){
+            insert_pheromone(&(ant->Action), init_pheromone("find_food", 6, 1));
+        }
+        else if(ant->Pheromone->ph_ID == 0){
+            if(ant->Held_object == NULL){
+                if(ant->Path == NULL){
+                    ant->Path = find_path_to_food(ant->Position);
+                }
+                if(ant->Path != NULL){  // if path succeed
+                    // forcement un chemin
+                    if(ant->Path->Length == 0){
+                        pick_up_obj(ant, "food"); //ant->Held_object = search_object(ant->position, "food");
+                                                      //remove_obj_from_room_list(ant->position, "food");
+                        //chemin fini + obj held
+
+                        //free pheromone done
+                        Pheromone* old_ph = ant->Action;
+                        ant->Action = ant->Action->Next;
+                        free(old_ph);
+
+                        free(ant->Path);    //1 seul elmt à free
+                    }
+                    else{       //move closer to food
+                        move_ant(ant, ant->Path->room);
+                        Path* old_step = ant->Path;
+                        ant->Path = ant->Path->next;
+                        free(old_step);
+                    }
+                }
+            }
+            else{
+                if(ant->Path == NULL){
+                    ant->Path = find_path_to_name(ant->position, "Queen chamber");
+                }
+                if(ant->Path != NULL){  // if path succeed
+                    // forcement un chemin
+                    if(ant->Path->Length == 0){
+                        drop_up_obj(ant); //if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
+                                                      //remove_obj_from_room_list(ant->position, "food");
+                        //chemin fini + obj held
+
+                        //free pheromone done
+                        Pheromone* old_ph = ant->Action;
+                        ant->Action = ant->Action->Next;
+                        free(old_ph);
+
+                        free(ant->Path);    //1 seul elmt à free
+                    }
+                    else{       //move closer to food
+                        move_ant(ant, ant->Path->room);
+                        Path* old_step = ant->Path;
+                        ant->Path = ant->Path->next;
+                        free(old_step);
+                    }
+                }
+            }      
+        }
+        else if(ant->Pheromone->ph_ID == 1){
+            
         }
     }
+
     ant->Hunger--;
     ant->Life--;
-    //faire vérif si il meurt ou pas
+    
+    test_kill_ant(simulation_data, ant);
 }
 
 Ant* search_AntID(char* AntID, Exterior* Exterior) {
@@ -370,4 +446,23 @@ Pheromone* get_first_pheromone(Pheromone **stack) {
     Pheromone *top_pheromone = *stack;
     *stack = (*stack)->next;
     return top_pheromone;
+}
+
+void insert_pheromone(Pheromone **stack, Pheromone *new_pheromone) {
+    if (*stack == NULL || (*stack)->Density < new_pheromone->Density) {
+        // Insérer en tête si la pile est vide ou si la nouvelle phéromone est la plus dense
+        new_pheromone->next = *stack;
+        *stack = new_pheromone;
+        return;
+    }
+
+    // Trouver la position correcte pour insérer
+    Pheromone *current = *stack;
+    while (current->next != NULL && current->next->Density >= new_pheromone->Density) {
+        current = current->next;
+    }
+
+    // Insérer la nouvelle phéromone
+    new_pheromone->next = current->next;
+    current->next = new_pheromone;
 }

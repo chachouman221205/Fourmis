@@ -49,10 +49,12 @@ typedef struct Ant {
     // La fourmi a faim quand hunger = 0, et doit manger en moins de 5 itérations pour survivre
 
     char *Clan;
-    Nest* Nest;
+    struct Nest* Nest;
+
     struct Room *Position;      // Pointeur vers la pièce où se trouve la fourmi
     struct Object *Held_object; // Pointeur vers l'objet que la fourmi transporte (NULL si aucun)
     struct Pheromone *Action;   // Pointeur vers la phéromone qui détermine son objectif
+    struct Path *Path;          // Objectif current de la fourmi
 } Ant;
 
 // Egg
