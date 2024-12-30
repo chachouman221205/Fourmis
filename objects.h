@@ -21,4 +21,6 @@ Object* search_object(Room* room, char* NameID);
 void drop_object(Ant* ant);
 void pick_up(Ant* ant, Object* object);
 
+void move_object(Object* object, Room* room);
+
 #endif

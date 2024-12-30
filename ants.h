@@ -81,6 +81,7 @@ void attach_ant_to_nest(Ant* ant, Nest* nest);
 
 Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve);
 
+void move_ant(Ant* ant, Room* room);
 void Action_ant(Simulation_data* simulation_data, Ant* ant);
 
 Ant* search_AntID(char* AntID, Exterior* Exterior);
@@ -91,5 +92,7 @@ void test_kill_ant(Simulation_data* simulation_data, Ant* ant);
 void combat_ants(Simulation_data* simulation_data, Ant* ant1, Ant* ant2);
 int total_size(Ant* ant);
 
+Pheromone* init_pheromone(char *action, int density, int ID);
+void insert_pheromone(Pheromone **stack, Pheromone *new_pheromone);
 
 #endif
