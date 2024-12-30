@@ -256,19 +256,19 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
     }
 
     else if(ant->Ant_type == 1){ // actions possibles des ouvrières
-        if(ant->Pheromone == NULL){
+        if(ant->Action == NULL){
             insert_pheromone(&(ant->Action), init_pheromone("find_food", 6, 1));
         }
-        if(ant->Pheromone->ph_ID == 0){
+        if(ant->Action->ph_ID == 0){
             if(ant->Held_object == NULL){
                 if(ant->Path == NULL){
-                    ant->Path = find_path_to_food(ant->Position);
+                    ant->Path = find_path_to_food(ant->Position, true);
                 }
                 if(ant->Path != NULL){  // if path succeed
                     // forcement un chemin
                     if(ant->Path->Length == 0){
-                        pick_up_obj(ant, "food"); //ant->Held_object = search_object(ant->position, "food");
-                                                      //remove_obj_from_room_list(ant->position, "food");
+                        pick_up_obj(ant, "food");   //ant->Held_object = search_object(ant->position, "food");
+                                                    //remove_obj_from_room_list(ant->position, "food");
                         //chemin fini + obj held
 
                         //free pheromone done
@@ -288,12 +288,59 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             }
             else{
                 if(ant->Path == NULL){
-                    ant->Path = find_path_to_name(ant->position, "Queen chamber");
+                    ant->Path = find_path_to_name(ant->position, "Queen chamber", true);
                 }
                 if(ant->Path != NULL){  // if path succeed
                     // forcement un chemin
                     if(ant->Path->Length == 0){
-                        drop_up_obj(ant); //if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
+                        drop_obj(ant); //if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
+                                                      //remove_obj_from_room_list(ant->position, "food");
+                        //chemin fini + obj held
+
+                        //free pheromone done
+                        Pheromone* old_ph = ant->Action;
+                        ant->Action = ant->Action->Next;
+                        free(old_ph);
+
+                        free(ant->Path);    //1 seul elmt à free
+                    }
+                    else{       //move closer to destination
+                        move_ant(ant, ant->Path->room);
+                        Path* old_step = ant->Path;
+                        ant->Path = ant->Path->next;
+                        free(old_step);
+                    }
+                }
+            }      
+        }
+        if(ant->Action->ph_ID == 1){
+            if(ant->Held_object == NULL){
+                if(ant->Path == NULL && strcmp(ant->Position->Name_ID, "Exterior")){ // si dans nest et pas de chemin
+                    ant->Path = find_path_to_name(ant->Position, "Exterior", false);
+                }   //trouver un chemin vers exterior
+                if(ant->Path != NULL){  // if path succeeded
+                    // forcement un chemin
+                    if(ant->Path->Length == 0){
+                        free(ant->Path);
+                        ant->Path = find_path_to_food(ant->Position, true);
+                    }
+                    else{       //move closer to destination
+                        move_ant(ant, ant->Path->room);
+                        Path* old_step = ant->Path;
+                        ant->Path = ant->Path->next;
+                        free(old_step);
+                    }
+                }
+
+            }
+            else{
+                if(ant->Path == NULL){
+                    ant->Path = find_path_to_name(ant->position, "Storage room", false);
+                }
+                if(ant->Path != NULL){  // if path succeed
+                    // forcement un chemin
+                    if(ant->Path->Length == 0){
+                        drop_obj(ant); //if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
                                                       //remove_obj_from_room_list(ant->position, "food");
                         //chemin fini + obj held
 
@@ -311,10 +358,16 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                         free(old_step);
                     }
                 }
-            }      
-        }
-        if(ant->Pheromone->ph_ID == 1){
+            }   
+
+
+
+            move_ant(ant, ant->Path);
             
+            forward(1);
+            find_path_to_food();
+            move();
+            pickup();
         }
     }
 
