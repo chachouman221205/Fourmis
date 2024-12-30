@@ -10,6 +10,7 @@
 
 
 
+
 /* -----< Récupération des variables de départ >----- */
 void init_variables(Simulation_data* simulation){  // Récupère les scanf pour inititaliser des variables
     printf("Saison de départ : (1: Spring, 2: Summer, 3: Autumn, 4: Winter)");
@@ -140,7 +141,7 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
 
         // On retire la fourmilière de l'Exterior
         Exterior* ext = nest->Exterior;
-        for (int i = 0; i < ext->Nest_number; i++) {
+        for(int i = 0; i < ext->Nest_number; i++){
             if (ext->Nests[i] == nest) {
                 ext->Nests[i] = ext->Nests[--ext->Nest_number];
                 ext->Nests = realloc(ext->Nests, ext->Nest_number);
