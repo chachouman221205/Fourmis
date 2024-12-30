@@ -212,6 +212,11 @@ void free_exterior(Simulation_data* simulation_data, Exterior* exterior){
             free_nest(simulation_data, exterior->Nests[0]);
         }
 
+        for (int i = 0; i < exterior->Total_Ant_number; i++) {
+            free_ant(exterior->All_Ant_list[i]);
+        }
+        free_room_rec(simulation_data, exterior->Entry);
+
         if(debug_msgs){
             printf("| DEBUG : exterior freed\n");
         }
