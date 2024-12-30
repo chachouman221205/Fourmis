@@ -447,7 +447,6 @@ Pheromone* get_first_pheromone(Pheromone **stack) {
     *stack = (*stack)->next;
     return top_pheromone;
 }
-<<<<<<< HEAD
 
 void insert_pheromone(Pheromone **stack, Pheromone *new_pheromone) {
     if (*stack == NULL || (*stack)->Density < new_pheromone->Density) {
@@ -467,5 +466,3 @@ void insert_pheromone(Pheromone **stack, Pheromone *new_pheromone) {
     new_pheromone->next = current->next;
     current->next = new_pheromone;
 }
-=======
->>>>>>> 02e55edc1c2673d4bba3d269fd498c3333f3bb34
