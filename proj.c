@@ -19,7 +19,7 @@ int main(){
     printf("| Simulation démarée\n");
 
     // Fin de la simulation
-    printf("| Simulation démarée\n");
+    printf("| Simulation terminée\n");
     fin(simulation_1);
 
     return 0;
