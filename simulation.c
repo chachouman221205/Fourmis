@@ -271,7 +271,6 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     }
 }
 
-
 void simulation(Simulation_data* simulation_data, int iterations) {
     if (iterations == 0) {
         return;
@@ -293,6 +292,31 @@ void simulation(Simulation_data* simulation_data, int iterations) {
     simulation(simulation_data, iterations-1);
 }
 
+void simulation_choice(Simulation_data simulation_data){
+    int choice;
+    printf("Quel choix pour la simulation ? (-1 pour le message d'aide)\n");
+
+    scanf("%d", &choice);
+    if(choice == -1){
+        printf("0 : fin de la simulation\n");
+        printf("1 : avancer de 1 tick (1 itération)\n");
+        printf("2 : avancer de X tick\n");
+        printf("\nQuel choix pour la simulation ? (-1 pour le message d'aide)\n");
+        simulation_choice(simulation_data);
+    }
+    if(choice == 0){
+        fin(simulation_data);
+    }
+    if(choice == 0){
+        simulation(simulation_data, 1);
+    }
+    if(choice == 2){
+        int X;
+        printf("Combien de ticks voulez-vous simuler ? :\n");
+        scanf("%d", &X);
+        simulation(simulation_data, X);
+    }
+}
 
 // Pheromones
 Pheromone* init_pheromone(char *action, int density, int ID) {
