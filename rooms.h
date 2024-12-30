@@ -32,6 +32,8 @@ void disconnect_rooms(Room* room1, Room* room2);
 
 void free_room(Simulation_data* simulation_data, Room* room);
 
+void free_room_rec(Simulation_data* simulation_data, Room* room);
+
 int remaining_space(Room* room);
 
 void reinitialiser_rooms(Simulation_data* simulation_data, Room* room);
