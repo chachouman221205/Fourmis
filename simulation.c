@@ -251,7 +251,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     int tries = 10;
     int chance = simulation_data->season_chain->Chance;
     int size_max = 20;
-    for(i = 0; i < rand()% tries + 1; i++){
+    for(int i = 0; i < rand()% tries + 1; i++){
         if(rand()% 100 <= chance){
             Object* food = init_object(simulation_data, "food", rand()% size_max + 2, false);
             room->Obj_list = realloc(room->Obj_list, room->Obj_count+1);
