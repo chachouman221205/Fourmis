@@ -58,7 +58,7 @@ typedef struct Pheromone {
     int Density;    // Densité de la phéromone (indique sa force)
     int ph_ID;
 
-    struct Pheromone* Next;
+    struct Pheromone* next;
 } Pheromone;
 
 
@@ -76,6 +76,7 @@ typedef struct Simulation_data {
     int counter;        // On change de saison et counter = 0 quand counter = 30;
     int current_season;
     struct Season* season_chain;
+    struct Exterior* Exterior;
 
     // IDs
     int room_IDs;
@@ -109,7 +110,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season);
 void free_seasons(Season* season);
 
 // Nest
-Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger, Room* entry, Exterior* Exterior);
+Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger, Room* entry);
 
 void free_nest(Simulation_data* simulation_data, Nest* nest);
 
@@ -117,7 +118,13 @@ void free_nest(Simulation_data* simulation_data, Nest* nest);
 Exterior* init_exterior(Simulation_data* simulation_data, int size);
 
 void free_exterior(Simulation_data* simulation_data, Exterior* exterior);
-// Rooms
+
+// Pheromones
+Pheromone* init_pheromone(char *action, int density, int ID);
+void free_all_pheromones(Pheromone *stack);
+
+Pheromone* get_first_pheromone(Pheromone **stack);
+void insert_pheromone(Pheromone **stack, Pheromone *new_pheromone);
 
 
 
@@ -133,9 +140,9 @@ void print_numbers(Simulation_data* sim);
 void simuler_room(Simulation_data* simulation_data, Room* room);
 
 
-void simulation(Simulation_data* simulation_data, Exterior* exterior, int iterations);
+void simulation(Simulation_data* simulation_data, int iterations);
 
 /* -----< Initialisation de la simulation >----- */
-void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior);
+void start(Simulation_data* simulation_data);
 
 #endif

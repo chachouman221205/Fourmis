@@ -92,7 +92,5 @@ void test_kill_ant(Simulation_data* simulation_data, Ant* ant);
 void combat_ants(Simulation_data* simulation_data, Ant* ant1, Ant* ant2);
 int total_size(Ant* ant);
 
-Pheromone* init_pheromone(char *action, int density, int ID);
-void insert_pheromone(Pheromone **stack, Pheromone *new_pheromone);
 
 #endif
