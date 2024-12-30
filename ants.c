@@ -213,25 +213,34 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
 }
 
 void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle
-    char salle_de_ponte[] = "salle de ponte";
-    int condition = strcmp(ant->Position->Name_ID, salle_de_ponte);
     if(ant->Ant_type == 0){  // actions possibles des reines
-
         //si hunger < 10 --> aller manger
         //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
-
-        if(ant->Hunger > 10 && condition == 0){ // si reinne a bien la nourriture requise (ici 10 pr l'exemple) et que reine est bien dans "salle de ponte"
+        if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "salle de ponte")){ // si reinne a bien la nourriture requise (ici 10 pr l'exemple) et que reine est bien dans "salle de ponte"
             ant->Hunger = ant->Hunger - 10;   // on lui retire la nouriture utilisée
-            init_new_egg(simulation_data, ant->Nest, NULL , 0 , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
+            ant->Position->Egg_list = realloc(ant->Position->Egg_list, (Egg_list+1)*sizeof(Egg));
+            if(ant->Position->Egg_list == NULL){
+                perror("Échec de la réallocation mémoire pour Egg_list");
+                return NULL;
+            }
+            ant->Position->Egg_list[Egg_number] = init_new_egg(simulation_data, ant->Nest, NULL , 0 , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
             simulation_data->egg_IDs++;
-            // ici faut rajouter une phéromnone qui indique qu'il faut déplacer l'oeuf
         }
-
-
-
+        if(ant->Hunger <= 10){
+            
+        }
     }
     else if(ant->Ant_type == 1){ // actions possibles des ouvrières
-
+        switch(ant->Pheromone->ph_ID){
+            case 0 :
+                break;
+            case 1 :
+                break;
+            case 2 :
+                break;
+            default:
+                break;
+        }
     }
     ant->Hunger--;
     ant->Life--;
@@ -332,3 +341,32 @@ int total_size(Ant* ant){
     return 1 + ant->Held_object->Size; // 1 = ant size
 }
 
+    // Pheromones
+Pheromone* init_pheromone(char *action, int density, int ID) {
+    Pheromone *new_pheromone = malloc(sizeof(Pheromone));
+    if(new_pheromone == NULL){
+        perror("Erreur d'allocation de mémoire");
+        return NULL;
+    }
+    new_pheromone->Action = action;
+    new_pheromone->Density = density;
+    new_pheromone->ph_ID = ID;
+    return new_pheromone;
+}
+
+void free_all_pheromones(Pheromone *stack) {
+    while (stack != NULL) {
+        Pheromone *temp = stack;
+        stack = stack->Next;
+        free(temp);
+    }
+}
+
+Pheromone* get_first_pheromone(Pheromone **stack) {
+    if (*stack == NULL) {
+        return NULL; // Pile vide
+    }
+    Pheromone *top_pheromone = *stack;
+    *stack = (*stack)->next;
+    return top_pheromone;
+}

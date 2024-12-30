@@ -21,7 +21,7 @@ typedef struct Room {
     struct Room **Connexion_list;
     int Connexion_list_size;
 
-    struct Pheromone **Pheromone_stack;
+    struct Pheromone *Pheromone_stack;
 } Room;
 
 Room* init_room(Simulation_data* simulation_data, char* name_ID, int size);

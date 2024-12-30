@@ -54,6 +54,9 @@ typedef struct Nest {
 typedef struct Pheromone {
     char *Action;   // Type ou action associée à la phéromone (pour la compréhension)
     int Density;    // Densité de la phéromone (indique sa force)
+    int ph_ID;
+
+    struct Pheromone* Next;
 } Pheromone;
 
 

@@ -17,7 +17,6 @@ void init_variables(Simulation_data* simulation){  // Récupère les scanf pour 
     scanf(" %d", &(simulation->start_season));
 }
 
-
 // Seasons
 void init_seasons(Simulation_data* simulation_data, int start_season){     // Saison de départ (1 à 4) : 1 = spring, 2 = summer, 3 = autumn, 4 = winter
     Season *spring = malloc(sizeof(Season));
@@ -171,10 +170,6 @@ void free_exterior(Exterior* exterior){ // à modifier par nassim
     }
 }
 
-
-
-
-
 // Display
 void print_numbers(Simulation_data* sim){
     printf("Nests : %d | Rooms : %d | Eggs : %d | Larves : %d | Ants : %d | Creas : %d | Objs : %d\n",
@@ -184,7 +179,7 @@ void print_numbers(Simulation_data* sim){
 
 /* -----< Simulation >----- */
 /*
- I *ci sont gérées les étapes de la simulation, init et itérations
+ Ici sont gérées les étapes de la simulation, init et itérations
  */
 
 void simuler_room(Simulation_data* simulation_data, Room* room) {
@@ -208,8 +203,6 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     }
 }
 
-
-
 void simulation(Simulation_data* simulation_data, Nest* nest, Exterior* exterior, int iterations) {
     if (iterations == 0) {
         return;
@@ -218,7 +211,7 @@ void simulation(Simulation_data* simulation_data, Nest* nest, Exterior* exterior
     simulation_data->tick++;
     simulation_data->counter++;
 
-    if(simulation_data->counter >= 50){     // Passage à la saison suivante
+    if(simulation_data->counter >= 90){     // Passage à la saison suivante
         simulation_data->counter = 0;
 
         simulation_data->season_chain = simulation_data->season_chain->Next;
