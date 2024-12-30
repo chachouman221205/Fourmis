@@ -107,7 +107,7 @@ void init_variables(Simulation_data* simulation);
 // Seasons
 void init_seasons(Simulation_data* simulation_data, int start_season);
 
-void free_seasons(Season* season);
+void free_seasons(Simulation_data* simulation_data, Season* season);
 
 // Nest
 Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger, Room* entry);
@@ -144,5 +144,6 @@ void simulation(Simulation_data* simulation_data, int iterations);
 
 /* -----< Initialisation de la simulation >----- */
 void start(Simulation_data* simulation_data);
+void fin(Simulation_data* simulation_data);
 
 #endif

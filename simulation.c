@@ -8,7 +8,6 @@
 #include "ants.h"
 #include "rooms.h"
 
-bool debug_msgs = 0;    // Printf de messages si = 1, pour le debug
 
 
 /* -----< Récupération des variables de départ >----- */
@@ -65,14 +64,14 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
 
     Season* tab[] = {spring, summer, autumn, winter};
 
-    if(debug_msgs){
-        printf("| DEBUG : seasons initialized (start season \"%s\"\n", tab[start_season]->Name);
+    if(simulation_data->debug_msgs){
+        printf("| DEBUG : seasons initialized (start season \"%s\")\n", tab[start_season-1]->Name);
     }
 
     simulation_data->season_chain = tab[start_season-1];
 }
 
-void free_seasons(Season* season){
+void free_seasons(Simulation_data* simulation_data, Season* season){
     if(season != NULL){
         Season *current = season;
         Season *next_season = current->Next;
@@ -84,7 +83,7 @@ void free_seasons(Season* season){
         }
         free(current); // Libérer la derniere saison
 
-        if(debug_msgs){
+        if(simulation_data->debug_msgs){
             printf("| DEBUG : seasons freed\n");
         }
     }
@@ -112,10 +111,11 @@ Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int*
     new_nest->Entry = entry;
     new_nest->Exterior = simulation_data->Exterior;
 
+
     new_nest->Exterior->Nests = realloc(new_nest->Exterior->Nests, ++(new_nest->Exterior->Nest_number));
     new_nest->Exterior->Nests[new_nest->Exterior->Nest_number-1] = new_nest;
 
-    if(debug_msgs){
+    if(simulation_data->debug_msgs){
         printf("| DEBUG : new nest \"%s\" initialized\n", new_nest->Clan);
     }
 
@@ -150,7 +150,7 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
 
         simulation_data->nest_NB--;
 
-        if(debug_msgs){
+        if(simulation_data->debug_msgs){
             printf("| DEBUG : ant \"%s\" freed\n", nest->Clan);
         }
 
@@ -186,19 +186,18 @@ Exterior* init_exterior(Simulation_data* simulation_data, int size){
 
 
     for (int i = 0; i < size; i++) {
-        created_rooms[i] = init_room(simulation_data, "Exterior", rand()%(600-500)+500); // Chaque salle a une taille aléatoire entre 500 et 600
-
+        created_rooms[i] = init_room(simulation_data, "Exterior", (rand()%(600-500))+500); // Chaque salle a une taille aléatoire entre 500 et 600
 
         // On connecte la salle crée à jusqu'à trois autres salles
-        for (int j = rand()%3+1; j>0; j++) {
-            connect_rooms(created_rooms[rand()%i], created_rooms[i]);
+        for (int j = rand()%3+1; j>0; j--) {
+            connect_rooms(simulation_data, created_rooms[rand()%(i+1)], created_rooms[i]);
         }
     }
 
     new_exterior->Entry = created_rooms[0];
     free(created_rooms);
 
-    if(debug_msgs){
+    if(simulation_data->debug_msgs){
         printf("| DEBUG : new exterior initialized\n");
     }
 
@@ -217,7 +216,7 @@ void free_exterior(Simulation_data* simulation_data, Exterior* exterior){
         }
         free_room_rec(simulation_data, exterior->Entry);
 
-        if(debug_msgs){
+        if(simulation_data->debug_msgs){
             printf("| DEBUG : exterior freed\n");
         }
 
@@ -336,6 +335,13 @@ void start(Simulation_data* simulation_data){   // Lancer la simulation
     srand(time(NULL)); // Pour rendre la simulation aléatoire
 
     //Création du monde
+    // Génération de l'extérieur
+    printf("Veuillez choisir une taille d'environnement pour la simulation. Nous recommandons entre 10 (très petit) et 300 (très grand) :\n");
+    int room_number;
+    scanf("%d", &room_number);
+    simulation_data->Exterior = init_exterior(simulation_data, room_number);
+
+
 
     // Création de la fourmilière
     Room* entry = init_room(simulation_data, "Nest Entrance", 20);
@@ -366,27 +372,25 @@ void start(Simulation_data* simulation_data){   // Lancer la simulation
     Room* queen_chamber = init_room(simulation_data, "Queen chamber", 20);
 
     // Connection des salles
-    connect_rooms(entry, resting_room);
-    connect_rooms(entry, food_room1);
-    connect_rooms(resting_room, food_room2);
-    connect_rooms(food_room1, food_room2);
-    connect_rooms(food_room1, queen_chamber);
-    connect_rooms(food_room2, queen_chamber);
+    connect_rooms(simulation_data, entry, resting_room);
+    connect_rooms(simulation_data, entry, food_room1);
+    connect_rooms(simulation_data, resting_room, food_room2);
+    connect_rooms(simulation_data, food_room1, food_room2);
+    connect_rooms(simulation_data, food_room1, queen_chamber);
+    connect_rooms(simulation_data, food_room2, queen_chamber);
 
 
-    // Génération de l'extérieur
-    printf("Veuillez choisir une taille d'environnement pour la simulation. Nous recommandons entre 10 (très petit) et 300 (très grand) :\n");
-    int room_number;
-    scanf("%d", &room_number);
-    simulation_data->Exterior = init_exterior(simulation_data, room_number);
 
 
 
     // On s'assure qu'une des salles est connectée à la fourmilière
-    connect_rooms(simulation_data->Exterior->Entry, entry);
+    connect_rooms(simulation_data, simulation_data->Exterior->Entry, entry);
     nest->Exterior = simulation_data->Exterior;
-
 }
 
+void fin(Simulation_data* simulation_data) {
+    free_exterior(simulation_data, simulation_data->Exterior);
+    free(simulation_data);
+}
 
 

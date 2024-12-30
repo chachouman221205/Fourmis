@@ -410,12 +410,12 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
 
 
 
-            move_ant(ant, ant->Path->room);
-            
-            forward(1);
-            find_path_to_food();
-            move();
-            pickup();
+//             move_ant(ant, ant->Path->room);
+//
+//             forward(1);
+//             find_path_to_food();
+//             move();
+//             pickup();
         }
     }
 

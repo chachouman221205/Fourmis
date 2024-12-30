@@ -20,6 +20,7 @@ Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
     } else {
         sprintf(new_room->Name_ID, "Room%d", simulation_data->room_IDs++);
     }
+
     new_room->Visited = false;  // pas visité à l'initialisation
     new_room->Size = size;
     new_room->Ant_list = malloc(0);
@@ -40,7 +41,7 @@ Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
     return new_room;
 }
 
-void connect_rooms(Room* room1, Room* room2) {
+void connect_rooms(Simulation_data* simulation_data, Room* room1, Room* room2) {
 
     if (room1 == NULL || room2 == NULL) {
         printf("ERROR : attempting connection to a non existing room (\"%s\" - \"%s\")", room1->Name_ID, room2->Name_ID);
@@ -48,8 +49,7 @@ void connect_rooms(Room* room1, Room* room2) {
     }
 
     if (room1 == room2) {
-        printf("ERROR : Can't connect a room to itself: \"%s\"", room1->Name_ID);
-        exit(1);
+        return; // Inutile de connecter une pièce à elle-même
     }
 
     // Verifier si les salles sont déjà connectées
@@ -82,7 +82,7 @@ void connect_rooms(Room* room1, Room* room2) {
     room2->Connexion_list_size++;
     room2->Connexion_list = realloc(room2->Connexion_list, room2->Connexion_list_size * sizeof(Room*));
 
-    if(room1->Connexion_list == NULL || room2->Connexion_list){
+    if(room1->Connexion_list == NULL || room2->Connexion_list == NULL){
         perror("Échec de l'allocation mémoire pour la connexion entre pièces");
         exit(1);
     }
@@ -90,6 +90,10 @@ void connect_rooms(Room* room1, Room* room2) {
     // Ajouter une connection
     room1->Connexion_list[room1->Connexion_list_size-1] = room2;
     room2->Connexion_list[room2->Connexion_list_size-1] = room1;
+
+    if(simulation_data->debug_msgs){
+        printf("| DEBUG : new connection between room \"%s\" and room \"%s\"\n", room1->Name_ID, room2->Name_ID);
+    }
 }
 
 

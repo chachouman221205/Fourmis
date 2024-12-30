@@ -34,7 +34,7 @@ typedef struct Path {
 } Path;
 
 
-void connect_rooms(Room* room1, Room* room2);
+void connect_rooms(Simulation_data* simulation_data, Room* room1, Room* room2);
 void disconnect_rooms(Room* room1, Room* room2);
 
 Room* init_room(Simulation_data* simulation_data, char* name_ID, int size);
