@@ -408,11 +408,17 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                 }
             }
         }
+        
+        //manger
+        if(ant->Hunger < 10 && ant->Held_object != NULL && ant->Held_object >= 2){
+            ant->Held_object->Size--;
+            ant->Hunger += 15;
+        }
     }
 
+    
     ant->Hunger--;
     ant->Life--;
-    
     test_kill_ant(simulation_data, ant);
 }
 
