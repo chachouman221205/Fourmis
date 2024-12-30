@@ -16,4 +16,9 @@ Object* init_object(Simulation_data* simulation_data, char* name_ID, int size, b
 
 void free_object(Simulation_data* simulation_data, Object* object);
 
+Object* search_object(Room* room, char* NameID);
+
+void drop_object(Ant* ant);
+void pick_up(Ant* ant, Object* object);
+
 #endif
