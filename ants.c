@@ -302,19 +302,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
         if(ant->Action == NULL){
             insert_pheromone(&(ant->Action), init_pheromone("find_food", 6, 1));
         }
-<<<<<<< HEAD
         if(ant->Action->ph_ID == 0){
-            if(ant->Held_object == NULL){
-                if(ant->Path == NULL){
-                    ant->Path = find_path_to_food(ant->Position, true);
-                }
-                if(ant->Path != NULL){  // if path succeed
-                    // forcement un chemin
-                    if(ant->Path->Length == 0){
-                        pick_up_obj(ant, "food");   //ant->Held_object = search_object(ant->position, "food");
-                                                    //remove_obj_from_room_list(ant->position, "food");
-=======
-        else if(ant->Action->ph_ID == 0){
             if(ant->Held_object == NULL){
                 if(ant->Path == NULL){
                     ant->Path = find_path_to_food(ant->Position, true); // true = pas le droit d'aller chercher de la nourriture en dehors de la fourmilière
@@ -327,7 +315,6 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                     if(ant->Path->length == 0){
                         pick_up(ant, search_object(ant->Position, "food")); //ant->Held_object = search_object(ant->position, "food");
                                                       //remove_obj_from_room_list(ant->position, "food");
->>>>>>> 6666369cf5c06e4ae981665f749bd92613204f0d
                         //chemin fini + obj held
 
                         //free pheromone done
