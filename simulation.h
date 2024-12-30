@@ -127,7 +127,6 @@ void print_numbers(Simulation_data* sim);
 
 void simuler_room(Simulation_data* simulation_data, Room* room);
 
-void reinitialiser_rooms(Simulation_data* simulation_data, Room* room);
 
 void simulation(Simulation_data* simulation_data, Nest* nest, Exterior* exterior, int iterations);
 

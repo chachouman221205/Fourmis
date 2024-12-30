@@ -140,3 +140,13 @@ int remaining_space(Room* room) {
 
     return room->Size - space_used;
 }
+
+void reinitialiser_rooms(Simulation_data* simulation_data, Room* room) {
+    if (!room->Visited) {
+        return;
+    }
+    room->Visited = false;
+    for (int i = 0; i < room->Connexion_list_size; i++) {
+        simuler_room(simulation_data, room->Connexion_list[i]);
+    }
+}
