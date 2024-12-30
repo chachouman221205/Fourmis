@@ -47,8 +47,9 @@ void reinitialiser_rooms(Simulation_data* simulation_data, Room* room);
 
 
 void free_Path(Path* p);
+void use_path(Path* p);
 
 Path* find_path_to_food(Room* start, bool entry_blocked);
-Path* find_path_to_name(Room* start, char* NameID);
+Path* find_path_to_name(Room* start, char* NameID, bool entry_blocked);
 
 #endif

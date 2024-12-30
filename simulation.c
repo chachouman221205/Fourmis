@@ -91,7 +91,7 @@ void free_seasons(Season* season){
 }
 
 // Nest
-Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger, Room* entry, Exterior* Exterior){
+Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger, Room* entry){
     Nest* new_nest = malloc(sizeof(Nest));
     if(new_nest == NULL){
         perror("Échec de l'allocation mémoire pour la nest");
@@ -110,10 +110,10 @@ Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int*
     new_nest->Ant_list = malloc(0);
     new_nest->Ant_number = 0;
     new_nest->Entry = entry;
-    new_nest->Exterior = Exterior;
+    new_nest->Exterior = simulation_data->Exterior;
 
-    Exterior->Nests = realloc(Exterior->Nests, ++Exterior->Nest_number);
-    Exterior->Nests[Exterior->Nest_number-1] = new_nest;
+    new_nest->Exterior->Nests = realloc(new_nest->Exterior->Nests, ++(new_nest->Exterior->Nest_number));
+    new_nest->Exterior->Nests[new_nest->Exterior->Nest_number-1] = new_nest;
 
     if(debug_msgs){
         printf("| DEBUG : new nest \"%s\" initialized\n", new_nest->Clan);
@@ -259,7 +259,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
 }
 
 
-void simulation(Simulation_data* simulation_data, Exterior* exterior, int iterations) {
+void simulation(Simulation_data* simulation_data, int iterations) {
     if (iterations == 0) {
         return;
     }
@@ -275,14 +275,63 @@ void simulation(Simulation_data* simulation_data, Exterior* exterior, int iterat
     }
 
 
-    simuler_room(simulation_data, exterior->Entry);
-    reinitialiser_rooms(simulation_data, exterior->Entry);
+    simuler_room(simulation_data, simulation_data->Exterior->Entry);
+    reinitialiser_rooms(simulation_data, simulation_data->Exterior->Entry);
 
-    simulation(simulation_data, exterior, iterations-1);
+    simulation(simulation_data, iterations-1);
+}
+
+
+// Pheromones
+Pheromone* init_pheromone(char *action, int density, int ID) {
+    Pheromone *new_pheromone = malloc(sizeof(Pheromone));
+    if(new_pheromone == NULL){
+        perror("Erreur d'allocation de mémoire");
+        return NULL;
+    }
+    new_pheromone->Action = action;
+    new_pheromone->Density = density;
+    new_pheromone->ph_ID = ID;
+    return new_pheromone;
+}
+void free_all_pheromones(Pheromone *stack) {
+    while (stack != NULL) {
+        Pheromone *temp = stack;
+        stack = stack->next;
+        free(temp);
+    }
+}
+
+Pheromone* get_first_pheromone(Pheromone **stack) {
+    if (*stack == NULL) {
+        return NULL; // Pile vide
+    }
+    Pheromone *top_pheromone = *stack;
+    *stack = (*stack)->next;
+    return top_pheromone;
+}
+
+void insert_pheromone(Pheromone **stack, Pheromone *new_pheromone) {
+    if (*stack == NULL || (*stack)->Density < new_pheromone->Density) {
+        // Insérer en tête si la pile est vide ou si la nouvelle phéromone est la plus dense
+        new_pheromone->next = *stack;
+        *stack = new_pheromone;
+        return;
+    }
+
+    // Trouver la position correcte pour insérer
+    Pheromone *current = *stack;
+    while (current->next != NULL && current->next->Density >= new_pheromone->Density) {
+        current = current->next;
+    }
+
+    // Insérer la nouvelle phéromone
+    new_pheromone->next = current->next;
+    current->next = new_pheromone;
 }
 
 /* -----< Initialisation de la simulation >----- */
-void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior){   // Lancer la simulation
+void start(Simulation_data* simulation_data){   // Lancer la simulation
     // Season* season = init_seasons(simulation_data, 0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
 
@@ -297,7 +346,7 @@ void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior){ 
     dmg_param[0] = 1;
     dmg_param[1] = 5;
 
-    *nest = init_nest(simulation_data, "fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 10, 100, 20, entry, NULL);
+    Nest* nest = init_nest(simulation_data, "fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 10, 100, 20, entry);
 
     /* Structure de la fourmilière initiale voulue:
      *                 entrée
@@ -306,10 +355,8 @@ void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior){ 
      *           |            /       |
      *           |           /        |
      *        Stock de nouriture 2    |
-     *         |               \      |
-     *         |                Chambre de la reine
-     *         |               /
-     *        Chambre de larves
+     *                         \      |
+     *                          Chambre de la reine
      */
 
     // Création des salles
@@ -317,7 +364,6 @@ void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior){ 
     Room* food_room1 = init_room(simulation_data, "Storage Room", 50);
     Room* food_room2 = init_room(simulation_data, "Storage Room", 60);
     Room* queen_chamber = init_room(simulation_data, "Queen chamber", 20);
-    Room* larva_room = init_room(simulation_data, "Larva chamber", 60);
 
     // Connection des salles
     connect_rooms(entry, resting_room);
@@ -326,19 +372,21 @@ void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior){ 
     connect_rooms(food_room1, food_room2);
     connect_rooms(food_room1, queen_chamber);
     connect_rooms(food_room2, queen_chamber);
-    connect_rooms(food_room2, larva_room);
-    connect_rooms(queen_chamber, larva_room);
 
 
     // Génération de l'extérieur
     printf("Veuillez choisir une taille d'environnement pour la simulation. Nous recommandons entre 10 (très petit) et 300 (très grand) :\n");
     int room_number;
     scanf("%d", &room_number);
-    *exterior = init_exterior(simulation_data, room_number);
+    simulation_data->Exterior = init_exterior(simulation_data, room_number);
 
 
 
     // On s'assure qu'une des salles est connectée à la fourmilière
-    connect_rooms((*exterior)->Entry, entry);
-    (*nest)->Exterior = *exterior;
+    connect_rooms(simulation_data->Exterior->Entry, entry);
+    nest->Exterior = simulation_data->Exterior;
+
 }
+
+
+

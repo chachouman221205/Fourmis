@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "simulation.h"
 
@@ -132,21 +133,22 @@ void free_room(Simulation_data* simulation_data, Room* room){
 
         // free Ants
         for (int i = 0; i < room->Ant_count; i++) {
-            free_ant(room->Ant_list[i]);
+            free_ant(simulation_data, room->Ant_list[i]);
         }
         free(room->Ant_list);
 
         // free Objects
         for (int i = 0; i < room->Obj_count; i++) {
-            free_ant(room->Obj_list[i]);
+            free_object(simulation_data, room->Obj_list[i]);
         }
         free(room->Obj_list);
 
+        /* Creatures not added
         // free Creatures
         for (int i = 0; i < room->Creature_count; i++) {
-            free_ant(room->Creature_list[i]);
+            free_creature(simulation_data, room->Creature_list[i]);
         }
-        free(room->Creature_list);
+        free(room->Creature_list);*/
 
         if(simulation_data->debug_msgs){
             printf("| DEBUG : room \"%s\" freed\n", room->Name_ID);
@@ -182,12 +184,14 @@ int remaining_space(Room* room) {
     // Ants
     space_used += room->Ant_count;
 
+    /* Creatures not added
     // Creatures
     for (int i = 0; i < room->Creature_count; i++) {
         if (room->Creature_list[i] != NULL) {
             space_used += room->Creature_list[i]->Size;
         }
     }
+    */
 
     return room->Size - space_used;
 }
@@ -209,6 +213,14 @@ void free_Path(Path* p) {
     free(p->next);
 }
 
+void use_path(Path* p) {
+    Path* second = p->next;
+    p->next = second->next;
+    p->room = second->room;
+    p->length = second->length;
+    free(second);
+}
+
 Path* find_path_to_food(Room* start, bool entry_blocked) {
     if (start == NULL) {
         perror("| ERROR : Need a starting point for pathfinding");
@@ -224,7 +236,7 @@ Path* find_path_to_food(Room* start, bool entry_blocked) {
     }
 
     // Si un objet se trouve dans la salle actuelle
-    if (search_obj(start, "food") != NULL) {
+    if (search_object(start, "food") != NULL) {
 
 
         result->room = start;
@@ -243,28 +255,27 @@ Path* find_path_to_food(Room* start, bool entry_blocked) {
     // recherche du chemin trouvé le plus court
     unsigned int min_distance = -1;
     result->next = NULL;
-    result->room = NULL;
+    result->room = start;
     for (int i = 0; i < start->Connexion_list_size; i++) {
         if (paths[i]->length < min_distance) {
             free_Path(result);
-            result = paths[i];
+            result->next = paths[i];
             min_distance = result->length;
 
         } else if (paths[i] != NULL) {
             free_Path(paths[i]);
         }
     }
-
     return result;
 }
 
 
-Path* find_path_to_name(Room* start, char* NameID) {
+Path* find_path_to_name(Room* start, char* NameID, bool entry_blocked) {
     if (start == NULL) {
         perror("| ERROR : Need a starting point for pathfinding");
     }
 
-    if (start->Visited) {
+    if (start->Visited || (start->Name_ID && entry_blocked)) {
         return NULL;
     }
 
@@ -274,7 +285,7 @@ Path* find_path_to_name(Room* start, char* NameID) {
     }
 
     // Si un objet se trouve dans la salle actuelle
-    if (strcmp(start->Name_ID, Name_ID)) {
+    if (strcmp(start->Name_ID, NameID)) {
 
         result->room = start;
         result->next = NULL;

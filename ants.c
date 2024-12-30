@@ -222,8 +222,8 @@ void move_ant(Ant* ant, Room* room) {
 
     // Vérification de la possibilité de déplacement
     bool possible = false;
-    for (int i = 0; i < ant->Position->connexion_list_size; i++) {
-        if (ant->Position->connexion_list == room) {
+    for (int i = 0; i < ant->Position->Connexion_list_size; i++) {
+        if (ant->Position->Connexion_list[i] == room) {
             possible = true;
             break;
         }
@@ -236,21 +236,21 @@ void move_ant(Ant* ant, Room* room) {
     // Déplacement :
 
     // on retire la fourmi de l'ancienne salle
-    for (int i = 0; i < ant->Position->ant_count; i++) {
+    for (int i = 0; i < ant->Position->Ant_count; i++) {
         if (ant->Position->Ant_list[i] == ant) {
-            ant->Position->Ant_list[i] = ant->Position->Ant_list[--ant_count];
-            ant->Position->Ant_list = realloc(ant->Position->Ant_list, ant->Position->ant_count * sizeof(Ant*));
+            ant->Position->Ant_list[i] = ant->Position->Ant_list[--ant->Position->Ant_count];
+            ant->Position->Ant_list = realloc(ant->Position->Ant_list, ant->Position->Ant_count * sizeof(Ant*));
         }
     }
 
     // on ajoute la fourmi à la nouvelle salle
-    room->Ant_list = realloc(room->Ant_list, ++room->ant_count);
-    room->Ant_list[ant_count-1] = ant;
+    room->Ant_list = realloc(room->Ant_list, ++room->Ant_count);
+    room->Ant_list[room->Ant_count-1] = ant;
     ant-> Position = room;
 
     // on déplace l'objet que porte la fourmi
     if (ant->Held_object != NULL) {
-        move_object(ant->Held_object, room);
+        move_object(ant->Held_object, ant->Position, room);
     }
 
 }
@@ -265,7 +265,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg));
             if(ant->Position->Egg_list == NULL){
                 perror("Échec de la réallocation mémoire pour Egg_list");
-                return NULL;
+                return;
             }
             //ant_type_choice
             int ant_type_choice;
@@ -320,7 +320,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
 
                         //free pheromone done
                         Pheromone* old_ph = ant->Action;
-                        ant->Action = ant->Action->Next;
+                        ant->Action = ant->Action->next;
                         free(old_ph);
 
                         free_path(ant->Path);    //1 seul elmt à free
@@ -333,19 +333,19 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             }
             else{
                 if(ant->Path == NULL){
-                    ant->Path = find_path_to_name(ant->position, "Queen chamber", true);
+                    ant->Path = find_path_to_name(ant->Position, "Queen chamber", true);
                     use_path(ant->Path);
                 }
                 if(ant->Path != NULL){  // if path succeed
                     // forcement un chemin
-                    if(ant->Path->Length == 0){
-                        drop_obj(ant); //if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
+                    if(ant->Path->length == 0){
+                        drop_object(ant); // if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
                                                       //remove_obj_from_room_list(ant->position, "food");
                         //chemin fini + obj held
 
                         //free pheromone done
                         Pheromone* old_ph = ant->Action;
-                        ant->Action = ant->Action->Next;
+                        ant->Action = ant->Action->next;
                         free(old_ph);
 
                         free(ant->Path);    //1 seul elmt à free
@@ -369,7 +369,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                 }
                 if(ant->Path != NULL){  // if path succeeded
                     // forcement un chemin
-                    if(ant->Path->Length == 0 && !strcmp(ant->Position->Name_ID, "Exterior") && search_object(ant->Position, "food") == NULL){
+                    if(ant->Path->length == 0 && !strcmp(ant->Position->Name_ID, "Exterior") && search_object(ant->Position, "food") == NULL){
                         free_path(ant->Path);
                     }
                     else if(ant->Path->Length == 0 && !strcmp(ant->Position->Name_ID, "Exterior")){
@@ -384,19 +384,19 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             }
             else{
                 if(ant->Path == NULL){
-                    ant->Path = find_path_to_name(ant->position, "Storage room", false);
+                    ant->Path = find_path_to_name(ant->Position, "Storage room", false);
                     use_path(ant->Path);
                 }
                 if(ant->Path != NULL){  // if path succeed
                     // forcement un chemin
-                    if(ant->Path->Length == 0){
-                        drop_obj(ant); //if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
+                    if(ant->Path->length == 0){
+                        drop_object(ant); //if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
                                                       //remove_obj_from_room_list(ant->position, "food");
                         //chemin fini + obj held
 
                         //free pheromone done
                         Pheromone* old_ph = ant->Action;
-                        ant->Action = ant->Action->Next;
+                        ant->Action = ant->Action->next;
                         free(old_ph);
 
                         free_path(ant->Path);    //1 seul elmt à free
@@ -407,6 +407,15 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                     }
                 }
             }   
+
+
+
+            move_ant(ant, ant->Path->room);
+            
+            forward(1);
+            find_path_to_food();
+            move();
+            pickup();
         }
     }
 
@@ -510,51 +519,7 @@ int total_size(Ant* ant){
     return 1 + ant->Held_object->Size; // 1 = ant size
 }
 
-    // Pheromones
-Pheromone* init_pheromone(char *action, int density, int ID) {
-    Pheromone *new_pheromone = malloc(sizeof(Pheromone));
-    if(new_pheromone == NULL){
-        perror("Erreur d'allocation de mémoire");
-        return NULL;
-    }
-    new_pheromone->Action = action;
-    new_pheromone->Density = density;
-    new_pheromone->ph_ID = ID;
-    return new_pheromone;
-}
 
-void free_all_pheromones(Pheromone *stack) {
-    while (stack != NULL) {
-        Pheromone *temp = stack;
-        stack = stack->Next;
-        free(temp);
-    }
-}
 
-Pheromone* get_first_pheromone(Pheromone **stack) {
-    if (*stack == NULL) {
-        return NULL; // Pile vide
-    }
-    Pheromone *top_pheromone = *stack;
-    *stack = (*stack)->next;
-    return top_pheromone;
-}
 
-void insert_pheromone(Pheromone **stack, Pheromone *new_pheromone) {
-    if (*stack == NULL || (*stack)->Density < new_pheromone->Density) {
-        // Insérer en tête si la pile est vide ou si la nouvelle phéromone est la plus dense
-        new_pheromone->next = *stack;
-        *stack = new_pheromone;
-        return;
-    }
 
-    // Trouver la position correcte pour insérer
-    Pheromone *current = *stack;
-    while (current->next != NULL && current->next->Density >= new_pheromone->Density) {
-        current = current->next;
-    }
-
-    // Insérer la nouvelle phéromone
-    new_pheromone->next = current->next;
-    current->next = new_pheromone;
-}

@@ -42,3 +42,6 @@ Fourmi.exe: temp/simulation.o temp/objects.o temp/ants.o temp/rooms.o
 clean:
 	rm -r temp
 
+uncompile:
+	make clean
+	rm Fourmi.exe
