@@ -221,7 +221,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg));
             if(ant->Position->Egg_list == NULL){
                 perror("Échec de la réallocation mémoire pour Egg_list");
-                return NULL;
+                return;
             }
             ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , 0 , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
             ant->Position->Egg_count++;
