@@ -92,6 +92,25 @@ void connect_rooms(Room* room1, Room* room2) {
     room2->Connexion_list[room2->Connexion_list_size-1] = room1;
 }
 
+
+void disconnect_rooms(Room* room1, Room* room2) {
+    // on retire la connection de room1 à room2
+    for (int j = 0; j < room1->Connexion_list_size; j++) {
+        if (room1->Connexion_list[j] == room2) {
+            room1->Connexion_list[j] = room1->Connexion_list[--room1->Connexion_list_size];
+            room1->Connexion_list = realloc(room1->Connexion_list, room1->Connexion_list_size);
+        }
+    }
+
+    // on retire la connection de room2 à room1
+    for (int j = 0; j < room1->Connexion_list_size; j++) {
+        if (room1->Connexion_list[j] == room2) {
+            room1->Connexion_list[j] = room1->Connexion_list[--room1->Connexion_list_size];
+            room1->Connexion_list = realloc(room1->Connexion_list, room1->Connexion_list_size);
+        }
+    }
+}
+
 void free_room(Simulation_data* simulation_data, Room* room){
     if(room != NULL){
         if(simulation_data->debug_msgs){
