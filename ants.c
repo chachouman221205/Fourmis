@@ -306,15 +306,16 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             if(ant->Held_object == NULL){
                 if(ant->Path == NULL){
                     ant->Path = find_path_to_food(ant->Position, true); // true = pas le droit d'aller chercher de la nourriture en dehors de la fourmilière
+                    use_path(ant->Path);    //pour décaller de 1 path : si départ = a et objectif = c, path = a,b,c; On a besoin de b,c seulement
                 }
                 if(ant->Path == NULL){
                     ant->Path = find_path_to_food(ant->Position, false); // Si aucune nourriture a été trouvée dans la fourmilière, on cherche également à l'extérieur
+                    use_path(ant->Path);
                 }
                 if(ant->Path != NULL){  // if path succeed
                     // forcement un chemin
                     if(ant->Path->length == 0){
-                        pick_up(ant, search_object(ant->Position, "food")); //ant->Held_object = search_object(ant->position, "food");
-                                                      //remove_obj_from_room_list(ant->position, "food");
+                        pick_up(ant, search_object(ant->Position, "food"));
                         //chemin fini + obj held
 
                         //free pheromone done
@@ -322,19 +323,18 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                         ant->Action = ant->Action->Next;
                         free(old_ph);
 
-                        free(ant->Path);    //1 seul elmt à free
+                        free_path(ant->Path);    //1 seul elmt à free
                     }
                     else{       //move closer to food
                         move_ant(ant, ant->Path->room);
-                        Path* old_step = ant->Path;
-                        ant->Path = ant->Path->next;
-                        free(old_step);
+                        use_path(ant->Path);
                     }
                 }
             }
             else{
                 if(ant->Path == NULL){
                     ant->Path = find_path_to_name(ant->position, "Queen chamber", true);
+                    use_path(ant->Path);
                 }
                 if(ant->Path != NULL){  // if path succeed
                     // forcement un chemin
@@ -352,9 +352,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                     }
                     else{       //move closer to destination
                         move_ant(ant, ant->Path->room);
-                        Path* old_step = ant->Path;
-                        ant->Path = ant->Path->next;
-                        free(old_step);
+                        use_path(ant->Path);
                     }
                 }
             }      
@@ -363,25 +361,31 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             if(ant->Held_object == NULL){
                 if(ant->Path == NULL && strcmp(ant->Position->Name_ID, "Exterior")){ // si dans nest et pas de chemin
                     ant->Path = find_path_to_name(ant->Position, "Exterior", false);
+                    use_path(ant->Path);
                 }   //trouver un chemin vers exterior
+                else if(ant->Path == NULL && !strcmp(ant->Position->Name_ID, "Exterior")){
+                    ant->Path = find_path_to_food(ant->Position, true);
+                    use_path(ant->Path);
+                }
                 if(ant->Path != NULL){  // if path succeeded
                     // forcement un chemin
-                    if(ant->Path->Length == 0){
-                        free(ant->Path);
-                        ant->Path = find_path_to_food(ant->Position, true);
+                    if(ant->Path->Length == 0 && !strcmp(ant->Position->Name_ID, "Exterior") && search_object(ant->Position, "food") == NULL){
+                        free_path(ant->Path);
+                    }
+                    else if(ant->Path->Length == 0 && !strcmp(ant->Position->Name_ID, "Exterior")){
+                        pick_up(ant, search_object(ant->Position, "food"));
+                        free_path(ant->Path);
                     }
                     else{       //move closer to destination
                         move_ant(ant, ant->Path->room);
-                        Path* old_step = ant->Path;
-                        ant->Path = ant->Path->next;
-                        free(old_step);
+                        use_path(ant->Path);
                     }
                 }
-
             }
             else{
                 if(ant->Path == NULL){
                     ant->Path = find_path_to_name(ant->position, "Storage room", false);
+                    use_path(ant->Path);
                 }
                 if(ant->Path != NULL){  // if path succeed
                     // forcement un chemin
@@ -395,25 +399,14 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                         ant->Action = ant->Action->Next;
                         free(old_ph);
 
-                        free(ant->Path);    //1 seul elmt à free
+                        free_path(ant->Path);    //1 seul elmt à free
                     }
                     else{       //move closer to food
                         move_ant(ant, ant->Path->room);
-                        Path* old_step = ant->Path;
-                        ant->Path = ant->Path->next;
-                        free(old_step);
+                        use_path(ant->Path);
                     }
                 }
             }   
-
-
-
-            move_ant(ant, ant->Path);
-            
-            forward(1);
-            find_path_to_food();
-            move();
-            pickup();
         }
     }
 
