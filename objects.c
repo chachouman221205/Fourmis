@@ -49,3 +49,29 @@ void free_object(Simulation_data* simulation_data, Object* object){
         simulation_data->obj_NB--;
     }
 }
+
+void drop_object(Ant* ant) {
+    if (ant == NULL) {
+        perror("| ERROR : Cannot drop objet from NULL ant");
+    }
+    if (ant->Held_Object == NULL) {
+        return;
+    }
+
+    ant->Held_Object->held = false;
+    ant->Held_Object = NULL;
+}
+void pick_up(Ant* ant, Object* object) {
+    if (ant == NULL) {
+        perror("| ERROR : Cannot pickup objet on NULL ant");
+    }
+    if (object == NULL) {
+        perror("| ERROR : Cannot pickup NULL object on ant");
+    }
+
+    if (ant->Held_Object != NULL) {
+        drop_object(ant);
+    }
+    ant->Held_Object = object;
+    object->Held = true;
+}
