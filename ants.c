@@ -214,7 +214,7 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
 
 void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle
     if(ant->Ant_type == 0){  // actions possibles des reines
-        int egg_cost = 4
+        int egg_cost = 4;
         //si hunger < 10 --> aller manger
         //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
         if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "Queen chamber")){ // si reinne a bien la nourriture requise (ici 10 pr l'exemple) et que reine est bien dans "salle de ponte"
@@ -222,7 +222,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg));
             if(ant->Position->Egg_list == NULL){
                 perror("Échec de la réallocation mémoire pour Egg_list");
-                return;
+                return NULL;
             }
             //ant_type_choice
             int ant_type_choice;
@@ -259,7 +259,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
         if(ant->Pheromone == NULL){
             insert_pheromone(&(ant->Action), init_pheromone("find_food", 6, 1));
         }
-        else if(ant->Pheromone->ph_ID == 0){
+        if(ant->Pheromone->ph_ID == 0){
             if(ant->Held_object == NULL){
                 if(ant->Path == NULL){
                     ant->Path = find_path_to_food(ant->Position);
@@ -313,7 +313,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                 }
             }      
         }
-        else if(ant->Pheromone->ph_ID == 1){
+        if(ant->Pheromone->ph_ID == 1){
             
         }
     }
