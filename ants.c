@@ -222,7 +222,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg));
             if(ant->Position->Egg_list == NULL){
                 perror("Échec de la réallocation mémoire pour Egg_list");
-                return NULL;
+                return;
             }
             //ant_type_choice
             int ant_type_choice;
@@ -447,6 +447,7 @@ Pheromone* get_first_pheromone(Pheromone **stack) {
     *stack = (*stack)->next;
     return top_pheromone;
 }
+<<<<<<< HEAD
 
 void insert_pheromone(Pheromone **stack, Pheromone *new_pheromone) {
     if (*stack == NULL || (*stack)->Density < new_pheromone->Density) {
@@ -466,3 +467,5 @@ void insert_pheromone(Pheromone **stack, Pheromone *new_pheromone) {
     new_pheromone->next = current->next;
     current->next = new_pheromone;
 }
+=======
+>>>>>>> 02e55edc1c2673d4bba3d269fd498c3333f3bb34
