@@ -15,6 +15,9 @@ typedef struct Room {
     struct Object **Obj_list;
     int Obj_count;
 
+    struct Egg* Egg_list;
+    int Egg_count;
+
     struct Object **Creature_list;
     int Creature_count;
 

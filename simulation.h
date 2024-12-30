@@ -116,7 +116,7 @@ void free_nest(Simulation_data* simulation_data, Nest* nest);
 // Exterior
 Exterior* init_exterior(Simulation_data* simulation_data, int size);
 
-void free_exterior(Exterior* exterior);
+void free_exterior(Simulation_data* simulation_data, Exterior* exterior);
 // Rooms
 
 

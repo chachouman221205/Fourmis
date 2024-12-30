@@ -135,14 +135,14 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
 
         // on free les fourmis associées à la fourmilière
         for(int i = 1; i < nest->Ant_number; i++){
-            free_ant(nest->Ant_list[i]);
+            free_ant(simulation_data, nest->Ant_list[i]);
         }
 
         // On retire la fourmilière de l'Exterior
         Exterior* ext = nest->Exterior;
         for (int i = 0; i < ext->Nest_number; i++) {
             if (ext->Nests[i] == nest) {
-                ext->Nests[i] = ext->Nest[--ext->Nest_number];
+                ext->Nests[i] = ext->Nests[--ext->Nest_number];
                 ext->Nests = realloc(ext->Nests, ext->Nest_number);
             }
         }
@@ -205,11 +205,11 @@ Exterior* init_exterior(Simulation_data* simulation_data, int size){
     return new_exterior;
 }
 
-void free_exterior(Exterior* exterior){
+void free_exterior(Simulation_data* simulation_data, Exterior* exterior){
 
     if(exterior != NULL) {
         while (0 < exterior->Nest_number) {
-            free_nest(exterior->Nests[0]);
+            free_nest(simulation_data, exterior->Nests[0]);
         }
 
         if(debug_msgs){
@@ -253,13 +253,8 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     }
 }
 
-<<<<<<< HEAD
-
 
 void simulation(Simulation_data* simulation_data, Exterior* exterior, int iterations) {
-=======
-void simulation(Simulation_data* simulation_data, Nest* nest, Exterior* exterior, int iterations) {
->>>>>>> refs/remotes/origin/main
     if (iterations == 0) {
         return;
     }
