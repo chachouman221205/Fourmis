@@ -140,8 +140,9 @@ void print_numbers(Simulation_data* sim);
 
 void simuler_room(Simulation_data* simulation_data, Room* room);
 
-
 void simulation(Simulation_data* simulation_data, int iterations);
+
+void simulation_choice(Simulation_data* simulation_data);
 
 /* -----< Initialisation de la simulation >----- */
 void start(Simulation_data* simulation_data);

@@ -294,7 +294,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             if(food->Size == 0){
                 int pos;
                 for(int i = 0; i < ant->Position->Obj_count; i++){
-                    if(food == Obj_list[i]){
+                    if(food == ant->Position->Obj_list[i]){
                         pos = i;
                     }
                 }
@@ -303,7 +303,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                 ant->Position->Obj_list = realloc(ant->Position->Obj_list, ant->Position->Obj_count * sizeof(Object*));
                 if(ant->Position->Obj_list == NULL){
                     perror("Échec de la réallocation mémoire pour ant->Position->Obj_list in \"Action_ant\"");
-                    return NULL;
+                    return;
                 }
             }
             ant->Hunger += egg_cost + 1;
