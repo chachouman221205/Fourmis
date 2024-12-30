@@ -117,15 +117,19 @@ void disconnect_rooms(Room* room1, Room* room2) {
 
 void free_room(Simulation_data* simulation_data, Room* room){
     if(room != NULL){
-        // On retire les connections avec les autres R2ooms
+        // On retire les connections avec les autres Rooms
         Room* R2;
         for (int i = 0; i < room->Connexion_list_size; i++) {
             R2 = room->Connexion_list[i];
             // chercher la connection
             for (int j = 0; j < R2->Connexion_list_size; j++) {
                 if (R2->Connexion_list[j] == room) {
-                    R2->Connexion_list[j] = R2->Connexion_list[--R2->Connexion_list_size]; // On retire la connection
+
+                    R2->Connexion_list[j] = R2->Connexion_list[--(R2->Connexion_list_size)]; // On retire la connection
                     R2->Connexion_list = realloc(R2->Connexion_list, R2->Connexion_list_size);
+                    if (R2->Connexion_list == NULL) {
+                        perror("échec de l'allocation pour les connections de Room");
+                    }
                 }
             }
         }
@@ -155,7 +159,7 @@ void free_room(Simulation_data* simulation_data, Room* room){
         free(room->Creature_list);*/
 
         if(simulation_data->debug_msgs){
-            printf("| DEBUG : room \"%s\" freed\n", room->Name_ID);
+            printf("| DEBUG : room \"%s\" %p freed\n", room->Name_ID, room);
         }
         free(room);
     }
@@ -165,6 +169,10 @@ void free_room_rec(Simulation_data* simulation_data, Room* room) {
     if (room != NULL) {
         if (room->Visited) {
             return;
+        }
+
+        if (simulation_data->debug_msgs) {
+            printf("| DEBUG : freeing room \"%s\" recursively\n", room->Name_ID);
         }
 
         room->Visited = true;

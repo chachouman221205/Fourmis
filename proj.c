@@ -18,8 +18,11 @@ int main(){
     start(simulation_1);
     printf("| Simulation démarée\n");
 
+    // Simulation
+    print_numbers(simulation_1);
+
     // Fin de la simulation
-    printf("| Simulation terminée\n");
+    printf("| Simulation finie\n");
     fin(simulation_1);
 
     return 0;
