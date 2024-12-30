@@ -8,7 +8,7 @@
 #include "ants.h"
 #include "rooms.h"
 
-bool debug_msgs = 0;    // Printf de messages si = 1, pour le debug
+bool debug_msgs = true;    // Printf de messages si = 1, pour le debug
 
 
 /* -----< Récupération des variables de départ >----- */
@@ -140,7 +140,7 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
 
         // On retire la fourmilière de l'Exterior
         Exterior* ext = nest->Exterior;
-        for (int i = 0; i < ext->Nest_number; i++) {
+        for(int i = 0; i < ext->Nest_number; i++){
             if (ext->Nests[i] == nest) {
                 ext->Nests[i] = ext->Nests[--ext->Nest_number];
                 ext->Nests = realloc(ext->Nests, ext->Nest_number);
