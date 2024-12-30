@@ -212,6 +212,49 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     return new_ant;
 }
 
+void move_ant(Ant* ant, Room* room) {
+    if (ant == NULL) {
+        perror("| ERROR : Cannot move NULL ant");
+    }
+    if (room == NULL) {
+        perror("| ERROR : Cannot move ant to NULL room");
+    }
+
+    // Vérification de la possibilité de déplacement
+    bool possible = false;
+    for (int i = 0; i < ant->Position->connexion_list_size; i++) {
+        if (ant->Position->connexion_list == room) {
+            possible = true;
+            break;
+        }
+    }
+    if (!possible) {
+        printf("| WARNING : trying to move ant to unaccessible location : move cancelled\n");
+        return;
+    }
+
+    // Déplacement :
+
+    // on retire la fourmi de l'ancienne salle
+    for (int i = 0; i < ant->Position->ant_count; i++) {
+        if (ant->Position->Ant_list[i] == ant) {
+            ant->Position->Ant_list[i] = ant->Position->Ant_list[--ant_count];
+            ant->Position->Ant_list = realloc(ant->Position->Ant_list, ant->Position->ant_count * sizeof(Ant*));
+        }
+    }
+
+    // on ajoute la fourmi à la nouvelle salle
+    room->Ant_list = realloc(room->Ant_list, ++room->ant_count);
+    room->Ant_list[ant_count-1] = ant;
+    ant-> Position = room;
+
+    // on déplace l'objet que porte la fourmi
+    if (ant->Held_object != NULL) {
+        move_object(ant->Held_object, room);
+    }
+
+}
+
 void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle
     if(ant->Ant_type == 0){  // actions possibles des reines
         int egg_cost = 4;
@@ -242,14 +285,14 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
         }
 
         //manger
-        Object* food = search_object(ant->position, "food");
+        Object* food = search_object(ant->Position, "food");
         if(food == NULL){
             insert_pheromone(&(ant->Position->Pheromone_stack), init_pheromone("bring_me_food", 5, 0));
         }
         else{
-            food->size--;
-            if(food->size == 0){
-                free_object(food);
+            food->Size--;
+            if(food->Size == 0){
+                free_object(simulation_data, food);
             }
             ant->Hunger += egg_cost + 1;
         }
@@ -259,6 +302,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
         if(ant->Action == NULL){
             insert_pheromone(&(ant->Action), init_pheromone("find_food", 6, 1));
         }
+<<<<<<< HEAD
         if(ant->Action->ph_ID == 0){
             if(ant->Held_object == NULL){
                 if(ant->Path == NULL){
@@ -269,6 +313,21 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                     if(ant->Path->Length == 0){
                         pick_up_obj(ant, "food");   //ant->Held_object = search_object(ant->position, "food");
                                                     //remove_obj_from_room_list(ant->position, "food");
+=======
+        else if(ant->Action->ph_ID == 0){
+            if(ant->Held_object == NULL){
+                if(ant->Path == NULL){
+                    ant->Path = find_path_to_food(ant->Position, true); // true = pas le droit d'aller chercher de la nourriture en dehors de la fourmilière
+                }
+                if(ant->Path == NULL){
+                    ant->Path = find_path_to_food(ant->Position, false); // Si aucune nourriture a été trouvée dans la fourmilière, on cherche également à l'extérieur
+                }
+                if(ant->Path != NULL){  // if path succeed
+                    // forcement un chemin
+                    if(ant->Path->length == 0){
+                        pick_up(ant, search_object(ant->Position, "food")); //ant->Held_object = search_object(ant->position, "food");
+                                                      //remove_obj_from_room_list(ant->position, "food");
+>>>>>>> 6666369cf5c06e4ae981665f749bd92613204f0d
                         //chemin fini + obj held
 
                         //free pheromone done
