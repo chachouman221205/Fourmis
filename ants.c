@@ -218,16 +218,17 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
         //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
         if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "salle de ponte")){ // si reinne a bien la nourriture requise (ici 10 pr l'exemple) et que reine est bien dans "salle de ponte"
             ant->Hunger = ant->Hunger - 10;   // on lui retire la nouriture utilisée
-            ant->Position->Egg_list = realloc(ant->Position->Egg_list, (Egg_list+1)*sizeof(Egg));
+            ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg));
             if(ant->Position->Egg_list == NULL){
                 perror("Échec de la réallocation mémoire pour Egg_list");
                 return NULL;
             }
-            ant->Position->Egg_list[Egg_number] = init_new_egg(simulation_data, ant->Nest, NULL , 0 , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
+            ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , 0 , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
+            ant->Position->Egg_count++;
             simulation_data->egg_IDs++;
         }
         if(ant->Hunger <= 10){
-            
+            ant->Position->Pheromone
         }
     }
     else if(ant->Ant_type == 1){ // actions possibles des ouvrières
