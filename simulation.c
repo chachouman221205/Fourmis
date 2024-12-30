@@ -112,6 +112,9 @@ Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int*
     new_nest->Entry = entry;
     new_nest->Exterior = Exterior;
 
+    Exterior->Nests = realloc(Exterior->Nests, ++Exterior->Nest_number);
+    Exterior->Nests[Exterior->Nest_number-1] = new_nest;
+
     if(debug_msgs){
         printf("| DEBUG : new nest \"%s\" initialized\n", new_nest->Clan);
     }
@@ -119,35 +122,81 @@ Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int*
     return new_nest;
 }
 
-void free_nest(Simulation_data* simulation_data, Nest* nest){ // à modifier par nassim
+void free_nest(Simulation_data* simulation_data, Nest* nest){
     if(nest != NULL){
+
+
+        free(nest->PV);
+        free(nest->DMG);
+
+        // on déconnecte la fourmilière de l'exterieur
+        disconnect_rooms(nest->Entry, nest->Exterior->Entry);
+        free_room_rec(simulation_data, nest->Entry);
+
+        // on free les fourmis associées à la fourmilière
+        for(int i = 1; i < nest->Ant_number; i++){
+            free_ant(nest->Ant_list[i]);
+        }
+
+        // On retire la fourmilière de l'Exterior
+        Exterior* ext = nest->Exterior;
+        for (int i = 0; i < ext->Nest_number; i++) {
+            if (ext->Nests[i] == nest) {
+                ext->Nests[i] = ext->Nest[--ext->Nest_number];
+                ext->Nests = realloc(ext->Nests, ext->Nest_number);
+            }
+        }
+
+
+        simulation_data->nest_NB--;
+
         if(debug_msgs){
             printf("| DEBUG : ant \"%s\" freed\n", nest->Clan);
         }
-        /*
-         *       for(int i = 1; i < nest->Ant_number; i++){
-         *           free_ant(nest->Ant_list[i]);
-    }
-    */
+
         free(nest);
-        simulation_data->nest_NB--;
     }
 }
 
 // Exterior
-Exterior* init_exterior(Room* entry){
+Exterior* init_exterior(Simulation_data* simulation_data, int size){
     Exterior* new_exterior = malloc(sizeof(Exterior));
     if(new_exterior == NULL){
         perror("Échec de l'allocation mémoire pour l'exterieur");
         return NULL;
     }
 
-    new_exterior->Entry = entry;
+    new_exterior->Nests = malloc(0);
+    new_exterior->Nest_number = 0;
+    new_exterior->Entry = NULL;
     new_exterior->Ant_list = malloc(0);
     new_exterior->Ant_number = 0;
 
     new_exterior->All_Ant_list = malloc(0);
     new_exterior->Total_Ant_number = 0;
+
+
+    Room** created_rooms = malloc(size * sizeof(Room*));
+    if (created_rooms == NULL) {
+        perror("Échec de l'allocation mémoire pour la liste des salles");
+    }
+    for (int i = 0; i < size; i++) {
+        created_rooms[i] = NULL;
+    }
+
+
+    for (int i = 0; i < size; i++) {
+        created_rooms[i] = init_room(simulation_data, "Exterior", rand()%(600-500)+500); // Chaque salle a une taille aléatoire entre 500 et 600
+
+
+        // On connecte la salle crée à jusqu'à trois autres salles
+        for (int j = rand()%3+1; j>0; j++) {
+            connect_rooms(created_rooms[rand()%i], created_rooms[i]);
+        }
+    }
+
+    new_exterior->Entry = created_rooms[0];
+    free(created_rooms);
 
     if(debug_msgs){
         printf("| DEBUG : new exterior initialized\n");
@@ -156,16 +205,17 @@ Exterior* init_exterior(Room* entry){
     return new_exterior;
 }
 
-void free_exterior(Exterior* exterior){ // à modifier par nassim
-    if(exterior != NULL){
+void free_exterior(Exterior* exterior){
+
+    if(exterior != NULL) {
+        while (0 < exterior->Nest_number) {
+            free_nest(exterior->Nests[0]);
+        }
+
         if(debug_msgs){
             printf("| DEBUG : exterior freed\n");
         }
-        /*
-         *       for(int i = 1; i < exterior->Ant_number; i++){
-         *           free_ant(exterior->Ant_list[i]);
-    }
-    */
+
         free(exterior);
     }
 }
@@ -203,7 +253,13 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     }
 }
 
+<<<<<<< HEAD
+
+
+void simulation(Simulation_data* simulation_data, Exterior* exterior, int iterations) {
+=======
 void simulation(Simulation_data* simulation_data, Nest* nest, Exterior* exterior, int iterations) {
+>>>>>>> refs/remotes/origin/main
     if (iterations == 0) {
         return;
     }
@@ -218,12 +274,11 @@ void simulation(Simulation_data* simulation_data, Nest* nest, Exterior* exterior
         simulation_data->current_season = simulation_data->season_chain->Number;
     }
 
-    simuler_room(simulation_data, nest->Entry);
+
     simuler_room(simulation_data, exterior->Entry);
     reinitialiser_rooms(simulation_data, exterior->Entry);
-    reinitialiser_rooms(simulation_data, nest->Entry);
 
-    simulation(simulation_data, nest, exterior, iterations-1);
+    simulation(simulation_data, exterior, iterations-1);
 }
 
 /* -----< Initialisation de la simulation >----- */
@@ -276,32 +331,14 @@ void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior){ 
 
 
     // Génération de l'extérieur
-    *exterior = init_exterior(entry);
     printf("Veuillez choisir une taille d'environnement pour la simulation. Nous recommandons entre 10 (très petit) et 300 (très grand) :\n");
     int room_number;
     scanf("%d", &room_number);
-
-    Room** created_rooms = malloc(room_number * sizeof(Room*));
-    if (created_rooms == NULL) {
-        perror("Échec de l'allocation mémoire pour la liste des salles");
-    }
-    for (int i = 0; i < room_number; i++) {
-        created_rooms[i] = NULL;
-    }
+    *exterior = init_exterior(simulation_data, room_number);
 
 
-    for (int i = 0; i < room_number; i++) {
-        created_rooms[i] = init_room(simulation_data, "Exterior", rand()%(600-500)+500); // Chaque salle a une taille aléatoire entre 500 et 600
-
-
-        // On connecte la salle crée à jusqu'à trois autres salles
-        for (int j = rand()%3+1; j>0; j++) {
-            connect_rooms(created_rooms[rand()%i], created_rooms[i]);
-        }
-    }
 
     // On s'assure qu'une des salles est connectée à la fourmilière
-    connect_rooms(created_rooms[0], entry);
+    connect_rooms((*exterior)->Entry, entry);
     (*nest)->Exterior = *exterior;
-    free(created_rooms);
 }

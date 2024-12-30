@@ -21,6 +21,8 @@
 
 // Représente l'extérieur de l'environnement (graphe de "Room")
 typedef struct Exterior {
+    struct Nest** Nests;
+    int Nest_number;
     struct Room *Entry;     // Pointeur vers l'entrée de l'environnement
 
     struct Ant **Ant_list;
@@ -112,7 +114,7 @@ Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int*
 void free_nest(Simulation_data* simulation_data, Nest* nest);
 
 // Exterior
-Exterior* init_exterior(Room* entry);
+Exterior* init_exterior(Simulation_data* simulation_data, int size);
 
 void free_exterior(Exterior* exterior);
 // Rooms
@@ -131,7 +133,7 @@ void print_numbers(Simulation_data* sim);
 void simuler_room(Simulation_data* simulation_data, Room* room);
 
 
-void simulation(Simulation_data* simulation_data, Nest* nest, Exterior* exterior, int iterations);
+void simulation(Simulation_data* simulation_data, Exterior* exterior, int iterations);
 
 /* -----< Initialisation de la simulation >----- */
 void start(Simulation_data* simulation_data, Nest** nest, Exterior** exterior);
