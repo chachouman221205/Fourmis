@@ -50,6 +50,10 @@ typedef struct Nest {
 
     struct Ant** Ant_list;
     int Ant_number;
+    struct Larve** Larve_list;
+    int Larve_number;
+    struct Egg** Egg_list;
+    int Egg_number;
 } Nest;
 
 
@@ -105,9 +109,9 @@ typedef struct Simulation_data {
     3 : 2+ room (init + free + connections)
     4 : 3+ ant & larve & egg & creature (death + pv)
     5 : 4+ food (creation + free)
-    6 : 5+ evolution (test)
+    6 : 5+ evolution (test + time_left)
     7 : 6+ room (reset)
-    8 : 7+ room (connexion free)
+    8 : 7+ room connexion (init + free)
 */
 
 // Pre-déclaration

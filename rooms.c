@@ -38,7 +38,7 @@ Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
 
     new_room->Pheromone_stack = malloc(0);
 
-    if(simulation_data->debug_msgs){
+    if(simulation_data->debug_msgs >= 3){
         printf("| DEBUG : new room \"%s\" %p initialized\n", new_room->Name_ID, new_room);
     }
 
@@ -95,7 +95,7 @@ void connect_rooms(Simulation_data* simulation_data, Room* room1, Room* room2) {
     room1->Connexion_list[room1->Connexion_list_size-1] = room2;
     room2->Connexion_list[room2->Connexion_list_size-1] = room1;
 
-    if(simulation_data->debug_msgs){
+    if(simulation_data->debug_msgs >= 8){
         printf("| DEBUG : new connection between room \"%s\" and room \"%s\"\n", room1->Name_ID, room2->Name_ID);
     }
 }
@@ -173,7 +173,7 @@ void free_room(Simulation_data* simulation_data, Room* room){
         }
         free(room->Creature_list);*/
 
-        if(simulation_data->debug_msgs){
+        if(simulation_data->debug_msgs >= 3){
             printf("| DEBUG : room \"%s\" %p freed\n", room->Name_ID, room);
         }
         free(room);
@@ -182,7 +182,7 @@ void free_room(Simulation_data* simulation_data, Room* room){
 void free_room_rec(Simulation_data* simulation_data, Room* room) {
     if (room != NULL && !room->Visited) {
 
-        if (simulation_data->debug_msgs) {
+        if (simulation_data->debug_msgs >= 3) {
             printf("| DEBUG : freeing room \"%s\" %p recursively\n", room->Name_ID, room);
         }
 

@@ -12,9 +12,6 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
         return NULL;
     }
 
-    simulation_data->egg_NB++;
-
-    
     // Initialisation des champs de l'oeuf, on initialise en fonction de la nest
     if (name != NULL) {
         new_egg->Name_ID = name;
@@ -30,6 +27,10 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     new_egg->Clan = nest->Clan;
     new_egg->Position = room;     // Position NULL au départ, assignation plus tard
 
+    simulation_data->egg_NB++;
+    nest->Egg_list = realloc(nest->Egg_list, (++nest->Egg_number)*sizeof(Egg*));
+    nest->Egg_list[nest->Egg_number-1] = new_egg;
+
     if(simulation_data->debug_msgs >= 1){
         printf("| DEBUG : new egg \"%s\" initialized in nest \"%s\"\n", new_egg->Name_ID, nest->Clan);
     }
@@ -42,9 +43,18 @@ void free_egg(Simulation_data* simulation_data, Egg* egg){
         if(simulation_data->debug_msgs >= 1){
             printf("| DEBUG : egg \"%s\" freed\n", egg->Name_ID);
         }
+
+        simulation_data->egg_NB--;
+
+        for(int i = 0; i < egg->Nest->Egg_number; i++){
+            if(egg->Nest->Egg_list[i] == egg){
+                egg->Nest->Egg_list[i] = egg->Nest->Egg_list[--egg->Nest->Egg_number];
+                egg->Nest->Egg_list = realloc(egg->Nest->Egg_list, egg->Nest->Egg_number * sizeof(Egg*));
+            }
+        }
+
         free(egg->Name_ID);
         free(egg);
-        simulation_data->egg_NB--;
     }
 }
 
@@ -104,7 +114,6 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
         exit(EXIT_FAILURE);
     }
     strcpy(new_larve->Name_ID, egg->Name_ID);
-    simulation_data->larve_NB++;
 
     new_larve->Ant_type = egg->Ant_type;
     new_larve->PV = egg->Nest->PV[new_larve->Ant_type]/2;
@@ -117,6 +126,11 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     if(simulation_data->debug_msgs >= 1){
         printf("| DEBUG : new larve \"%s\" initialized in nest \"%s\"\n", new_larve->Name_ID, egg->Nest->Clan);
     }
+
+    simulation_data->larve_NB++;
+    new_larve->Nest->Larve_list = realloc(new_larve->Nest->Larve_list, (++new_larve->Nest->Larve_number)*sizeof(Larve*));
+    new_larve->Nest->Larve_list[new_larve->Nest->Larve_number-1] = new_larve;
+
     free_egg(simulation_data, egg);
     return new_larve;
 }
@@ -126,9 +140,18 @@ void free_larve(Simulation_data* simulation_data, Larve* larve){
         if(simulation_data->debug_msgs >= 1){
             printf("| DEBUG : larve \"%s\" freed\n", larve->Name_ID);
         }
+
+        simulation_data->larve_NB--;
+
+        for(int i = 0; i < larve->Nest->Larve_number; i++){
+            if(larve->Nest->Larve_list[i] == larve){
+                larve->Nest->Larve_list[i] = larve->Nest->Larve_list[--larve->Nest->Larve_number];
+                larve->Nest->Larve_list = realloc(larve->Nest->Larve_list, larve->Nest->Larve_number * sizeof(Larve*));
+            }
+        }
+
         free(larve->Name_ID);
         free(larve);
-        simulation_data->larve_NB--;
     }
 }
 
@@ -207,6 +230,7 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     }
     strcpy(new_ant->Name_ID, larve->Name_ID);
     simulation_data->ant_NB++;
+    new_ant->Nest->Ant_number++;
 
     new_ant->PV = larve->Nest->PV[larve->Ant_type];
     new_ant->DMG = larve->Nest->DMG[larve->Ant_type];
@@ -488,9 +512,18 @@ void free_ant(Simulation_data* simulation_data, Ant* ant){
         if(simulation_data->debug_msgs >= 1){
             printf("| DEBUG : ant \"%s\" freed\n", ant->Name_ID);
         }
+
+        simulation_data->ant_NB--;
+
+        for(int i = 0; i < ant->Nest->Ant_number; i++){
+            if(ant->Nest->Ant_list[i] == ant){
+                ant->Nest->Ant_list[i] = ant->Nest->Ant_list[--ant->Nest->Ant_number];
+                ant->Nest->Ant_list = realloc(ant->Nest->Ant_list, ant->Nest->Ant_number * sizeof(Ant*));
+            }
+        }
+
         free(ant->Name_ID);
         free(ant);
-        simulation_data->ant_NB--;
     }
 }
 
