@@ -112,6 +112,10 @@ Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int*
     new_nest->Hunger = hunger;
     new_nest->Ant_list = malloc(0);
     new_nest->Ant_number = 0;
+    new_nest->Larve_list = malloc(0);
+    new_nest->Larve_number = 0;
+    new_nest->Egg_list = malloc(0);
+    new_nest->Egg_number = 0;
     new_nest->Entry = entry;
     new_nest->Exterior = simulation_data->Exterior;
     new_nest->Queen_chamber = NULL;
@@ -129,7 +133,6 @@ Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int*
 void free_nest(Simulation_data* simulation_data, Nest* nest){
     if(nest != NULL){
 
-
         free(nest->PV);
         free(nest->DMG);
 
@@ -138,8 +141,16 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
         free_room_rec(simulation_data, nest->Entry);
 
         // on free les fourmis associées à la fourmilière
-        for(int i = 1; i < nest->Ant_number; i++){
+        for(int i = 0; i < nest->Ant_number; i++){
             free_ant(simulation_data, nest->Ant_list[i]);
+        }
+        // on free les larve associées à la fourmilière
+        for(int i = 0; i < nest->Larve_number; i++){
+            free_larve(simulation_data, nest->Larve_list[i]);
+        }
+        // on free les egg associées à la fourmilière
+        for(int i = 0; i < nest->Egg_number; i++){
+            free_egg(simulation_data, nest->Egg_list[i]);
         }
 
         // On retire la fourmilière de l'Exterior
@@ -151,12 +162,15 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
             }
         }
 
-
         simulation_data->nest_NB--;
 
         if(simulation_data->debug_msgs >= 2){
             printf("| DEBUG : Nest \"%s\" freed\n", nest->Clan);
         }
+
+        free(nest->Ant_list);
+        free(nest->Larve_list);
+        free(nest->Egg_list);
 
         free(nest);
     }
@@ -197,15 +211,19 @@ Exterior* init_exterior(Simulation_data* simulation_data, int size){
 
         // On connecte la salle crée à jusqu'à trois autres salles
         j = rand()%3+1;
-        printf("Connecting to %d other rooms\n", j);
+        if(simulation_data->debug_msgs >= 8){
+            printf("Connecting to %d other rooms\n", j);
+        }
         for (; j>0; j--) {
             connect_rooms(simulation_data, created_rooms[rand()%(i)], created_rooms[i]);
         }
 
         R2 = created_rooms[i];
 
-        for (int k = 0; k < R2->Connexion_list_size; k++) {
-            printf("%p\n", R2->Connexion_list[k]);
+        if(simulation_data->debug_msgs >= 8){
+            for (int k = 0; k < R2->Connexion_list_size; k++) {
+                printf("%p\n", R2->Connexion_list[k]);
+            }
         }
     }
 
@@ -241,7 +259,7 @@ void free_exterior(Simulation_data* simulation_data, Exterior* exterior){
 
 // Display
 void print_numbers(Simulation_data* sim){
-    printf("Nests : %d | Rooms : %d | Eggs : %d | Larves : %d | Ants : %d | Creas : %d | Objs : %d | Ticks : %d | Season : %d | Season_counter %d\n",
+    printf("| DEBUG : Nests : %d | Rooms : %d | Eggs : %d | Larves : %d | Ants : %d | Creas : %d | Objs : %d | Ticks : %d | Season : %d | Season_counter %d\n\n",
            sim->nest_NB, sim->room_IDs, sim->egg_NB, sim->larve_NB, sim->ant_NB, sim->crea_NB, sim->obj_NB, sim->tick, sim->season_chain->Number, sim->counter);
 }
 
@@ -282,8 +300,8 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     for(int i = 0; i < room->Egg_count; i++){
         if(simulation_data->debug_msgs >= 6){
             printf("| DEBUG : egg \"%s\" in room \"%s\" has been tested\n", room->Egg_list[i]->Name_ID, room->Name_ID);
+            printf("| DEBUG : %s : time left before growth : %d\n", room->Egg_list[i]->Name_ID, room->Egg_list[i]->Grow);
         }
-        printf("%d\n", room->Egg_list[i]->Grow);
         if(test_grow_egg(simulation_data, room->Egg_list[i])){
             Larve* larve = init_new_larve(simulation_data, room->Egg_list[i]);
             room->Larve_list = realloc(room->Larve_list, (++room->Larve_count)*sizeof(Larve*));
@@ -297,6 +315,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     for(int i = 0; i < room->Larve_count; i++){
         if(simulation_data->debug_msgs >= 6){
             printf("| DEBUG : larve \"%s\" in room \"%s\" has been tested\n", room->Larve_list[i]->Name_ID, room->Name_ID);
+            printf("| DEBUG : %s : time left before growth : %d\n", room->Larve_list[i]->Name_ID, room->Larve_list[i]->Grow);
         }
         if(test_grow_larve(simulation_data, room->Larve_list[i])){
             Ant* ant = init_new_ant(simulation_data, room->Larve_list[i]);
@@ -465,7 +484,7 @@ Nest* start(Simulation_data* simulation_data){   // Lancer la simulation
     // Season* season = init_seasons(simulation_data, 0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
 
-    //Création du monde
+    // Création du monde
     // Génération de l'extérieur
     printf("Veuillez choisir une taille d'environnement pour la simulation. Nous recommandons entre 10 (très petit) et 300 (très grand) :   ");
     int room_number;
