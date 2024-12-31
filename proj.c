@@ -9,8 +9,8 @@
     3 : 2+ room (init + free + connections)
     4 : 3+ ant & larve & egg & creature (death + pv)
     5 : 4+ food (creation + free)
-    6 : 5+ evolution (test + time_left)
-    7 : 6+ room (reset)
+    6 : 5+ evolution (time_left)
+    7 : 6+ evolution (test), room (reset)
     8 : 7+ room connexion (init + free)
 */
 
@@ -29,15 +29,15 @@ int main(){
     printf("| Simulation démarée\n");
 
     // Initialisation d'une reine
-    Egg* queen = init_new_egg(simulation_1, nest, "Queen1", 0, nest->Queen_chamber);
+    Egg* queen = init_new_egg(simulation_1, nest, "Queen_ORIGIN", 0, nest->Queen_chamber);
     nest->Queen_chamber->Egg_list = realloc(nest->Queen_chamber->Egg_list, (++nest->Queen_chamber->Egg_count)*sizeof(Egg*));
     nest->Queen_chamber->Egg_list[nest->Queen_chamber->Egg_count-1] = queen;
 
     // Simulation
 
+    if(simulation_1->debug_msgs >= 1){print_numbers(simulation_1);}
     while(1){
         simulation_choice(simulation_1);
-        if(simulation_1->debug_msgs >= 1){print_numbers(simulation_1);}
     }
 
     // Fin de la simulation
