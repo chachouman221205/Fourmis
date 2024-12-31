@@ -87,6 +87,7 @@ typedef struct Simulation_data {
     // IDs
     int room_IDs;
     int egg_IDs;        // IDs++ à chaque nouvel(le) room/ant/object/predator, permet de ne jamais avoir 2 fois le meme id
+    int queen_IDs;
     int obj_IDs;
     int crea_IDs;
 

@@ -14,13 +14,13 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
 
     // Initialisation des champs de l'oeuf, on initialise en fonction de la nest
     if (name != NULL) {
-        char* new_name = malloc(sizeof(name)+1);
-        for(int i = 0; i < sizeof(name); i++){
+        char* new_name = malloc((strlen(name) + 1)* sizeof(char));
+        for(int i = 0; i < strlen(name)* sizeof(char); i++){
             new_name[i] = name[i];
         }
         new_egg->Name_ID = new_name;
     } else {
-        new_egg->Name_ID = malloc(10 * sizeof(char)); // egg_IDs peut atteindre 1 000 000 : 10 caractères ("Ant" + jusqu'à 7 chiffres pour l'entier + \0)
+        new_egg->Name_ID = malloc(20 * sizeof(char)); // egg_IDs peut atteindre 1 000 000 : 10 caractères ("Ant" + jusqu'à 7 chiffres pour l'entier + \0)
         sprintf(new_egg->Name_ID, "Ant%d", simulation_data->egg_IDs++);
     }
     new_egg->Ant_type = ant_type;
@@ -95,13 +95,13 @@ void test_kill_egg(Simulation_data* simulation_data, Egg* egg){
 bool test_grow_egg(Simulation_data* simulation_data, Egg* egg){
     if(egg != NULL){
         if(egg->Grow <= 0){
-            if(simulation_data->debug_msgs >= 6){
+            if(simulation_data->debug_msgs >= 7){
                 printf("| DEBUG : egg \"%s\" can evolve\n", egg->Name_ID);
             }
             return true;
         }
         else{
-            if(simulation_data->debug_msgs >= 6){
+            if(simulation_data->debug_msgs >= 7){
                 printf("| DEBUG : egg \"%s\" cannot evolve\n", egg->Name_ID);
             }
             return false;
@@ -119,11 +119,7 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     }
 
     // Initialisation des champs de la larve, on initialise en fonction de l'oeuf
-    new_larve->Name_ID = malloc(strlen(egg->Name_ID) + 1);
-    if (new_larve->Name_ID == NULL) {
-        perror("Erreur d'allocation pour Name_ID de la larve");
-        exit(EXIT_FAILURE);
-    }
+    new_larve->Name_ID = malloc((strlen(egg->Name_ID) + 2)* sizeof(char));
     strcpy(new_larve->Name_ID, egg->Name_ID);
 
     new_larve->Ant_type = egg->Ant_type;
@@ -160,6 +156,12 @@ void free_larve(Simulation_data* simulation_data, Larve* larve){
                 larve->Nest->Larve_list = realloc(larve->Nest->Larve_list, larve->Nest->Larve_number * sizeof(Larve*));
             }
         }
+        for(int i = 0; i < larve->Position->Larve_count; i++){
+            if(larve->Position->Larve_list[i] == larve){
+                larve->Position->Larve_list[i] = larve->Position->Larve_list[--larve->Position->Larve_count];
+                larve->Position->Larve_list = realloc(larve->Position->Larve_list, larve->Position->Larve_count * sizeof(Larve*));
+            }
+        }
 
         free(larve->Name_ID);
         free(larve);
@@ -192,13 +194,13 @@ void test_kill_larve(Simulation_data* simulation_data, Larve* larve){
 bool test_grow_larve(Simulation_data* simulation_data, Larve* larve){
     if(larve != NULL){
         if(larve->Grow <= 0){
-            if(simulation_data->debug_msgs >= 6){
+            if(simulation_data->debug_msgs >= 7){
                 printf("| DEBUG : larve \"%s\" can evolve\n", larve->Name_ID);
             }
             return true;
         }
 
-        if(simulation_data->debug_msgs >= 6){
+        if(simulation_data->debug_msgs >= 7){
             printf("| DEBUG : larve \"%s\" cannot evolve\n", larve->Name_ID);
         }
         return false;
@@ -233,15 +235,15 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     }
 
     // Initialisation des champs de la fourmi, on initialise en fonction de la larve
-    new_ant->Name_ID = larve->Name_ID;
-    new_ant->Name_ID = malloc(strlen(larve->Name_ID) + 1);
-    if (new_ant->Name_ID == NULL) {
-        perror("Erreur d'allocation pour Name_ID de la larve");
-        exit(EXIT_FAILURE);
+    new_ant->Name_ID = malloc((strlen(larve->Name_ID) + 2) * sizeof(char));
+    if(new_ant->Name_ID == NULL){
+        perror("Échec de l'allocation mémoire pour ant->Name_ID");
+        return NULL;
     }
+    printf("%ld %ld | %s\n", sizeof(new_ant->Name_ID), sizeof(larve->Name_ID), larve->Name_ID);
     strcpy(new_ant->Name_ID, larve->Name_ID);
+
     simulation_data->ant_NB++;
-    new_ant->Nest->Ant_number++;
 
     new_ant->PV = larve->Nest->PV[larve->Ant_type];
     new_ant->DMG = larve->Nest->DMG[larve->Ant_type];
@@ -253,6 +255,7 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
 
     attach_ant_to_nest(new_ant, larve->Nest);
 
+    new_ant->Nest->Ant_number++;
 
     if(simulation_data->debug_msgs >= 1){
         printf("\033[1;34m| DEBUG : new ant \"%s\" initialized in nest \"%s\"\n\033[0m", new_ant->Name_ID, larve->Nest->Clan);
@@ -310,6 +313,7 @@ void move_ant(Ant* ant, Room* room) {
 }
 
 void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle
+    printf("in\n");
     if(ant->Ant_type == 0){  // actions possibles des reines
         int egg_cost = 4;
         int max_egg = 4;
@@ -326,14 +330,22 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                     }
                     //ant_type_choice
                     int ant_type_choice;
-                    if(ant->Life < ant->Nest->Life_min){
+                    printf("    ant hunger : %d\n", ant->Hunger);
+                    if(ant->Life < ant->Nest->Life_min || ant->Hunger <= egg_cost){
                         ant_type_choice = 0; // on veut une reine
                     }
                     else{
                         ant_type_choice = 1;
                     }
                     //egg creation
-                    ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , ant_type_choice , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
+                    if(ant_type_choice == 0){
+                        char name[20]; // Taille adaptée à "Queen" + numéro + '\0'
+                        sprintf(name, "Queen%d", simulation_data->queen_IDs++);
+                        ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, name, ant_type_choice , ant->Position);
+                    }
+                    else{
+                        ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , ant_type_choice , ant->Position);
+                    }
                     ant->Position->Egg_count++;
                 }
             }
@@ -531,7 +543,12 @@ void free_ant(Simulation_data* simulation_data, Ant* ant){
                 ant->Nest->Ant_list = realloc(ant->Nest->Ant_list, ant->Nest->Ant_number * sizeof(Ant*));
             }
         }
-
+        for(int i = 0; i < ant->Position->Ant_count; i++){
+            if(ant->Position->Ant_list[i] == ant){
+                ant->Position->Ant_list[i] = ant->Position->Ant_list[--ant->Position->Ant_count];
+                ant->Position->Ant_list = realloc(ant->Position->Ant_list, ant->Position->Ant_count * sizeof(Ant*));
+            }
+        }
         free(ant->Name_ID);
         free(ant);
     }
@@ -539,7 +556,7 @@ void free_ant(Simulation_data* simulation_data, Ant* ant){
 
 void test_kill_ant(Simulation_data* simulation_data, Ant* ant){
     if(ant != NULL){
-        char* death_message[] = {"PV <= %d", "Life = %d", "Hunger <= %d"};
+        char* death_message[] = {"PV <= %d\n\033[0m", "Life = %d\n\033[0m", "Hunger <= %d\n\033[0m"};
         int condition = 0;
 
         if(ant->PV <= 0){
@@ -554,7 +571,7 @@ void test_kill_ant(Simulation_data* simulation_data, Ant* ant){
 
         if(condition != 0){
             if(simulation_data->debug_msgs >= 4){
-                printf("| DEBUG : ant \"%s\" died : ", ant->Name_ID);
+                printf("\033[1;35m| DEBUG : ant \"%s\" died : ", ant->Name_ID);
                 printf(death_message[condition-1], (condition == 1)? ant->PV : (condition == 2)? ant->Life : ant->Hunger);
             }
             free_ant(simulation_data, ant);
