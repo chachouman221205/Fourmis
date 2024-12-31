@@ -155,7 +155,7 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
         simulation_data->nest_NB--;
 
         if(simulation_data->debug_msgs){
-            printf("| DEBUG : ant \"%s\" freed\n", nest->Clan);
+            printf("| DEBUG : Nest \"%s\" freed\n", nest->Clan);
         }
 
         free(nest);
@@ -188,13 +188,24 @@ Exterior* init_exterior(Simulation_data* simulation_data, int size){
         created_rooms[i] = NULL;
     }
 
+    created_rooms[0] = init_room(simulation_data, "Exterior", (rand()%(600-500))+500);
 
-    for (int i = 0; i < size; i++) {
+    Room* R2;
+    int j;
+    for (int i = 1; i < size; i++) {
         created_rooms[i] = init_room(simulation_data, "Exterior", (rand()%(600-500))+500); // Chaque salle a une taille aléatoire entre 500 et 600
 
         // On connecte la salle crée à jusqu'à trois autres salles
-        for (int j = rand()%3+1; j>0; j--) {
-            connect_rooms(simulation_data, created_rooms[rand()%(i+1)], created_rooms[i]);
+        j = rand()%3+1;
+        printf("Connecting to %d other rooms\n", j);
+        for (; j>0; j--) {
+            connect_rooms(simulation_data, created_rooms[rand()%(i)], created_rooms[i]);
+        }
+
+        R2 = created_rooms[i];
+
+        for (int k = 0; k < R2->Connexion_list_size; k++) {
+            printf("%p\n", R2->Connexion_list[k]);
         }
     }
 
