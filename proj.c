@@ -19,7 +19,7 @@ int main(){
     printf("| Simulation démarée\n");
 
     // Simulation
-    while(1){
+    while(0){
         print_numbers(simulation_1);
         simulation_choice(simulation_1);
     }
