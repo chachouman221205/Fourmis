@@ -45,7 +45,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
 void free_egg(Simulation_data* simulation_data, Egg* egg){
     if(egg != NULL){
         if(simulation_data->debug_msgs >= 1){
-            printf("\033[1;32| DEBUG : egg \"%s\" freed\n\033[0m", egg->Name_ID);
+            printf("\033[1;32m| DEBUG : egg \"%s\" freed\n\033[0m", egg->Name_ID);
         }
 
         simulation_data->egg_NB--;

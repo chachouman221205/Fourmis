@@ -197,7 +197,7 @@ void free_room_rec(Simulation_data* simulation_data, Room* room) {
             printf("| DEBUG : freeing room \"%s\" %p recursively\n", room->Name_ID, room);
         }
         room->Visited = true;
-        printf("going through room %s\n", room->Name_ID);
+        //printf("going through room %s\n", room->Name_ID);
 
         for (int i = 0; i < room->Connexion_list_size; i++) {
             free_room_rec(simulation_data, room->Connexion_list[i]);
