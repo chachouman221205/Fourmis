@@ -202,13 +202,8 @@ void test_kill_larve(Simulation_data* simulation_data, Larve* larve) {
 
 bool test_grow_larve(Simulation_data* simulation_data, Larve* larve) {
     if(larve != NULL){
-<<<<<<< HEAD
-        if(larve->Grow <= 0) {
-            if(simulation_data->debug_msgs >= 6) {
-=======
         if(larve->Grow <= 0){
             if(simulation_data->debug_msgs >= 7){
->>>>>>> refs/remotes/origin/main
                 printf("| DEBUG : larve \"%s\" can evolve\n", larve->Name_ID);
             }
             return true;
