@@ -57,6 +57,13 @@ void free_egg(Simulation_data* simulation_data, Egg* egg){
             }
         }
 
+        for(int i = 0; i < egg->Position->Egg_count; i++){
+            if(egg->Position->Egg_list[i] == egg){
+                egg->Position->Egg_list[i] = egg->Position->Egg_list[--egg->Position->Egg_count];
+                egg->Position->Egg_list = realloc(egg->Position->Egg_list, egg->Position->Egg_count * sizeof(Egg*));
+            }
+        }
+
         free(egg->Name_ID);
         free(egg);
     }
