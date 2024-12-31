@@ -119,7 +119,8 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     }
 
     // Initialisation des champs de la larve, on initialise en fonction de l'oeuf
-    new_larve->Name_ID = malloc((strlen(egg->Name_ID) + 2)* sizeof(char));
+    new_larve->Name_ID = malloc((strlen(egg->Name_ID) + 1)* sizeof(char));
+    // printf("%ld %ld | %s\n", sizeof(new_larve->Name_ID), sizeof(egg->Name_ID), egg->Name_ID);
     strcpy(new_larve->Name_ID, egg->Name_ID);
 
     new_larve->Ant_type = egg->Ant_type;
@@ -235,12 +236,12 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     }
 
     // Initialisation des champs de la fourmi, on initialise en fonction de la larve
-    new_ant->Name_ID = malloc((strlen(larve->Name_ID) + 2) * sizeof(char));
+    new_ant->Name_ID = malloc((strlen(larve->Name_ID) + 1) * sizeof(char));
     if(new_ant->Name_ID == NULL){
         perror("Échec de l'allocation mémoire pour ant->Name_ID");
         return NULL;
     }
-    printf("%ld %ld | %s\n", sizeof(new_ant->Name_ID), sizeof(larve->Name_ID), larve->Name_ID);
+    // printf("%ld %ld | %s\n", sizeof(new_ant->Name_ID), sizeof(larve->Name_ID), larve->Name_ID);
     strcpy(new_ant->Name_ID, larve->Name_ID);
 
     simulation_data->ant_NB++;
@@ -313,7 +314,6 @@ void move_ant(Ant* ant, Room* room) {
 }
 
 void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle
-    printf("in\n");
     if(ant->Ant_type == 0){  // actions possibles des reines
         int egg_cost = 4;
         int max_egg = 4;
@@ -330,7 +330,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                     }
                     //ant_type_choice
                     int ant_type_choice;
-                    printf("    ant hunger : %d\n", ant->Hunger);
+                    // printf("    ant hunger : %d\n", ant->Hunger);
                     if(ant->Life < ant->Nest->Life_min || ant->Hunger <= egg_cost){
                         ant_type_choice = 0; // on veut une reine
                     }

@@ -25,7 +25,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
     }
     spring->Name = "Spring";
     spring->Number = 1;
-    spring->Chance = 10;  //en %
+    spring->Chance = 7;  //en %
 
     Season *summer = malloc(sizeof(Season));
     if(summer == NULL){     // Si echec d'allocation, on free toutes les saisons déjà allouées
@@ -35,7 +35,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
     }
     summer->Name = "Summer";
     summer->Number = 2;
-    summer->Chance = 25;
+    summer->Chance = 12;
 
     Season *autumn = malloc(sizeof(Season));
     if(autumn == NULL){
@@ -46,7 +46,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
     }
     autumn->Name = "Autumn";
     autumn->Number = 3;
-    autumn->Chance = 10;
+    autumn->Chance = 7;
 
     Season *winter = malloc(sizeof(Season));
     if(winter == NULL){
@@ -58,7 +58,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
     }
     winter->Name = "Winter";
     winter->Number = 4;
-    winter->Chance = 2;
+    winter->Chance = 1;
 
     // Chaînage des saisons : Boucle cyclique
     spring->Next = summer;
@@ -307,7 +307,6 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
             printf("\033[1;36m| DEBUG : %s : time left before growth : %d\n\033[0m", room->Larve_list[i]->Name_ID, room->Larve_list[i]->Grow);
         }
         if(test_grow_larve(simulation_data, room->Larve_list[i])){
-            printf("in0\n");
             Ant* ant = init_new_ant(simulation_data, room->Larve_list[i]);
             room->Ant_list = realloc(room->Ant_list, (++room->Ant_count)*sizeof(Ant*));
             room->Ant_list[room->Ant_count-1] = ant;
