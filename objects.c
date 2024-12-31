@@ -43,7 +43,7 @@ Object* search_object(Room* room, char* NameID) {
 void free_object(Simulation_data* simulation_data, Object* object){
     if(object != NULL){
         if(simulation_data->debug_msgs >= 5){
-            printf("\033[1;31m| DEBUG : object \"%s\" freed\n\033[0m", object->Name_ID);
+            printf("\033[1;32m| DEBUG : object \"%s\" freed\n\033[0m", object->Name_ID);
         }
         free(object);
         simulation_data->obj_NB--;
