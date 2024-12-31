@@ -14,7 +14,11 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
 
     // Initialisation des champs de l'oeuf, on initialise en fonction de la nest
     if (name != NULL) {
-        new_egg->Name_ID = name;
+        char* new_name = malloc(sizeof(name)+1);
+        for(int i = 0; i < sizeof(name); i++){
+            new_name[i] = name[i];
+        }
+        new_egg->Name_ID = new_name;
     } else {
         new_egg->Name_ID = malloc(10 * sizeof(char)); // egg_IDs peut atteindre 1 000 000 : 10 caractères ("Ant" + jusqu'à 7 chiffres pour l'entier + \0)
         sprintf(new_egg->Name_ID, "Ant%d", simulation_data->egg_IDs++);
