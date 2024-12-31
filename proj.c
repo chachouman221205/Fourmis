@@ -19,7 +19,7 @@ int main(){
 
     // Initialisation d'une reine
     Egg* queen = init_new_egg(simulation_1, nest, "Queen1", 0, nest->Queen_chamber);
-    nest->Queen_chamber->Egg_list = realloc(nest->Queen_chamber->Egg_list, (++nest->Queen_chamber->Egg_count)*sizeof(Egg));
+    nest->Queen_chamber->Egg_list = realloc(nest->Queen_chamber->Egg_list, (++nest->Queen_chamber->Egg_count)*sizeof(Egg*));
     nest->Queen_chamber->Egg_list[nest->Queen_chamber->Egg_count-1] = queen;
 
     // Simulation

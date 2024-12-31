@@ -105,7 +105,7 @@ void disconnect_rooms(Room* room1, Room* room2) {
     for (int j = 0; j < room1->Connexion_list_size; j++) {
         if (room1->Connexion_list[j] == room2) {
             room1->Connexion_list[j] = room1->Connexion_list[--room1->Connexion_list_size];
-            room1->Connexion_list = realloc(room1->Connexion_list, room1->Connexion_list_size);
+            room1->Connexion_list = realloc(room1->Connexion_list, (room1->Connexion_list_size) * sizeof(Room*));
         }
     }
 
@@ -113,7 +113,7 @@ void disconnect_rooms(Room* room1, Room* room2) {
     for (int j = 0; j < room2->Connexion_list_size; j++) {
         if (room2->Connexion_list[j] == room1) {
             room2->Connexion_list[j] = room2->Connexion_list[--room2->Connexion_list_size];
-            room2->Connexion_list = realloc(room2->Connexion_list, room2->Connexion_list_size);
+            room2->Connexion_list = realloc(room2->Connexion_list, (room2->Connexion_list_size) * sizeof(Room*));
         }
     }
 }

@@ -112,7 +112,7 @@ void move_object(Object* object, Room* start, Room* end) {
     }
 
     // on ajoute l'objet à la nouvelle salle
-    end->Obj_list = realloc(end->Obj_list, ++end->Obj_count);
+    end->Obj_list = realloc(end->Obj_list, (++end->Obj_count) * sizeof(Object*));
     end->Obj_list[end->Obj_count-1] = object;
 
 

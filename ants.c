@@ -284,7 +284,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
             for(int i = 0; i < rand()% max_egg + 1; i++){
                 if(ant->Hunger > 10){
                     ant->Hunger = ant->Hunger - egg_cost;   // on lui retire la nouriture utilisée
-                    ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg));
+                    ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg*));
                     if(ant->Position->Egg_list == NULL){
                         perror("Échec de la réallocation mémoire pour Egg_list");
                         return;

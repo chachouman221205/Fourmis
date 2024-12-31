@@ -116,7 +116,7 @@ Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int*
     new_nest->Exterior = simulation_data->Exterior;
     new_nest->Queen_chamber = NULL;
 
-    new_nest->Exterior->Nests = realloc(new_nest->Exterior->Nests, ++(new_nest->Exterior->Nest_number));
+    new_nest->Exterior->Nests = realloc(new_nest->Exterior->Nests, (++(new_nest->Exterior->Nest_number)) * sizeof(Nest*));
     new_nest->Exterior->Nests[new_nest->Exterior->Nest_number-1] = new_nest;
 
     if(simulation_data->debug_msgs){
@@ -147,7 +147,7 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
         for(int i = 0; i < ext->Nest_number; i++){
             if (ext->Nests[i] == nest) {
                 ext->Nests[i] = ext->Nests[--ext->Nest_number];
-                ext->Nests = realloc(ext->Nests, ext->Nest_number);
+                ext->Nests = realloc(ext->Nests, (ext->Nest_number) * sizeof(Nest*));
             }
         }
 
@@ -265,7 +265,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
         for(int i = 0; i < rand()% tries + 1; i++){
             if(rand()% 100 <= chance){
                 Object* food = init_object(simulation_data, "food", rand()% size_max + 2, false);
-                room->Obj_list = realloc(room->Obj_list, (room->Obj_count + 1)*sizeof(Object));
+                room->Obj_list = realloc(room->Obj_list, (room->Obj_count + 1)*sizeof(Object*));
 
                 if(room->Obj_list == NULL){
                     perror("Échec de l'allocation mémoire pour la liste des salles");
@@ -286,7 +286,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
         printf("%d\n", room->Egg_list[i]->Grow);
         if(test_grow_egg(simulation_data, room->Egg_list[i])){
             Larve* larve = init_new_larve(simulation_data, room->Egg_list[i]);
-            room->Larve_list = realloc(room->Larve_list, (++room->Larve_count)*sizeof(Larve));
+            room->Larve_list = realloc(room->Larve_list, (++room->Larve_count)*sizeof(Larve*));
             room->Larve_list[room->Larve_count-1] = larve;
         }
         else{
@@ -300,7 +300,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
         }*/
         if(test_grow_larve(simulation_data, room->Larve_list[i])){
             Ant* ant = init_new_ant(simulation_data, room->Larve_list[i]);
-            room->Ant_list = realloc(room->Ant_list, (++room->Ant_count)*sizeof(Ant));
+            room->Ant_list = realloc(room->Ant_list, (++room->Ant_count)*sizeof(Ant*));
             room->Ant_list[room->Ant_count-1] = ant;
         }
         else{
