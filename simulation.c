@@ -13,7 +13,7 @@
 
 /* -----< Récupération des variables de départ >----- */
 void init_variables(Simulation_data* simulation){  // Récupère les scanf pour inititaliser des variables
-    printf("Saison de départ : (1: Spring, 2: Summer, 3: Autumn, 4: Winter)");
+    printf("Saison de départ : (1: Spring, 2: Summer, 3: Autumn, 4: Winter)   ");
     scanf(" %d", &(simulation->start_season));
 }
 
@@ -35,7 +35,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
         exit(1);
     }
     summer->Name = "Summer";
-    summer->Number = 3;
+    summer->Number = 2;
     summer->Chance = 40;
 
     Season *autumn = malloc(sizeof(Season));
@@ -58,7 +58,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
         exit(1);
     }
     winter->Name = "Winter";
-    winter->Number = 5;
+    winter->Number = 4;
     winter->Chance = 5;
 
     // Chaînage des saisons : Boucle cyclique
@@ -242,8 +242,8 @@ void free_exterior(Simulation_data* simulation_data, Exterior* exterior){
 
 // Display
 void print_numbers(Simulation_data* sim){
-    printf("Nests : %d | Rooms : %d | Eggs : %d | Larves : %d | Ants : %d | Creas : %d | Objs : %d\n",
-           sim->nest_NB, sim->room_IDs, sim->egg_NB, sim->larve_NB, sim->ant_NB, sim->crea_NB, sim->obj_NB);
+    printf("Nests : %d | Rooms : %d | Eggs : %d | Larves : %d | Ants : %d | Creas : %d | Objs : %d | Ticks : %d | Season : %d | Season_counter %d\n",
+           sim->nest_NB, sim->room_IDs, sim->egg_NB, sim->larve_NB, sim->ant_NB, sim->crea_NB, sim->obj_NB, sim->tick, sim->season_chain->Number, sim->counter);
 }
 
 
@@ -265,7 +265,8 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     for(int i = 0; i < rand()% tries + 1; i++){
         if(rand()% 100 <= chance){
             Object* food = init_object(simulation_data, "food", rand()% size_max + 2, false);
-            room->Obj_list = realloc(room->Obj_list, room->Obj_count+1);
+            room->Obj_list = realloc(room->Obj_list, (room->Obj_count + 1)*sizeof(Object));
+
             if(room->Obj_list == NULL){
                 perror("Échec de l'allocation mémoire pour la liste des salles");
                 exit(1);
@@ -287,6 +288,8 @@ void simulation(Simulation_data* simulation_data, int iterations) {
         return;
     }
 
+    printf("| DEBUG : iterations left : %d\n", iterations);
+
     simulation_data->tick++;
     simulation_data->counter++;
 
@@ -305,27 +308,35 @@ void simulation(Simulation_data* simulation_data, int iterations) {
 
 void simulation_choice(Simulation_data* simulation_data){
     int choice;
-    printf("Quel choix pour la simulation ? (-1 pour le message d'aide)\n");
+    printf("Quel choix pour la simulation ? (-1 pour le message d'aide)   ");
 
     scanf("%d", &choice);
     if(choice == -1){
         printf("0 : fin de la simulation\n");
         printf("1 : avancer de 1 tick (1 itération)\n");
-        printf("2 : avancer de X tick\n");
-        printf("\nQuel choix pour la simulation ? (-1 pour le message d'aide)\n");
+        printf("2 : avancer de X tick\n\n");
         simulation_choice(simulation_data);
     }
     if(choice == 0){
+        printf("| Simulation finie\n");
         fin(simulation_data);
+        exit(0);
     }
-    if(choice == 0){
-        simulation(simulation_data, 1);
+    if(choice == 1){
+        int X = 1;
+        simulation(simulation_data, X);
     }
     if(choice == 2){
         int X;
-        printf("Combien de ticks voulez-vous simuler ? :\n");
+        printf("Combien de ticks voulez-vous simuler ? :   ");
         scanf("%d", &X);
         simulation(simulation_data, X);
+    }
+    if(choice < -1 || choice > 2){
+        printf("0 : fin de la simulation\n");
+        printf("1 : avancer de 1 tick (1 itération)\n");
+        printf("2 : avancer de X tick\n\n");
+        simulation_choice(simulation_data);
     }
 }
 
@@ -384,7 +395,7 @@ void start(Simulation_data* simulation_data){   // Lancer la simulation
 
     //Création du monde
     // Génération de l'extérieur
-    printf("Veuillez choisir une taille d'environnement pour la simulation. Nous recommandons entre 10 (très petit) et 300 (très grand) :\n");
+    printf("Veuillez choisir une taille d'environnement pour la simulation. Nous recommandons entre 10 (très petit) et 300 (très grand) :   ");
     int room_number;
     scanf("%d", &room_number);
     simulation_data->Exterior = init_exterior(simulation_data, room_number);

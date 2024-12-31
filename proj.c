@@ -5,7 +5,7 @@
 
 /* -----< Main >----- */
 int main(){
-    printf(" \b"); // Pour éviter les problèmes de scanf, peut etre supprimé
+    printf("\n\n \b"); // Pour éviter les problèmes de scanf, peut etre supprimé
 
     // Simulation
     Simulation_data* simulation_1 = malloc(sizeof(Simulation_data));
@@ -19,7 +19,10 @@ int main(){
     printf("| Simulation démarée\n");
 
     // Simulation
-    print_numbers(simulation_1);
+    while(1){
+        print_numbers(simulation_1);
+        simulation_choice(simulation_1);
+    }
 
     // Fin de la simulation
     printf("| Simulation finie\n");
