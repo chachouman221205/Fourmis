@@ -68,7 +68,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
 
     Season* tab[] = {spring, summer, autumn, winter};
 
-    if(simulation_data->debug_msgs){
+    if(simulation_data->debug_msgs >= 2){
         printf("| DEBUG : seasons initialized (start season \"%s\")\n", tab[start_season-1]->Name);
     }
 
@@ -87,7 +87,7 @@ void free_seasons(Simulation_data* simulation_data, Season* season){
         }
         free(current); // Libérer la derniere saison
 
-        if(simulation_data->debug_msgs){
+        if(simulation_data->debug_msgs >= 2){
             printf("| DEBUG : seasons freed\n");
         }
     }
@@ -119,7 +119,7 @@ Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int*
     new_nest->Exterior->Nests = realloc(new_nest->Exterior->Nests, (++(new_nest->Exterior->Nest_number)) * sizeof(Nest*));
     new_nest->Exterior->Nests[new_nest->Exterior->Nest_number-1] = new_nest;
 
-    if(simulation_data->debug_msgs){
+    if(simulation_data->debug_msgs >= 2){
         printf("| DEBUG : new nest \"%s\" initialized\n", new_nest->Clan);
     }
 
@@ -154,7 +154,7 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
 
         simulation_data->nest_NB--;
 
-        if(simulation_data->debug_msgs){
+        if(simulation_data->debug_msgs >= 2){
             printf("| DEBUG : Nest \"%s\" freed\n", nest->Clan);
         }
 
@@ -212,7 +212,7 @@ Exterior* init_exterior(Simulation_data* simulation_data, int size){
     new_exterior->Entry = created_rooms[0];
     free(created_rooms);
 
-    if(simulation_data->debug_msgs){
+    if(simulation_data->debug_msgs >= 2){
         printf("| DEBUG : new exterior initialized\n");
     }
 
@@ -231,7 +231,7 @@ void free_exterior(Simulation_data* simulation_data, Exterior* exterior){
         }
         free_room_rec(simulation_data, exterior->Entry);
 
-        if(simulation_data->debug_msgs){
+        if(simulation_data->debug_msgs >= 2){
             printf("| DEBUG : exterior freed\n");
         }
 
@@ -280,9 +280,9 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     // test evolve
         // eggs
     for(int i = 0; i < room->Egg_count; i++){
-        /*if(simulation_data->debug_msgs){
+        if(simulation_data->debug_msgs >= 6){
             printf("| DEBUG : egg \"%s\" in room \"%s\" has been tested\n", room->Egg_list[i]->Name_ID, room->Name_ID);
-        }*/
+        }
         printf("%d\n", room->Egg_list[i]->Grow);
         if(test_grow_egg(simulation_data, room->Egg_list[i])){
             Larve* larve = init_new_larve(simulation_data, room->Egg_list[i]);
@@ -295,9 +295,9 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     }
         // larves
     for(int i = 0; i < room->Larve_count; i++){
-        /*if(simulation_data->debug_msgs){
+        if(simulation_data->debug_msgs >= 6){
             printf("| DEBUG : larve \"%s\" in room \"%s\" has been tested\n", room->Larve_list[i]->Name_ID, room->Name_ID);
-        }*/
+        }
         if(test_grow_larve(simulation_data, room->Larve_list[i])){
             Ant* ant = init_new_ant(simulation_data, room->Larve_list[i]);
             room->Ant_list = realloc(room->Ant_list, (++room->Ant_count)*sizeof(Ant*));
@@ -324,7 +324,9 @@ void simulation(Simulation_data* simulation_data, int iterations) {
         return;
     }
 
-    printf("| DEBUG : iterations left : %d\n", iterations);
+    if(simulation_data->debug_msgs >= 2){
+        printf("| DEBUG : iterations left : %d\n", iterations);
+    }
 
     simulation_data->tick++;
     simulation_data->counter++;

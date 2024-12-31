@@ -222,9 +222,9 @@ void reinitialiser_rooms(Simulation_data* simulation_data, Room* room) {
     if (!room->Visited) {
         return;
     }
-    /*if(simulation_data->debug_msgs){
+    if(simulation_data->debug_msgs >= 7){
         printf("\033[1;35m| DEBUG : room \"%s\" re-initialized\n\033[0m", room->Name_ID);
-    }*/
+    }
     room->Visited = false;
     for (int i = 0; i < room->Connexion_list_size; i++) {
         reinitialiser_rooms(simulation_data, room->Connexion_list[i]);

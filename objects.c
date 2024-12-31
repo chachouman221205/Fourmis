@@ -24,7 +24,7 @@ Object* init_object(Simulation_data* simulation_data, char* name_ID, int size, b
     new_obj->Size = size;
     new_obj->Held = held;
 
-    if(simulation_data->debug_msgs){
+    if(simulation_data->debug_msgs >= 5){
         printf("\033[0;33m| DEBUG : new obj \"%s\" initialized\n\033[0m", new_obj->Name_ID);
     }
 
@@ -42,7 +42,7 @@ Object* search_object(Room* room, char* NameID) {
 
 void free_object(Simulation_data* simulation_data, Object* object){
     if(object != NULL){
-        if(simulation_data->debug_msgs){
+        if(simulation_data->debug_msgs >= 5){
             printf("| DEBUG : object \"%s\" freed\n", object->Name_ID);
         }
         free(object);

@@ -95,9 +95,20 @@ typedef struct Simulation_data {
     int obj_NB;
     int crea_NB;
 
-    bool debug_msgs; // Printf de messages si = 1, pour le debug
+    int debug_msgs;
 } Simulation_data;
 
+/* Simulation messages :
+    0 : No msgs
+    1 : ant & larve & egg & creature (init + free + evolution), print_numbers
+    2 : 1+ environment & seasons (init + free), iterations left
+    3 : 2+ room (init + free + connections)
+    4 : 3+ ant & larve & egg & creature (death + pv)
+    5 : 4+ food (creation + free)
+    6 : 5+ evolution (test)
+    7 : 6+ room (reset)
+    8 : 7+ room (connexion free)
+*/
 
 // Pre-déclaration
 typedef struct Room Room;

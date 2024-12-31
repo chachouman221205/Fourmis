@@ -33,14 +33,14 @@ Creature* init_creature(Simulation_data* simulation_data, char* name_ID, int pv,
     new_creature->Hunger = hunger;
     new_creature->Position = position;
 
-    if(debug_msgs){
+    if(debug_msgs >= 1){
         printf("| DEBUG : new creature \"%s\" initialized\n", new_creature->Name_ID);
     }
 }
 
 void free_creature(Simulation_data* simulation_data, Creature* creature){
     if(creature != NULL){
-        if(debug_msgs){
+        if(debug_msgs >= 1){
             printf("| DEBUG : creature \"%s\" freed\n", creature->Name_ID);
         }
         free(creature);
@@ -64,7 +64,7 @@ void test_kill_creature(Simulation_data* simulation_data, Creature* crea){
         }
 
         if(condition != 0){
-            if(debug_msgs){
+            if(debug_msgs >= 4){
                 printf("| DEBUG : crea \"%s\" died : ", crea->Name_ID);
                 printf(death_message[condition], (condition == 1)? crea->PV : (condition == 2)? crea->Life : crea->Hunger);
             }
@@ -87,7 +87,7 @@ void combat_ant_creature(Simulation_data* simulation_data, Ant* ant, Creature* c
     ant->PV -= crea->DMG;
     crea->PV -= ant->DMG;
 
-    if(debug_msgs){
+    if(debug_msgs >= 4){
         printf("| DEBUG : ant \"%s\" : %d PV\n", ant->Name_ID, ant->PV);
         printf("| DEBUG : crea \"%s\" : %d PV\n", crea->Name_ID, crea->PV);
     }

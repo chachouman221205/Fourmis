@@ -10,7 +10,7 @@ int main(){
     // Simulation
     Simulation_data* simulation_1 = init_simulation(); 
     init_variables(simulation_1);
-    simulation_1->debug_msgs = true;
+    simulation_1->debug_msgs = 1;
     init_seasons(simulation_1, simulation_1->start_season);
 
     // Début de la simulation
@@ -23,10 +23,10 @@ int main(){
     nest->Queen_chamber->Egg_list[nest->Queen_chamber->Egg_count-1] = queen;
 
     // Simulation
-    print_numbers(simulation_1);
+    if(simulation_1->debug_msgs >= 1){print_numbers(simulation_1);}
     while(1){
         simulation_choice(simulation_1);
-        print_numbers(simulation_1);
+        if(simulation_1->debug_msgs >= 1){print_numbers(simulation_1);}
     }
 
     // Fin de la simulation

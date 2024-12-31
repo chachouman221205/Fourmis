@@ -48,7 +48,6 @@ int remaining_space(Room* room);
 
 void reinitialiser_rooms(Simulation_data* simulation_data, Room* room);
 
-
 void free_Path(Path* p);
 void use_path(Path* p);
 

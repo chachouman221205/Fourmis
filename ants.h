@@ -75,21 +75,24 @@ void free_larve(Simulation_data* simulation_data, Larve* larve);
 void test_kill_larve(Simulation_data* simulation_data, Larve* larve);
 
 bool test_grow_larve(Simulation_data* simulation_data, Larve* larve);
-// Ants
 
+// Ants
 void attach_ant_to_nest(Ant* ant, Nest* nest);
 
 Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve);
 
 void move_ant(Ant* ant, Room* room);
+
 void Action_ant(Simulation_data* simulation_data, Ant* ant);
 
 Ant* search_AntID(char* AntID, Exterior* Exterior);
 
 void free_ant(Simulation_data* simulation_data, Ant* ant);
+
 void test_kill_ant(Simulation_data* simulation_data, Ant* ant);
 
 void combat_ants(Simulation_data* simulation_data, Ant* ant1, Ant* ant2);
+
 int total_size(Ant* ant);
 
 
