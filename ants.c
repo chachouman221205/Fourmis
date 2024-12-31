@@ -14,17 +14,13 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
 
     // Initialisation des champs de l'oeuf, on initialise en fonction de la nest
     if (name != NULL) {
-<<<<<<< HEAD
         char* new_name = malloc(sizeof(name)+1);
         if (new_name == NULL) {
             perror("Échec de l'allocation mémoire pour le nom de la fourmi");
             exit(1);
         }
-        for(int i = 0; i < sizeof(name); i++){
-=======
-        char* new_name = malloc((strlen(name) + 1)* sizeof(char));
         for(int i = 0; i < strlen(name)* sizeof(char); i++){
->>>>>>> refs/remotes/origin/main
+
             new_name[i] = name[i];
         }
         new_egg->Name_ID = new_name;
