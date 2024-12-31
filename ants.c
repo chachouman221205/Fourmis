@@ -202,13 +202,8 @@ void test_kill_larve(Simulation_data* simulation_data, Larve* larve) {
 
 bool test_grow_larve(Simulation_data* simulation_data, Larve* larve) {
     if(larve != NULL){
-<<<<<<< HEAD
         if(larve->Grow <= 0) {
             if(simulation_data->debug_msgs >= 6) {
-=======
-        if(larve->Grow <= 0){
-            if(simulation_data->debug_msgs >= 7){
->>>>>>> refs/remotes/origin/main
                 printf("| DEBUG : larve \"%s\" can evolve\n", larve->Name_ID);
             }
             return true;
@@ -332,7 +327,7 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
         int max_egg = 4;
         //si hunger < 10 --> aller manger
         //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
-        if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "Queen chamber")){ // si reinne a bien la nourriture requise (ici 10 pr l'exemple) et que reine est bien dans "salle de ponte"
+        if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "Queen chamber") && remaining_space(ant->Position) > 10){
             for(int i = 0; i < rand()% max_egg + 1; i++){
                 if(ant->Hunger > 10){
                     ant->Hunger = ant->Hunger - egg_cost;   // on lui retire la nouriture utilisée

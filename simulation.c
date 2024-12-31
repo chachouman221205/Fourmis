@@ -263,7 +263,7 @@ void print_numbers(Simulation_data* sim){   // OLD
 */
 void print_numbers(Simulation_data* sim){
     printf("| DEBUG : Eggs : %d | Larves : %d | Ants : %d | Objs : %d | Ticks : %d\n\n",
-           sim->egg_NB, sim->larve_NB, sim->ant_NB, sim->obj_NB, sim->tick);
+                   sim->egg_NB, sim->larve_NB, sim->ant_NB, sim->obj_NB, sim->tick);
 }
 
 /* -----< Simulation >----- */
@@ -349,7 +349,7 @@ void simulation(Simulation_data* simulation_data, int iterations) {
         return;
     }
 
-    if(simulation_data->debug_msgs >= 2){
+    if(simulation_data->debug_msgs >= 1){
         printf("| DEBUG : iterations left : %d\n", iterations);
     }
 

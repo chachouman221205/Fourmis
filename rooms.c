@@ -219,6 +219,8 @@ int remaining_space(Room* room) {
 
     // Ants
     space_used += room->Ant_count;
+    space_used += room->Larve_count;
+    space_used += room->Egg_count;
 
     /* Creatures not added
     // Creatures
