@@ -303,7 +303,7 @@ void simulation(Simulation_data* simulation_data, int iterations) {
     simulation(simulation_data, iterations-1);
 }
 
-void simulation_choice(Simulation_data simulation_data){
+void simulation_choice(Simulation_data* simulation_data){
     int choice;
     printf("Quel choix pour la simulation ? (-1 pour le message d'aide)\n");
 
@@ -396,14 +396,14 @@ void start(Simulation_data* simulation_data){   // Lancer la simulation
     int* pv_param = malloc(2*sizeof(int));
     if(pv_param == NULL){
         perror("Erreur d'allocation de mémoire");
-        return NULL;
+        return;
     }
     pv_param[0] = 15;
     pv_param[1] = 5;
     int* dmg_param = malloc(2*sizeof(int));
     if(dmg_param == NULL){
         perror("Erreur d'allocation de mémoire");
-        return NULL;
+        return;
     }
     dmg_param[0] = 1;
     dmg_param[1] = 5;
