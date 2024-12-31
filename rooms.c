@@ -174,7 +174,7 @@ void free_room(Simulation_data* simulation_data, Room* room){
         free(room->Creature_list);*/
 
         if(simulation_data->debug_msgs >= 3){
-            printf("| DEBUG : room \"%s\" %p freed\n", room->Name_ID, room);
+            printf("\033[1;31m| DEBUG : room \"%s\" %p freed\n\033[0m", room->Name_ID, room);
         }
         free(room);
     }
