@@ -45,7 +45,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
 void free_egg(Simulation_data* simulation_data, Egg* egg){
     if(egg != NULL){
         if(simulation_data->debug_msgs >= 1){
-            printf("| DEBUG : egg \"%s\" freed\n", egg->Name_ID);
+            printf("\033[1;32| DEBUG : egg \"%s\" freed\n\033[0m", egg->Name_ID);
         }
 
         simulation_data->egg_NB--;
@@ -149,7 +149,7 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
 void free_larve(Simulation_data* simulation_data, Larve* larve){
     if(larve != NULL){
         if(simulation_data->debug_msgs >= 1){
-            printf("| DEBUG : larve \"%s\" freed\n", larve->Name_ID);
+            printf("\033[1;32m| DEBUG : larve \"%s\" freed\n\033[0m", larve->Name_ID);
         }
 
         simulation_data->larve_NB--;
@@ -521,7 +521,7 @@ void free_ant(Simulation_data* simulation_data, Ant* ant){
             ant->Position->Obj_list[ant->Position->Obj_count-1] = ant->Held_object;
         }
         if(simulation_data->debug_msgs >= 1){
-            printf("| DEBUG : ant \"%s\" freed\n", ant->Name_ID);
+            printf("\033[1;32m| DEBUG : ant \"%s\" freed\n\033[0m", ant->Name_ID);
         }
 
         simulation_data->ant_NB--;

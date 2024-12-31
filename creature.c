@@ -41,7 +41,7 @@ Creature* init_creature(Simulation_data* simulation_data, char* name_ID, int pv,
 void free_creature(Simulation_data* simulation_data, Creature* creature){
     if(creature != NULL){
         if(debug_msgs >= 1){
-            printf("| DEBUG : creature \"%s\" freed\n", creature->Name_ID);
+            printf("\033[1;32m| DEBUG : creature \"%s\" freed\n\033[0m", creature->Name_ID);
         }
         free(creature);
         simulation_data->crea_NB--;

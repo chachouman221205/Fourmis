@@ -88,7 +88,7 @@ void free_seasons(Simulation_data* simulation_data, Season* season){
         free(current); // Libérer la derniere saison
 
         if(simulation_data->debug_msgs >= 2){
-            printf("| DEBUG : seasons freed\n");
+            printf("\033[1;32m| DEBUG : seasons freed\n\033[0m");
         }
     }
 }
@@ -165,7 +165,7 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
         simulation_data->nest_NB--;
 
         if(simulation_data->debug_msgs >= 2){
-            printf("| DEBUG : Nest \"%s\" freed\n", nest->Clan);
+            printf("\033[1;32m| DEBUG : Nest \"%s\" freed\n\033[0m", nest->Clan);
         }
 
         free(nest->Ant_list);
@@ -250,7 +250,7 @@ void free_exterior(Simulation_data* simulation_data, Exterior* exterior){
         free_room_rec(simulation_data, exterior->Entry);
 
         if(simulation_data->debug_msgs >= 2){
-            printf("| DEBUG : exterior freed\n");
+            printf("\033[1;32m| DEBUG : exterior freed\n\033[0m");
         }
 
         free(exterior);

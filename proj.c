@@ -21,7 +21,7 @@ int main(){
     // Simulation
     Simulation_data* simulation_1 = init_simulation(); 
     init_variables(simulation_1);
-    simulation_1->debug_msgs = 8;
+    simulation_1->debug_msgs = 6;
     init_seasons(simulation_1, simulation_1->start_season);
 
     // Début de la simulation
