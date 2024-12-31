@@ -15,6 +15,10 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     // Initialisation des champs de l'oeuf, on initialise en fonction de la nest
     if (name != NULL) {
         char* new_name = malloc(sizeof(name)+1);
+        if (new_name == NULL) {
+            perror("Échec de l'allocation mémoire pour le nom de la fourmi");
+            exit(1);
+        }
         for(int i = 0; i < sizeof(name); i++){
             new_name[i] = name[i];
         }
@@ -119,7 +123,7 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     }
 
     // Initialisation des champs de la larve, on initialise en fonction de l'oeuf
-    new_larve->Name_ID = malloc(strlen(egg->Name_ID) + 1);
+    new_larve->Name_ID = calloc(strlen(egg->Name_ID) + 1, sizeof(char));
     if (new_larve->Name_ID == NULL) {
         perror("Erreur d'allocation pour Name_ID de la larve");
         exit(EXIT_FAILURE);
@@ -166,7 +170,7 @@ void free_larve(Simulation_data* simulation_data, Larve* larve){
     }
 }
 
-void test_kill_larve(Simulation_data* simulation_data, Larve* larve){
+void test_kill_larve(Simulation_data* simulation_data, Larve* larve) {
     if(larve != NULL){
         char* death_message[] = {"PV <= %d", "Hunger <= %d"};
         int condition = 0;
@@ -179,7 +183,7 @@ void test_kill_larve(Simulation_data* simulation_data, Larve* larve){
         }
 
         if(condition != 0){
-            if(simulation_data->debug_msgs >= 4){
+            if(simulation_data->debug_msgs >= 4) {
                 printf("| DEBUG : larve \"%s\" died : ", larve->Name_ID);
                 printf(death_message[condition-1], (condition == 1)? larve->PV : larve->Hunger);
             }
@@ -189,10 +193,10 @@ void test_kill_larve(Simulation_data* simulation_data, Larve* larve){
 
 }
 
-bool test_grow_larve(Simulation_data* simulation_data, Larve* larve){
+bool test_grow_larve(Simulation_data* simulation_data, Larve* larve) {
     if(larve != NULL){
-        if(larve->Grow <= 0){
-            if(simulation_data->debug_msgs >= 6){
+        if(larve->Grow <= 0) {
+            if(simulation_data->debug_msgs >= 6) {
                 printf("| DEBUG : larve \"%s\" can evolve\n", larve->Name_ID);
             }
             return true;
