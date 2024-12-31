@@ -48,7 +48,6 @@ void free_creature(Simulation_data* simulation_data, Creature* creature){
     }
 }
 
-
 void test_kill_creature(Simulation_data* simulation_data, Creature* crea){
     if(crea != NULL){
         char* death_message[] = {"PV <= %d", "Life = %d", "Hunger <= %d"};

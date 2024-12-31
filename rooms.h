@@ -12,11 +12,14 @@ typedef struct Room {
     struct Ant **Ant_list;
     int Ant_count;
 
-    struct Object **Obj_list;
-    int Obj_count;
-
     struct Egg** Egg_list;
     int Egg_count;
+
+    struct Larve** Larve_list;
+    int Larve_count;
+
+    struct Object **Obj_list;
+    int Obj_count;
 
     struct Creature **Creature_list;
     int Creature_count;

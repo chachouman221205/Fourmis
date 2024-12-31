@@ -46,6 +46,7 @@ typedef struct Nest {
 
     struct Room* Entry;     // Pointeur vers la pièce d'entrée de la fourmilière
     struct Exterior* Exterior;
+    struct Room* Queen_chamber;
 
     struct Ant** Ant_list;
     int Ant_number;
@@ -135,8 +136,8 @@ void print_numbers(Simulation_data* sim);
 
 /* -----< Simulation >----- */
 /*
- I *ci sont gérées les étapes de la simulation, init et itérations
- */
+Ici sont gérées les étapes de la simulation, init et itérations
+*/
 
 void simuler_room(Simulation_data* simulation_data, Room* room);
 
@@ -145,7 +146,10 @@ void simulation(Simulation_data* simulation_data, int iterations);
 void simulation_choice(Simulation_data* simulation_data);
 
 /* -----< Initialisation de la simulation >----- */
-void start(Simulation_data* simulation_data);
+Simulation_data* init_simulation();
+
+Nest* start(Simulation_data* simulation_data);
+
 void fin(Simulation_data* simulation_data);
 
 #endif

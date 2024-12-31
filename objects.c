@@ -25,7 +25,7 @@ Object* init_object(Simulation_data* simulation_data, char* name_ID, int size, b
     new_obj->Held = held;
 
     if(simulation_data->debug_msgs){
-        printf("| DEBUG : new obj \"%s\" initialized\n", new_obj->Name_ID);
+        printf("\033[0;33m| DEBUG : new obj \"%s\" initialized\n\033[0m", new_obj->Name_ID);
     }
 
     return new_obj;
@@ -61,6 +61,7 @@ void drop_object(Ant* ant) {
     ant->Held_object->Held = false;
     ant->Held_object = NULL;
 }
+
 void pick_up(Ant* ant, Object* object) {
     if (ant == NULL) {
         perror("| ERROR : Cannot pickup objet on NULL ant");
