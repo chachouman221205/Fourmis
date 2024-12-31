@@ -36,7 +36,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     nest->Egg_list[nest->Egg_number-1] = new_egg;
 
     if(simulation_data->debug_msgs >= 1){
-        printf("| DEBUG : new egg \"%s\" initialized in nest \"%s\"\n", new_egg->Name_ID, nest->Clan);
+        printf("\033[1;34m| DEBUG : new egg \"%s\" initialized in nest \"%s\"\n\033[0m", new_egg->Name_ID, nest->Clan);
     }
 
     return new_egg;
@@ -135,7 +135,7 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     new_larve->Position = egg->Position;     // Position NULL au départ, assignation plus tard
 
     if(simulation_data->debug_msgs >= 1){
-        printf("| DEBUG : new larve \"%s\" initialized in nest \"%s\"\n", new_larve->Name_ID, egg->Nest->Clan);
+        printf("\033[1;34m| DEBUG : new larve \"%s\" initialized in nest \"%s\"\n\033[0m", new_larve->Name_ID, egg->Nest->Clan);
     }
 
     simulation_data->larve_NB++;
@@ -255,7 +255,7 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
 
 
     if(simulation_data->debug_msgs >= 1){
-        printf("| DEBUG : new ant \"%s\" initialized in nest \"%s\"\n", new_ant->Name_ID, larve->Nest->Clan);
+        printf("\033[1;34m| DEBUG : new ant \"%s\" initialized in nest \"%s\"\n\033[0m", new_ant->Name_ID, larve->Nest->Clan);
     }
 
     free_larve(simulation_data, larve);
@@ -335,7 +335,6 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                     //egg creation
                     ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , ant_type_choice , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
                     ant->Position->Egg_count++;
-                    simulation_data->egg_IDs++;
                 }
             }
         }

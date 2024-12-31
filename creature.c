@@ -34,7 +34,7 @@ Creature* init_creature(Simulation_data* simulation_data, char* name_ID, int pv,
     new_creature->Position = position;
 
     if(debug_msgs >= 1){
-        printf("| DEBUG : new creature \"%s\" initialized\n", new_creature->Name_ID);
+        printf("\033[1;34m| DEBUG : new creature \"%s\" initialized\n\033[0m", new_creature->Name_ID);
     }
 }
 
