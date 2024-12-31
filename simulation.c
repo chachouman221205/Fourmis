@@ -190,9 +190,6 @@ Exterior* init_exterior(Simulation_data* simulation_data, int size){
     new_exterior->Ant_list = malloc(0);
     new_exterior->Ant_number = 0;
 
-    new_exterior->All_Ant_list = malloc(0);
-    new_exterior->Total_Ant_number = 0;
-
 
     Room** created_rooms = malloc(size * sizeof(Room*));
     if (created_rooms == NULL) {

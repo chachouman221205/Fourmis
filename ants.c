@@ -212,7 +212,7 @@ bool test_grow_larve(Simulation_data* simulation_data, Larve* larve){
 
 void attach_ant_to_nest(Ant* ant, Nest* nest) {
     // On retire les liens avec l'ancienne colonie
-    if (ant->Nest != NULL) {
+    if (ant->Nest != NULL && ant->Nest != nest && 0) {
         for (int i = 0; i < ant->Nest->Ant_number; i++) {
             if (ant->Nest->Ant_list[i] == ant) {
                 ant->Nest->Ant_list[i] = ant->Nest->Ant_list[--ant->Nest->Ant_number];
