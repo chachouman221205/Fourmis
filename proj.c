@@ -34,7 +34,7 @@ int main(){
     nest->Queen_chamber->Egg_list[nest->Queen_chamber->Egg_count-1] = queen;
 
     // Simulation
-    if(simulation_1->debug_msgs >= 1){print_numbers(simulation_1);}
+
     while(1){
         simulation_choice(simulation_1);
         if(simulation_1->debug_msgs >= 1){print_numbers(simulation_1);}
