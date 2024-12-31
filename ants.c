@@ -14,10 +14,12 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
 
     simulation_data->egg_NB++;
 
+    
     // Initialisation des champs de l'oeuf, on initialise en fonction de la nest
     if (name != NULL) {
         new_egg->Name_ID = name;
     } else {
+        new_egg->Name_ID = malloc(10 * sizeof(char)); // egg_IDs peut atteindre 1 000 000 : 10 caractères ("Ant" + jusqu'à 7 chiffres pour l'entier + \0)
         sprintf(new_egg->Name_ID, "Ant%d", simulation_data->egg_IDs++);
     }
     new_egg->Ant_type = ant_type;
@@ -28,7 +30,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     new_egg->Clan = nest->Clan;
     new_egg->Position = room;     // Position NULL au départ, assignation plus tard
 
-    if(simulation_data->debug_msgs){
+    if(simulation_data->debug_msgs >= 1){
         printf("| DEBUG : new egg \"%s\" initialized in nest \"%s\"\n", new_egg->Name_ID, nest->Clan);
     }
 
@@ -37,9 +39,10 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
 
 void free_egg(Simulation_data* simulation_data, Egg* egg){
     if(egg != NULL){
-        if(simulation_data->debug_msgs){
+        if(simulation_data->debug_msgs >= 1){
             printf("| DEBUG : egg \"%s\" freed\n", egg->Name_ID);
         }
+        free(egg->Name_ID);
         free(egg);
         simulation_data->egg_NB--;
     }
@@ -58,7 +61,7 @@ void test_kill_egg(Simulation_data* simulation_data, Egg* egg){
         }
 
         if(condition != 0){
-            if(simulation_data->debug_msgs){
+            if(simulation_data->debug_msgs >= 4){
                 printf("| DEBUG : egg \"%s\" died : ", egg->Name_ID);
                 printf(death_message[condition-1], (condition == 1)? egg->PV : egg->Hunger);
             }
@@ -68,20 +71,20 @@ void test_kill_egg(Simulation_data* simulation_data, Egg* egg){
 
 }
 
-
 bool test_grow_egg(Simulation_data* simulation_data, Egg* egg){
     if(egg != NULL){
         if(egg->Grow <= 0){
-            if(simulation_data->debug_msgs){
-                printf("| DEBUG : egg \"%s\" can evolve", egg->Name_ID);
+            if(simulation_data->debug_msgs >= 6){
+                printf("| DEBUG : egg \"%s\" can evolve\n", egg->Name_ID);
             }
             return true;
         }
-
-        if(simulation_data->debug_msgs){
-            printf("| DEBUG : egg \"%s\" cannot evolve", egg->Name_ID);
+        else{
+            if(simulation_data->debug_msgs >= 6){
+                printf("| DEBUG : egg \"%s\" cannot evolve\n", egg->Name_ID);
+            }
+            return false;
         }
-        return false;
     }
     return false;
 }
@@ -95,7 +98,12 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     }
 
     // Initialisation des champs de la larve, on initialise en fonction de l'oeuf
-    new_larve->Name_ID = egg->Name_ID;
+    new_larve->Name_ID = malloc(strlen(egg->Name_ID) + 1);
+    if (new_larve->Name_ID == NULL) {
+        perror("Erreur d'allocation pour Name_ID de la larve");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(new_larve->Name_ID, egg->Name_ID);
     simulation_data->larve_NB++;
 
     new_larve->Ant_type = egg->Ant_type;
@@ -106,7 +114,7 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     new_larve->Nest = egg->Nest;
     new_larve->Position = egg->Position;     // Position NULL au départ, assignation plus tard
 
-    if(simulation_data->debug_msgs){
+    if(simulation_data->debug_msgs >= 1){
         printf("| DEBUG : new larve \"%s\" initialized in nest \"%s\"\n", new_larve->Name_ID, egg->Nest->Clan);
     }
     free_egg(simulation_data, egg);
@@ -115,9 +123,10 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
 
 void free_larve(Simulation_data* simulation_data, Larve* larve){
     if(larve != NULL){
-        if(simulation_data->debug_msgs){
+        if(simulation_data->debug_msgs >= 1){
             printf("| DEBUG : larve \"%s\" freed\n", larve->Name_ID);
         }
+        free(larve->Name_ID);
         free(larve);
         simulation_data->larve_NB--;
     }
@@ -136,7 +145,7 @@ void test_kill_larve(Simulation_data* simulation_data, Larve* larve){
         }
 
         if(condition != 0){
-            if(simulation_data->debug_msgs){
+            if(simulation_data->debug_msgs >= 4){
                 printf("| DEBUG : larve \"%s\" died : ", larve->Name_ID);
                 printf(death_message[condition-1], (condition == 1)? larve->PV : larve->Hunger);
             }
@@ -149,14 +158,14 @@ void test_kill_larve(Simulation_data* simulation_data, Larve* larve){
 bool test_grow_larve(Simulation_data* simulation_data, Larve* larve){
     if(larve != NULL){
         if(larve->Grow <= 0){
-            if(simulation_data->debug_msgs){
-                printf("| DEBUG : larve \"%s\" can evolve", larve->Name_ID);
+            if(simulation_data->debug_msgs >= 6){
+                printf("| DEBUG : larve \"%s\" can evolve\n", larve->Name_ID);
             }
             return true;
         }
 
-        if(simulation_data->debug_msgs){
-            printf("| DEBUG : larve \"%s\" cannot evolve", larve->Name_ID);
+        if(simulation_data->debug_msgs >= 6){
+            printf("| DEBUG : larve \"%s\" cannot evolve\n", larve->Name_ID);
         }
         return false;
     }
@@ -191,6 +200,12 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
 
     // Initialisation des champs de la fourmi, on initialise en fonction de la larve
     new_ant->Name_ID = larve->Name_ID;
+    new_ant->Name_ID = malloc(strlen(larve->Name_ID) + 1);
+    if (new_ant->Name_ID == NULL) {
+        perror("Erreur d'allocation pour Name_ID de la larve");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(new_ant->Name_ID, larve->Name_ID);
     simulation_data->ant_NB++;
 
     new_ant->PV = larve->Nest->PV[larve->Ant_type];
@@ -204,7 +219,7 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     attach_ant_to_nest(new_ant, larve->Nest);
 
 
-    if(simulation_data->debug_msgs){
+    if(simulation_data->debug_msgs >= 1){
         printf("| DEBUG : new ant \"%s\" initialized in nest \"%s\"\n", new_ant->Name_ID, larve->Nest->Clan);
     }
 
@@ -218,6 +233,10 @@ void move_ant(Ant* ant, Room* room) {
     }
     if (room == NULL) {
         perror("| ERROR : Cannot move ant to NULL room");
+    }
+    if(ant->Position == room){
+        printf("| WARNING : trying to move ant to current location : move cancelled\n");
+        return;
     }
 
     // Vérification de la possibilité de déplacement
@@ -239,14 +258,14 @@ void move_ant(Ant* ant, Room* room) {
     for (int i = 0; i < ant->Position->Ant_count; i++) {
         if (ant->Position->Ant_list[i] == ant) {
             ant->Position->Ant_list[i] = ant->Position->Ant_list[--ant->Position->Ant_count];
-            ant->Position->Ant_list = realloc(ant->Position->Ant_list, ant->Position->Ant_count * sizeof(Ant*));
+            ant->Position->Ant_list = realloc(ant->Position->Ant_list, (ant->Position->Ant_count) * sizeof(Ant*));
         }
     }
 
     // on ajoute la fourmi à la nouvelle salle
-    room->Ant_list = realloc(room->Ant_list, ++room->Ant_count);
+    room->Ant_list = realloc(room->Ant_list, (++room->Ant_count) * sizeof(Ant*));
     room->Ant_list[room->Ant_count-1] = ant;
-    ant-> Position = room;
+    ant->Position = room;
 
     // on déplace l'objet que porte la fourmi
     if (ant->Held_object != NULL) {
@@ -258,27 +277,32 @@ void move_ant(Ant* ant, Room* room) {
 void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle
     if(ant->Ant_type == 0){  // actions possibles des reines
         int egg_cost = 4;
+        int max_egg = 4;
         //si hunger < 10 --> aller manger
         //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
         if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "Queen chamber")){ // si reinne a bien la nourriture requise (ici 10 pr l'exemple) et que reine est bien dans "salle de ponte"
-            ant->Hunger = ant->Hunger - egg_cost;   // on lui retire la nouriture utilisée
-            ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg));
-            if(ant->Position->Egg_list == NULL){
-                perror("Échec de la réallocation mémoire pour Egg_list");
-                return;
+            for(int i = 0; i < rand()% max_egg + 1; i++){
+                if(ant->Hunger > 10){
+                    ant->Hunger = ant->Hunger - egg_cost;   // on lui retire la nouriture utilisée
+                    ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg*));
+                    if(ant->Position->Egg_list == NULL){
+                        perror("Échec de la réallocation mémoire pour Egg_list");
+                        return;
+                    }
+                    //ant_type_choice
+                    int ant_type_choice;
+                    if(ant->Life < ant->Nest->Life_min){
+                        ant_type_choice = 0; // on veut une reine
+                    }
+                    else{
+                        ant_type_choice = 1;
+                    }
+                    //egg creation
+                    ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , ant_type_choice , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
+                    ant->Position->Egg_count++;
+                    simulation_data->egg_IDs++;
+                }
             }
-            //ant_type_choice
-            int ant_type_choice;
-            if(ant->Life < ant->Nest->Life_min){
-                ant_type_choice = 0; // on veut une reine
-            }
-            else{
-                ant_type_choice = 1;
-            }
-            //egg creation
-            ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , ant_type_choice , ant->Position); //REGARDER COMMENT DEFINIR LE ANT_TYPE
-            ant->Position->Egg_count++;
-            simulation_data->egg_IDs++;
         }
         if(ant->Hunger <= egg_cost){
             insert_pheromone(&(ant->Position->Pheromone_stack), init_pheromone("bring_me_food", 10, 0));
@@ -461,9 +485,10 @@ void free_ant(Simulation_data* simulation_data, Ant* ant){
             ant->Position->Obj_list = realloc(ant->Position->Obj_list, ant->Position->Obj_count * sizeof(Object*));
             ant->Position->Obj_list[ant->Position->Obj_count-1] = ant->Held_object;
         }
-        if(simulation_data->debug_msgs){
+        if(simulation_data->debug_msgs >= 1){
             printf("| DEBUG : ant \"%s\" freed\n", ant->Name_ID);
         }
+        free(ant->Name_ID);
         free(ant);
         simulation_data->ant_NB--;
     }
@@ -485,7 +510,7 @@ void test_kill_ant(Simulation_data* simulation_data, Ant* ant){
         }
 
         if(condition != 0){
-            if(simulation_data->debug_msgs){
+            if(simulation_data->debug_msgs >= 4){
                 printf("| DEBUG : ant \"%s\" died : ", ant->Name_ID);
                 printf(death_message[condition-1], (condition == 1)? ant->PV : (condition == 2)? ant->Life : ant->Hunger);
             }
@@ -507,7 +532,7 @@ void combat_ants(Simulation_data* simulation_data, Ant* ant1, Ant* ant2){
     ant1->PV -= ant2->DMG;
     ant2->PV -= ant1->DMG;
 
-    if(simulation_data->debug_msgs){
+    if(simulation_data->debug_msgs >= 4){
         printf("| DEBUG : ant \"%s\" : %d PV\n", ant1->Name_ID, ant1->PV);
         printf("| DEBUG : ant \"%s\" : %d PV\n", ant2->Name_ID, ant2->PV);
     }

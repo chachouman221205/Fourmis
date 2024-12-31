@@ -46,6 +46,7 @@ typedef struct Nest {
 
     struct Room* Entry;     // Pointeur vers la pièce d'entrée de la fourmilière
     struct Exterior* Exterior;
+    struct Room* Queen_chamber;
 
     struct Ant** Ant_list;
     int Ant_number;
@@ -94,9 +95,20 @@ typedef struct Simulation_data {
     int obj_NB;
     int crea_NB;
 
-    bool debug_msgs; // Printf de messages si = 1, pour le debug
+    int debug_msgs;
 } Simulation_data;
 
+/* Simulation messages :
+    0 : No msgs
+    1 : ant & larve & egg & creature (init + free + evolution), print_numbers
+    2 : 1+ environment & seasons (init + free), iterations left
+    3 : 2+ room (init + free + connections)
+    4 : 3+ ant & larve & egg & creature (death + pv)
+    5 : 4+ food (creation + free)
+    6 : 5+ evolution (test)
+    7 : 6+ room (reset)
+    8 : 7+ room (connexion free)
+*/
 
 // Pre-déclaration
 typedef struct Room Room;
@@ -135,8 +147,8 @@ void print_numbers(Simulation_data* sim);
 
 /* -----< Simulation >----- */
 /*
- I *ci sont gérées les étapes de la simulation, init et itérations
- */
+Ici sont gérées les étapes de la simulation, init et itérations
+*/
 
 void simuler_room(Simulation_data* simulation_data, Room* room);
 
@@ -145,7 +157,10 @@ void simulation(Simulation_data* simulation_data, int iterations);
 void simulation_choice(Simulation_data* simulation_data);
 
 /* -----< Initialisation de la simulation >----- */
-void start(Simulation_data* simulation_data);
+Simulation_data* init_simulation();
+
+Nest* start(Simulation_data* simulation_data);
+
 void fin(Simulation_data* simulation_data);
 
 #endif

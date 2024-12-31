@@ -25,6 +25,10 @@ Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
     new_room->Size = size;
     new_room->Ant_list = malloc(0);
     new_room->Ant_count = 0;
+    new_room->Larve_list = malloc(0);
+    new_room->Larve_count = 0;
+    new_room->Egg_list = malloc(0);
+    new_room->Egg_count = 0;
     new_room->Obj_list = malloc(0);
     new_room->Obj_count = 0;
     new_room->Creature_list = malloc(0);
@@ -96,7 +100,6 @@ void connect_rooms(Simulation_data* simulation_data, Room* room1, Room* room2) {
     }
 }
 
-
 void disconnect_rooms(Room* room1, Room* room2) {
     // on retire la connection de room1 à room2
     for (int j = 0; j < room1->Connexion_list_size; j++) {
@@ -156,6 +159,18 @@ void free_room(Simulation_data* simulation_data, Room* room){
         }
         free(room->Ant_list);
 
+        // free Larve
+        for (int i = 0; i < room->Larve_count; i++) {
+            free_larve(simulation_data, room->Larve_list[i]);
+        }
+        free(room->Larve_list);
+
+        // free Egg
+        for (int i = 0; i < room->Egg_count; i++) {
+            free_egg(simulation_data, room->Egg_list[i]);
+        }
+        free(room->Egg_list);
+
         // free Objects
         for (int i = 0; i < room->Obj_count; i++) {
             free_object(simulation_data, room->Obj_list[i]);
@@ -191,7 +206,6 @@ void free_room_rec(Simulation_data* simulation_data, Room* room) {
     }
 }
 
-
 int remaining_space(Room* room) {
     int space_used = 0;
     // Objects
@@ -220,9 +234,12 @@ void reinitialiser_rooms(Simulation_data* simulation_data, Room* room) {
     if (!room->Visited) {
         return;
     }
+    if(simulation_data->debug_msgs >= 7){
+        printf("\033[1;35m| DEBUG : room \"%s\" re-initialized\n\033[0m", room->Name_ID);
+    }
     room->Visited = false;
     for (int i = 0; i < room->Connexion_list_size; i++) {
-        simuler_room(simulation_data, room->Connexion_list[i]);
+        reinitialiser_rooms(simulation_data, room->Connexion_list[i]);
     }
 }
 
@@ -288,7 +305,6 @@ Path* find_path_to_food(Room* start, bool entry_blocked) {
     }
     return result;
 }
-
 
 Path* find_path_to_name(Room* start, char* NameID, bool entry_blocked) {
     if (start == NULL) {

@@ -12,11 +12,14 @@ typedef struct Room {
     struct Ant **Ant_list;
     int Ant_count;
 
-    struct Object **Obj_list;
-    int Obj_count;
-
     struct Egg** Egg_list;
     int Egg_count;
+
+    struct Larve** Larve_list;
+    int Larve_count;
+
+    struct Object **Obj_list;
+    int Obj_count;
 
     struct Creature **Creature_list;
     int Creature_count;
@@ -44,7 +47,6 @@ void free_room_rec(Simulation_data* simulation_data, Room* room);
 int remaining_space(Room* room);
 
 void reinitialiser_rooms(Simulation_data* simulation_data, Room* room);
-
 
 void free_Path(Path* p);
 void use_path(Path* p);

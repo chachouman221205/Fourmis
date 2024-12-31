@@ -24,8 +24,8 @@ Object* init_object(Simulation_data* simulation_data, char* name_ID, int size, b
     new_obj->Size = size;
     new_obj->Held = held;
 
-    if(simulation_data->debug_msgs){
-        printf("| DEBUG : new obj \"%s\" initialized\n", new_obj->Name_ID);
+    if(simulation_data->debug_msgs >= 5){
+        printf("\033[0;33m| DEBUG : new obj \"%s\" initialized\n\033[0m", new_obj->Name_ID);
     }
 
     return new_obj;
@@ -42,7 +42,7 @@ Object* search_object(Room* room, char* NameID) {
 
 void free_object(Simulation_data* simulation_data, Object* object){
     if(object != NULL){
-        if(simulation_data->debug_msgs){
+        if(simulation_data->debug_msgs >= 5){
             printf("| DEBUG : object \"%s\" freed\n", object->Name_ID);
         }
         free(object);
@@ -61,6 +61,7 @@ void drop_object(Ant* ant) {
     ant->Held_object->Held = false;
     ant->Held_object = NULL;
 }
+
 void pick_up(Ant* ant, Object* object) {
     if (ant == NULL) {
         perror("| ERROR : Cannot pickup objet on NULL ant");
@@ -111,7 +112,7 @@ void move_object(Object* object, Room* start, Room* end) {
     }
 
     // on ajoute l'objet à la nouvelle salle
-    end->Obj_list = realloc(end->Obj_list, ++end->Obj_count);
+    end->Obj_list = realloc(end->Obj_list, (++end->Obj_count) * sizeof(Object*));
     end->Obj_list[end->Obj_count-1] = object;
 
 
