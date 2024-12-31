@@ -45,5 +45,4 @@ clean:
 	rm -r temp
 
 uncompile:
-	make clean
 	rm Fourmi.exe

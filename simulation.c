@@ -190,9 +190,6 @@ Exterior* init_exterior(Simulation_data* simulation_data, int size){
     new_exterior->Ant_list = malloc(0);
     new_exterior->Ant_number = 0;
 
-    new_exterior->All_Ant_list = malloc(0);
-    new_exterior->Total_Ant_number = 0;
-
 
     Room** created_rooms = malloc(size * sizeof(Room*));
     if (created_rooms == NULL) {
@@ -298,7 +295,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     // test evolve
         // larves
     for(int i = 0; i < room->Larve_count; i++){
-        if(simulation_data->debug_msgs >= 6){
+        if(simulation_data->debug_msgs >= 6 && 0){
             printf("\033[1;36m| DEBUG : larve \"%s\" in room \"%s\" has been tested\033[0m\n", room->Larve_list[i]->Name_ID, room->Name_ID);
             printf("| DEBUG : %s : time left before growth : %d\n", room->Larve_list[i]->Name_ID, room->Larve_list[i]->Grow);
         }
