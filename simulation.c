@@ -299,7 +299,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
         // eggs
     for(int i = 0; i < room->Egg_count; i++){
         if(simulation_data->debug_msgs >= 6){
-            printf("| DEBUG : egg \"%s\" in room \"%s\" has been tested\n", room->Egg_list[i]->Name_ID, room->Name_ID);
+            printf("\033[1;36m| DEBUG : egg \"%s\" in room \"%s\" has been tested\n\033[0m", room->Egg_list[i]->Name_ID, room->Name_ID);
             printf("| DEBUG : %s : time left before growth : %d\n", room->Egg_list[i]->Name_ID, room->Egg_list[i]->Grow);
         }
         if(test_grow_egg(simulation_data, room->Egg_list[i])){
@@ -314,7 +314,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
         // larves
     for(int i = 0; i < room->Larve_count; i++){
         if(simulation_data->debug_msgs >= 6){
-            printf("| DEBUG : larve \"%s\" in room \"%s\" has been tested\n", room->Larve_list[i]->Name_ID, room->Name_ID);
+            printf("\033[1;36m| DEBUG : larve \"%s\" in room \"%s\" has been tested\033[0m\n", room->Larve_list[i]->Name_ID, room->Name_ID);
             printf("| DEBUG : %s : time left before growth : %d\n", room->Larve_list[i]->Name_ID, room->Larve_list[i]->Grow);
         }
         if(test_grow_larve(simulation_data, room->Larve_list[i])){
