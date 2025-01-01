@@ -132,8 +132,9 @@ void free_room(Simulation_data* simulation_data, Room* room){
             // chercher la connection
             for (int j = 0; j < R2->Connexion_list_size; j++) {
                 if (R2->Connexion_list[j] == room) {
-
-                    printf("Removing connection to %p from %p\n", room, R2);
+                    if(simulation_data->debug_msgs >= 8){
+                        printf("Removing connection to %p from %p\n", room, R2);
+                    }
                     R2->Connexion_list[j] = NULL;
 
                     /*R2->Connexion_list[j] = R2->Connexion_list[--(R2->Connexion_list_size)]; // On retire la connection
@@ -218,6 +219,8 @@ int remaining_space(Room* room) {
 
     // Ants
     space_used += room->Ant_count;
+    space_used += room->Larve_count;
+    space_used += room->Egg_count;
 
     /* Creatures not added
     // Creatures
