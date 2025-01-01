@@ -37,7 +37,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     new_egg->Grow = (nest->Life_min + rand() % (nest->Life_max - nest->Life_min + 1))/2; // Grow entre (Life_min et Life_max)/2
     new_egg->Hunger = nest->Hunger;
     if (ant_type == 0) {
-        new_egg->Hunger *= 7;
+        new_egg->Hunger *= 3;
     }
     new_egg->Nest = nest;
     new_egg->Clan = nest->Clan;
@@ -261,7 +261,11 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     strcpy(new_ant->Name_ID, larve->Name_ID);
 
     simulation_data->ant_NB++;
+    simulation_data->Exterior->Ant_number++;
+    simulation_data->Exterior->Ant_list = realloc(simulation_data->Exterior->Ant_list, simulation_data->Exterior->Ant_number * sizeof(Ant*));
+    simulation_data->Exterior->Ant_list[simulation_data->Exterior->Ant_number-1] = new_ant;
 
+    new_ant->Ant_type = larve->Ant_type;
     new_ant->PV = larve->PV;
     new_ant->DMG = larve->Nest->DMG[larve->Ant_type];
     new_ant->Hunger = larve->Hunger;
@@ -269,6 +273,7 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     new_ant->Position = larve->Position;     // Position NULL au départ, assignation plus tard
     new_ant->Held_object = NULL;  // Pas d'objet au départ
     new_ant->Action = NULL;       // Pas de phéromone assignée au départ
+    new_ant->Path = NULL;
 
     attach_ant_to_nest(new_ant, larve->Nest);
 
@@ -282,7 +287,7 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     return new_ant;
 }
 
-void move_ant(Simulation_data* simulation_data, Ant* ant, Room* room) {
+bool move_ant(Simulation_data* simulation_data, Ant* ant, Room* room) {
     if (ant == NULL) {
         perror("| ERROR : Cannot move NULL ant");
     }
@@ -291,7 +296,7 @@ void move_ant(Simulation_data* simulation_data, Ant* ant, Room* room) {
     }
     if(ant->Position == room){
         printf("| WARNING : trying to move ant to current location : move cancelled\n");
-        return;
+        return false;
     }
 
     // Vérification de la possibilité de déplacement
@@ -304,7 +309,7 @@ void move_ant(Simulation_data* simulation_data, Ant* ant, Room* room) {
     }
     if (!possible) {
         printf("| WARNING : trying to move ant to unaccessible location : move cancelled\n");
-        return;
+        return false;
     }
 
     if (simulation_data->debug_msgs >= 7) {
@@ -330,6 +335,8 @@ void move_ant(Simulation_data* simulation_data, Ant* ant, Room* room) {
     room->Ant_list = realloc(room->Ant_list, (++room->Ant_count) * sizeof(Ant*));
     room->Ant_list[room->Ant_count-1] = ant;
     ant->Position = room;
+
+    return true;
 }
 
 void Action_queen(Simulation_data* simulation_data, Ant* ant){
@@ -339,7 +346,7 @@ void Action_queen(Simulation_data* simulation_data, Ant* ant){
     //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
     if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "Queen chamber") && remaining_space(ant->Position) > 10){
         for(int i = 0; i < rand()% max_egg + 1; i++){
-            if(ant->Hunger > 10){
+            if(ant->Hunger > 50){
                 ant->Hunger = ant->Hunger - egg_cost;   // on lui retire la nouriture utilisée
                 ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg*));
                 if(ant->Position->Egg_list == NULL){
@@ -428,8 +435,9 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
                     free_Path(ant->Path);    //1 seul elmt à free
                 }
                 else{       //move closer to food
-                    move_ant(simulation_data, ant, ant->Path->room);
-                    use_path(ant->Path);
+                    if (move_ant(simulation_data, ant, ant->Path->room)) {
+                        use_path(ant->Path);
+                    }
                 }
             }
         }
@@ -453,8 +461,9 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
                     free(ant->Path);    //1 seul elmt à free
                 }
                 else{       //move closer to destination
-                    move_ant(simulation_data, ant, ant->Path->room);
-                    use_path(ant->Path);
+                    if (move_ant(simulation_data, ant, ant->Path->room)) {
+                        use_path(ant->Path);
+                    }
                 }
             }
         }
@@ -464,11 +473,11 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
         if(ant->Held_object == NULL){
             if(ant->Path == NULL && strcmp(ant->Position->Name_ID, "Exterior")){ // si dans nest et pas de chemin
                 ant->Path = find_path_to_name(ant->Position, "Exterior", false);
-                use_path(ant->Path);
+                //use_path(ant->Path);
             }   //trouver un chemin vers exterior
             else if(ant->Path == NULL && !strcmp(ant->Position->Name_ID, "Exterior")){
                 ant->Path = find_path_to_food(ant->Position, true);
-                use_path(ant->Path);
+                //use_path(ant->Path);
             }
             if(ant->Path != NULL){  // if path succeeded
                 // forcement un chemin
@@ -505,8 +514,9 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
                     free_Path(ant->Path);    //1 seul elmt à free
                 }
                 else{       //move closer to food
-                    move_ant(simulation_data, ant, ant->Path->room);
-                    use_path(ant->Path);
+                    if (move_ant(simulation_data, ant, ant->Path->room)) {
+                        use_path(ant->Path);
+                    }
                 }
             }
 
@@ -546,9 +556,9 @@ Ant* search_AntID(char* AntID, Exterior* Exterior) {
         perror("| ERROR : Cannot search NULL ant ID");
         exit(1);
     }
-    for (int i = 0; i < Exterior->Total_Ant_number; i++) {
-        if (strcmp(Exterior->All_Ant_list[i]->Name_ID, AntID) == 0) {
-            return Exterior->All_Ant_list[i];
+    for (int i = 0; i < Exterior->Ant_number; i++) {
+        if (strcmp(Exterior->Ant_list[i]->Name_ID, AntID) == 0) {
+            return Exterior->Ant_list[i];
         }
     }
     printf("| ERROR : \"%s\" does not exist", AntID);
@@ -569,6 +579,12 @@ void free_ant(Simulation_data* simulation_data, Ant* ant){
 
         simulation_data->ant_NB--;
 
+        for(int i = 0; i < simulation_data->Exterior->Ant_number; i++){
+            if(simulation_data->Exterior->Ant_list[i] == ant){
+                simulation_data->Exterior->Ant_list[i] = simulation_data->Exterior->Ant_list[--simulation_data->Exterior->Ant_number];
+                simulation_data->Exterior->Ant_list = realloc(simulation_data->Exterior->Ant_list, simulation_data->Exterior->Ant_number * sizeof(Ant*));
+            }
+        }
         for(int i = 0; i < ant->Nest->Ant_number; i++){
             if(ant->Nest->Ant_list[i] == ant){
                 ant->Nest->Ant_list[i] = ant->Nest->Ant_list[--ant->Nest->Ant_number];
