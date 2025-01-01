@@ -36,7 +36,7 @@ Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
     new_room->Connexion_list = malloc(0);
     new_room->Connexion_list_size = 0;
 
-    new_room->Pheromone_stack = malloc(0);
+    new_room->Pheromone = malloc(0);
 
     if(simulation_data->debug_msgs >= 3){
         printf("| DEBUG : new room \"%s\" %p initialized\n", new_room->Name_ID, new_room);
@@ -152,7 +152,7 @@ void free_room(Simulation_data* simulation_data, Room* room){
 
         simulation_data->room_NB--;
 
-        free_all_pheromones(room->Pheromone_stack);
+        free_all_pheromones(room->Pheromone);
 
         // free Ants
         for (int i = 0; i < room->Ant_count; i++) {
@@ -238,7 +238,7 @@ void reinitialiser_rooms(Simulation_data* simulation_data, Room* room) {
     if (!room->Visited) {
         return;
     }
-    if(simulation_data->debug_msgs >= 7){
+    if(simulation_data->debug_msgs >= 8){
         printf("\033[1;35m| DEBUG : room \"%s\" re-initialized\n\033[0m", room->Name_ID);
     }
     room->Visited = false;
@@ -254,23 +254,14 @@ void free_Path(Path* p) {
     free(p);
 }
 
-void use_path(Path* p) {
-    if (p->next==NULL) {
-        return;
-    }
-    Path* second = p->next;
-    p->next = second->next;
-    p->room = second->room;
-    p->length = second->length;
-    free(second);
-}
+
 
 Path* find_path_to_food(Room* start, bool entry_blocked) {
     if (start == NULL) {
         perror("| ERROR : Need a starting point for pathfinding");
     }
 
-    if (start->Visited || (start->Name_ID && entry_blocked)) {
+    if (start->Visited || (!strcmp(start->Name_ID, "Nest Entrance") && entry_blocked)) {
         return NULL;
     }
     start->Visited = true;
@@ -330,7 +321,7 @@ Path* find_path_to_name(Room* start, char* NameID, bool entry_blocked) {
         perror("| ERROR : Need a starting point for pathfinding");
     }
 
-    if (start->Visited || (start->Name_ID && entry_blocked)) {
+    if (start->Visited || (!strcmp(start->Name_ID, "Nest Entrance") && entry_blocked)) {
         return NULL;
     }
     start->Visited = true;

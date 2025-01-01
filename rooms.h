@@ -27,7 +27,7 @@ typedef struct Room {
     struct Room **Connexion_list;
     int Connexion_list_size;
 
-    struct Pheromone *Pheromone_stack;
+    struct Pheromone *Pheromone;
 } Room;
 
 typedef struct Path {
@@ -49,7 +49,6 @@ int remaining_space(Room* room);
 void reinitialiser_rooms(Simulation_data* simulation_data, Room* room);
 
 void free_Path(Path* p);
-void use_path(Path* p);
 
 Path* find_path_to_food(Room* start, bool entry_blocked);
 Path* find_path_to_name(Room* start, char* NameID, bool entry_blocked);

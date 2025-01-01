@@ -539,7 +539,7 @@ Nest* start(Simulation_data* simulation_data){   // Lancer la simulation
     dmg_param[0] = 1;
     dmg_param[1] = 5;
 
-    Nest* nest = init_nest(simulation_data, "fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 10, 100, 30, entry);
+    Nest* nest = init_nest(simulation_data, "fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 70, 100, 30, entry);
 
     /* Structure de la fourmilière initiale voulue:
      *                 entrée
