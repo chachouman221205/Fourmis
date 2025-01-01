@@ -24,14 +24,21 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
             new_name[i] = name[i];
         }
         new_egg->Name_ID = new_name;
-    } else {
-        new_egg->Name_ID = malloc(20 * sizeof(char)); // egg_IDs peut atteindre 1 000 000 : 10 caractères ("Ant" + jusqu'à 7 chiffres pour l'entier + \0)
+    } else if (ant_type == 1) {
+        new_egg->Name_ID = malloc(10 * sizeof(char)); // egg_IDs peut atteindre 1 000 000 : 10 caractères ("Ant" + jusqu'à 7 chiffres pour l'entier + \0)
         sprintf(new_egg->Name_ID, "Ant%d", simulation_data->egg_IDs++);
+    } else {
+        simulation_data->queen_IDs++;
+        new_egg->Name_ID = malloc(10 * sizeof(char)); // egg_IDs peut atteindre 1 000 000 : 10 caractères ("Queen" + jusqu'à 4 chiffres pour l'entier + \0)
+        sprintf(new_egg->Name_ID, "Queen%d", simulation_data->egg_IDs++);
     }
     new_egg->Ant_type = ant_type;
     new_egg->PV = 1;
     new_egg->Grow = (nest->Life_min + rand() % (nest->Life_max - nest->Life_min + 1))/2; // Grow entre (Life_min et Life_max)/2
     new_egg->Hunger = nest->Hunger;
+    if (ant_type == 0) {
+        new_egg->Hunger *= 3;
+    }
     new_egg->Nest = nest;
     new_egg->Clan = nest->Clan;
     new_egg->Position = room;     // Position NULL au départ, assignation plus tard
@@ -132,10 +139,10 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     strcpy(new_larve->Name_ID, egg->Name_ID);
 
     new_larve->Ant_type = egg->Ant_type;
-    new_larve->PV = egg->Nest->PV[new_larve->Ant_type]/2;
+    new_larve->PV = egg->PV;
     new_larve->Grow = (egg->Nest->Life_min + rand() % (egg->Nest->Life_max - egg->Nest->Life_min + 1))/2; // Grow entre (Life_min et Life_max)/2
-    new_larve->Hunger = egg->Nest->Hunger;
-    new_larve->Clan = egg->Nest->Clan;
+    new_larve->Hunger = egg->Hunger;
+    new_larve->Clan = egg->Clan;
     new_larve->Nest = egg->Nest;
     new_larve->Position = egg->Position;     // Position NULL au départ, assignation plus tard
 
@@ -321,190 +328,198 @@ void move_ant(Ant* ant, Room* room) {
 
 }
 
-void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle
-    if(ant->Ant_type == 0){  // actions possibles des reines
-        int egg_cost = 4;
-        int max_egg = 4;
-        //si hunger < 10 --> aller manger
-        //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
-        if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "Queen chamber") && remaining_space(ant->Position) > 10){
-            for(int i = 0; i < rand()% max_egg + 1; i++){
-                if(ant->Hunger > 10){
-                    ant->Hunger = ant->Hunger - egg_cost;   // on lui retire la nouriture utilisée
-                    ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg*));
-                    if(ant->Position->Egg_list == NULL){
-                        perror("Échec de la réallocation mémoire pour Egg_list");
-                        return;
-                    }
-                    //ant_type_choice
-                    int ant_type_choice;
-
-                    if(ant->Life < ant->Nest->Life_min || ant->Hunger <= egg_cost){
-                        ant_type_choice = 0; // on veut une reine
-                    }
-                    else{
-                        ant_type_choice = 1;
-                    }
-                    //egg creation
-                    if(ant_type_choice == 0){
-                        char name[20]; // Taille adaptée à "Queen" + numéro + '\0'
-                        sprintf(name, "Queen%d", simulation_data->queen_IDs++);
-                        ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, name, ant_type_choice , ant->Position);
-                    }
-                    else{
-                        ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , ant_type_choice , ant->Position);
-                    }
-                    ant->Position->Egg_count++;
-                }
-            }
-        }
-        if(ant->Hunger <= egg_cost){
-            insert_pheromone(&(ant->Position->Pheromone_stack), init_pheromone("bring_me_food", 10, 0));
-        }
-
-        //manger
-        Object* food = search_object(ant->Position, "food");
-        if(food == NULL){
-            insert_pheromone(&(ant->Position->Pheromone_stack), init_pheromone("bring_me_food", 5, 0));
-        }
-        else{
-            food->Size--;
-            if(food->Size == 0){
-                int pos;
-                for(int i = 0; i < ant->Position->Obj_count; i++){
-                    if(food == ant->Position->Obj_list[i]){
-                        pos = i;
-                    }
-                }
-                ant->Position->Obj_list[pos] = ant->Position->Obj_list[--ant->Position->Obj_count];
-                free_object(simulation_data, food);
-                ant->Position->Obj_list = realloc(ant->Position->Obj_list, ant->Position->Obj_count * sizeof(Object*));
-                if(ant->Position->Obj_list == NULL){
-                    perror("Échec de la réallocation mémoire pour ant->Position->Obj_list in \"Action_ant\"");
+void Action_queen(Simulation_data* simulation_data, Ant* ant){
+    int egg_cost = 4;
+    int max_egg = 4;
+    //si hunger < 10 --> aller manger
+    //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
+    if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "Queen chamber") && remaining_space(ant->Position) > 10){
+        for(int i = 0; i < rand()% max_egg + 1; i++){
+            if(ant->Hunger > 10){
+                ant->Hunger = ant->Hunger - egg_cost;   // on lui retire la nouriture utilisée
+                ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg*));
+                if(ant->Position->Egg_list == NULL){
+                    perror("Échec de la réallocation mémoire pour Egg_list");
                     return;
                 }
+                //ant_type_choice
+                int ant_type_choice;
+
+                if(ant->Life < ant->Nest->Life_min || ant->Hunger <= egg_cost){
+                    ant_type_choice = 0; // on veut une reine
+                }
+                else{
+                    ant_type_choice = 1;
+                }
+                //egg creation
+                if(ant_type_choice == 0){
+                    char name[20]; // Taille adaptée à "Queen" + numéro + '\0'
+                    sprintf(name, "Queen%d", simulation_data->queen_IDs++);
+                    ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, name, ant_type_choice , ant->Position);
+                }
+                else{
+                    ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , ant_type_choice , ant->Position);
+                }
+                ant->Position->Egg_count++;
             }
-            ant->Hunger += egg_cost + 1;
+        }
+    }
+    if(ant->Hunger <= egg_cost){
+        insert_pheromone(&(ant->Position->Pheromone_stack), init_pheromone("bring_me_food", 10, 0));
+    }
+
+    //manger
+    Object* food = search_object(ant->Position, "food");
+    if(food == NULL){
+        insert_pheromone(&(ant->Position->Pheromone_stack), init_pheromone("bring_me_food", 5, 0));
+    }
+    else{
+        food->Size--;
+        if(food->Size == 0){
+            int pos;
+            for(int i = 0; i < ant->Position->Obj_count; i++){
+                if(food == ant->Position->Obj_list[i]){
+                    pos = i;
+                }
+            }
+            ant->Position->Obj_list[pos] = ant->Position->Obj_list[--ant->Position->Obj_count];
+            free_object(simulation_data, food);
+            ant->Position->Obj_list = realloc(ant->Position->Obj_list, ant->Position->Obj_count * sizeof(Object*));
+            if(ant->Position->Obj_list == NULL){
+                perror("Échec de la réallocation mémoire pour ant->Position->Obj_list in \"Action_ant\"");
+                return;
+            }
+        }
+        ant->Hunger += egg_cost + 1;
+    }
+}
+
+void Action_worker(Simulation_data* simulation_data, Ant* ant) {
+    if(ant->Action == NULL){
+        insert_pheromone(&(ant->Action), init_pheromone("find_food", 6, 1));
+    }
+    if(ant->Action->ph_ID == 0){
+        if(ant->Held_object == NULL){
+            if(ant->Path == NULL){
+                ant->Path = find_path_to_food(ant->Position, true); // true = pas le droit d'aller chercher de la nourriture en dehors de la fourmilière
+                use_path(ant->Path);    //pour décaller de 1 path : si départ = a et objectif = c, path = a,b,c; On a besoin de b,c seulement
+            }
+            if(ant->Path == NULL){
+                ant->Path = find_path_to_food(ant->Position, false); // Si aucune nourriture a été trouvée dans la fourmilière, on cherche également à l'extérieur
+                use_path(ant->Path);
+            }
+            if(ant->Path != NULL){  // if path succeed
+                // forcement un chemin
+                if(ant->Path->length == 0){
+                    pick_up(ant, search_object(ant->Position, "food"));
+                    //chemin fini + obj held
+
+                    //free pheromone done
+                    Pheromone* old_ph = ant->Action;
+                    ant->Action = ant->Action->next;
+                    free(old_ph);
+
+                    free_Path(ant->Path);    //1 seul elmt à free
+                }
+                else{       //move closer to food
+                    move_ant(ant, ant->Path->room);
+                    use_path(ant->Path);
+                }
+            }
+        }
+        else{
+            if(ant->Path == NULL){
+                ant->Path = find_path_to_name(ant->Position, "Queen chamber", true);
+                use_path(ant->Path);
+            }
+            if(ant->Path != NULL){  // if path succeed
+                // forcement un chemin
+                if(ant->Path->length == 0){
+                    drop_object(ant); // if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
+                    //remove_obj_from_room_list(ant->position, "food");
+                    //chemin fini + obj held
+
+                    //free pheromone done
+                    Pheromone* old_ph = ant->Action;
+                    ant->Action = ant->Action->next;
+                    free(old_ph);
+
+                    free(ant->Path);    //1 seul elmt à free
+                }
+                else{       //move closer to destination
+                    move_ant(ant, ant->Path->room);
+                    use_path(ant->Path);
+                }
+            }
+        }
+    }
+    if(ant->Action->ph_ID == 1){
+        if(ant->Held_object == NULL){
+            if(ant->Path == NULL && strcmp(ant->Position->Name_ID, "Exterior")){ // si dans nest et pas de chemin
+                ant->Path = find_path_to_name(ant->Position, "Exterior", false);
+                use_path(ant->Path);
+            }   //trouver un chemin vers exterior
+            else if(ant->Path == NULL && !strcmp(ant->Position->Name_ID, "Exterior")){
+                ant->Path = find_path_to_food(ant->Position, true);
+                use_path(ant->Path);
+            }
+            if(ant->Path != NULL){  // if path succeeded
+                // forcement un chemin
+                if(ant->Path->length == 0 && !strcmp(ant->Position->Name_ID, "Exterior") && search_object(ant->Position, "food") == NULL){
+                    free_Path(ant->Path);
+                }
+                else if(ant->Path->length == 0 && !strcmp(ant->Position->Name_ID, "Exterior")){
+                    pick_up(ant, search_object(ant->Position, "food"));
+                    free_Path(ant->Path);
+                }
+                else{       //move closer to destination
+                    move_ant(ant, ant->Path->room);
+                    use_path(ant->Path);
+                }
+            }
+        }
+        else{
+            if(ant->Path == NULL){
+                ant->Path = find_path_to_name(ant->Position, "Storage room", false);
+                use_path(ant->Path);
+            }
+            if(ant->Path != NULL){  // if path succeed
+                // forcement un chemin
+                if(ant->Path->length == 0){
+                    drop_object(ant); //if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
+                    //remove_obj_from_room_list(ant->position, "food");
+                    //chemin fini + obj held
+
+                    //free pheromone done
+                    Pheromone* old_ph = ant->Action;
+                    ant->Action = ant->Action->next;
+                    free(old_ph);
+
+                    free_Path(ant->Path);    //1 seul elmt à free
+                }
+                else{       //move closer to food
+                    move_ant(ant, ant->Path->room);
+                    use_path(ant->Path);
+                }
+            }
+
         }
     }
 
+    //manger
+    if(ant->Hunger < 10 && ant->Held_object != NULL && ant->Held_object->Size >= 2){
+        ant->Held_object->Size--;
+        ant->Hunger += 15;
+    }
+}
+
+void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle
+    if(ant->Ant_type == 0){  // actions possibles des reines
+        Action_queen(simulation_data, ant);
+    }
+
     else if(ant->Ant_type == 1){ // actions possibles des ouvrières
-        if(ant->Action == NULL){
-            insert_pheromone(&(ant->Action), init_pheromone("find_food", 6, 1));
-        }
-        if(ant->Action->ph_ID == 0){
-            if(ant->Held_object == NULL){
-                if(ant->Path == NULL){
-                    ant->Path = find_path_to_food(ant->Position, true); // true = pas le droit d'aller chercher de la nourriture en dehors de la fourmilière
-                    use_path(ant->Path);    //pour décaller de 1 path : si départ = a et objectif = c, path = a,b,c; On a besoin de b,c seulement
-                }
-                if(ant->Path == NULL){
-                    ant->Path = find_path_to_food(ant->Position, false); // Si aucune nourriture a été trouvée dans la fourmilière, on cherche également à l'extérieur
-                    use_path(ant->Path);
-                }
-                if(ant->Path != NULL){  // if path succeed
-                    // forcement un chemin
-                    if(ant->Path->length == 0){
-                        pick_up(ant, search_object(ant->Position, "food"));
-                        //chemin fini + obj held
-
-                        //free pheromone done
-                        Pheromone* old_ph = ant->Action;
-                        ant->Action = ant->Action->next;
-                        free(old_ph);
-
-                        free_Path(ant->Path);    //1 seul elmt à free
-                    }
-                    else{       //move closer to food
-                        move_ant(ant, ant->Path->room);
-                        use_path(ant->Path);
-                    }
-                }
-            }
-            else{
-                if(ant->Path == NULL){
-                    ant->Path = find_path_to_name(ant->Position, "Queen chamber", true);
-                    use_path(ant->Path);
-                }
-                if(ant->Path != NULL){  // if path succeed
-                    // forcement un chemin
-                    if(ant->Path->length == 0){
-                        drop_object(ant); // if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
-                                                      //remove_obj_from_room_list(ant->position, "food");
-                        //chemin fini + obj held
-
-                        //free pheromone done
-                        Pheromone* old_ph = ant->Action;
-                        ant->Action = ant->Action->next;
-                        free(old_ph);
-
-                        free(ant->Path);    //1 seul elmt à free
-                    }
-                    else{       //move closer to destination
-                        move_ant(ant, ant->Path->room);
-                        use_path(ant->Path);
-                    }
-                }
-            }      
-        }
-        if(ant->Action->ph_ID == 1){
-            if(ant->Held_object == NULL){
-                if(ant->Path == NULL && strcmp(ant->Position->Name_ID, "Exterior")){ // si dans nest et pas de chemin
-                    ant->Path = find_path_to_name(ant->Position, "Exterior", false);
-                    use_path(ant->Path);
-                }   //trouver un chemin vers exterior
-                else if(ant->Path == NULL && !strcmp(ant->Position->Name_ID, "Exterior")){
-                    ant->Path = find_path_to_food(ant->Position, true);
-                    use_path(ant->Path);
-                }
-                if(ant->Path != NULL){  // if path succeeded
-                    // forcement un chemin
-                    if(ant->Path->length == 0 && !strcmp(ant->Position->Name_ID, "Exterior") && search_object(ant->Position, "food") == NULL){
-                        free_Path(ant->Path);
-                    }
-                    else if(ant->Path->length == 0 && !strcmp(ant->Position->Name_ID, "Exterior")){
-                        pick_up(ant, search_object(ant->Position, "food"));
-                        free_Path(ant->Path);
-                    }
-                    else{       //move closer to destination
-                        move_ant(ant, ant->Path->room);
-                        use_path(ant->Path);
-                    }
-                }
-            }
-            else{
-                if(ant->Path == NULL){
-                    ant->Path = find_path_to_name(ant->Position, "Storage room", false);
-                    use_path(ant->Path);
-                }
-                if(ant->Path != NULL){  // if path succeed
-                    // forcement un chemin
-                    if(ant->Path->length == 0){
-                        drop_object(ant); //if(held != NULL)     //ant->Held_object = search_object(ant->position, "food");
-                                                      //remove_obj_from_room_list(ant->position, "food");
-                        //chemin fini + obj held
-
-                        //free pheromone done
-                        Pheromone* old_ph = ant->Action;
-                        ant->Action = ant->Action->next;
-                        free(old_ph);
-
-                        free_Path(ant->Path);    //1 seul elmt à free
-                    }
-                    else{       //move closer to food
-                        move_ant(ant, ant->Path->room);
-                        use_path(ant->Path);
-                    }
-                }
-
-            }
-        }
-        
-        //manger
-        if(ant->Hunger < 10 && ant->Held_object != NULL && ant->Held_object->Size >= 2){
-            ant->Held_object->Size--;
-            ant->Hunger += 15;
-        }
+        Action_worker(simulation_data, ant);
     }
 
     
