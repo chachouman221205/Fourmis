@@ -262,7 +262,7 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     simulation_data->ant_NB++;
 
     new_ant->PV = larve->PV;
-    new_ant->DMG = larve->DMG;
+    new_ant->DMG = larve->Nest->DMG[larve->Ant_type];
     new_ant->Hunger = larve->Hunger;
     new_ant->Life = larve->Nest->Life_min + rand() % (larve->Nest->Life_max - larve->Nest->Life_min + 1); // Life entre Life_min et Life_max
     new_ant->Position = larve->Position;     // Position NULL au départ, assignation plus tard
