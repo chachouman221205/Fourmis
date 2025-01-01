@@ -38,7 +38,6 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     new_egg->Hunger = nest->Hunger;
     if (ant_type == 0) {
         new_egg->Hunger *= 3;
-        printf("grahghaghhgg: %d\n", new_egg->Hunger);
     }
     new_egg->Nest = nest;
     new_egg->Clan = nest->Clan;
