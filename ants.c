@@ -12,7 +12,8 @@ const char* space_tab[] = {"    ", "   ", "  ", " "};
 // Egg
 Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int ant_type, Room* room) {
     Egg* new_egg = malloc(sizeof(Egg));
-    if(new_egg == NULL){
+    // Message d'erreur en cas de problèmes 
+    if(new_egg == NULL){                                    
         perror("Échec de l'allocation mémoire pour la fourmi");
         return NULL;
     }
@@ -24,7 +25,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
             perror("Échec de l'allocation mémoire pour le nom de la fourmi");
             exit(1);
         }
-        for(int i = 0; i < strlen(name)* sizeof(char); i++){
+        for(int i = 0; i < strlen(name); i++){ //Permet de reasigner un nom dynamiquement
 
             new_name[i] = name[i];
         }
@@ -40,7 +41,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     new_egg->Ant_type = ant_type;
     new_egg->PV = 1;
     new_egg->Grow = (nest->Life_min + rand() % (nest->Life_max - nest->Life_min + 1))/2; // Grow entre (Life_min et Life_max)/2
-    new_egg->Hunger = nest->Hunger;
+    new_egg->Hunger = nest->Hunger; //L'oeuf apparait avec une quantité de nourriture propre à l'espèce ( on utilise "nest" aussi pour l'espèce)
     if (ant_type == 0) {
         new_egg->Hunger *= 3;
     }
@@ -48,7 +49,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     new_egg->Clan = nest->Clan;
     new_egg->Position = room;     // Position NULL au départ, assignation plus tard
 
-    simulation_data->egg_NB++;
+    simulation_data->egg_NB++;   //Ajoute l'oeuf aux données simulées
     nest->Egg_list = realloc(nest->Egg_list, (++nest->Egg_number)*sizeof(Egg*));
     nest->Egg_list[nest->Egg_number-1] = new_egg;
 
@@ -555,9 +556,9 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
     }
 
     
-    ant->Hunger--;
+    ant->Hunger--;   // à chaque unité de temps on retire de la nourtiure et du temps de vie à la fourmis
     ant->Life--;
-    test_kill_ant(simulation_data, ant);
+    test_kill_ant(simulation_data, ant); //vérifie si la fourmis est bien en vie
 }
 
 Ant* search_AntID(char* AntID, Exterior* Exterior) {
