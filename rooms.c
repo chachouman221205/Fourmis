@@ -255,6 +255,9 @@ void free_Path(Path* p) {
 }
 
 void use_path(Path* p) {
+    if (p->next==NULL) {
+        return;
+    }
     Path* second = p->next;
     p->next = second->next;
     p->room = second->room;
