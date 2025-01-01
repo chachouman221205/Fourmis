@@ -40,10 +40,10 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     }
     new_egg->Ant_type = ant_type;
     new_egg->PV = 1;
-    new_egg->Grow = (nest->Life_min + rand() % (nest->Life_max - nest->Life_min + 1))/2; // Grow entre (Life_min et Life_max)/2
+    new_egg->Grow = (nest->Life_min + rand() % (nest->Life_max - nest->Life_min + 1))/3; // Grow entre (Life_min et Life_max)/3
     new_egg->Hunger = nest->Hunger; //L'oeuf apparait avec une quantité de nourriture propre à l'espèce ( on utilise "nest" aussi pour l'espèce)
     if (ant_type == 0) {
-        new_egg->Hunger *= 3;
+        new_egg->Hunger *= 5;
     }
     new_egg->Nest = nest;
     new_egg->Clan = nest->Clan;
@@ -147,7 +147,7 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
 
     new_larve->Ant_type = egg->Ant_type;
     new_larve->PV = egg->PV;
-    new_larve->Grow = (egg->Nest->Life_min + rand() % (egg->Nest->Life_max - egg->Nest->Life_min + 1))/2; // Grow entre (Life_min et Life_max)/2
+    new_larve->Grow = (egg->Nest->Life_min + rand() % (egg->Nest->Life_max - egg->Nest->Life_min + 1))/3; // Grow entre (Life_min et Life_max)/3
     new_larve->Hunger = egg->Hunger;
     new_larve->Clan = egg->Clan;
     new_larve->Nest = egg->Nest;
@@ -379,7 +379,7 @@ void Action_queen(Simulation_data* simulation_data, Ant* ant){
                 //ant_type_choice
                 int ant_type_choice;
 
-                if(ant->Hunger > 50 && simulation_data->current_season == 2 && (rand()%10 == 0)) {
+                if(ant->Hunger > 100 && simulation_data->current_season == 2 && (rand()%10 == 0)) {
                     ant_type_choice = 0; // on veut une reine
                 }
                 else{
@@ -468,7 +468,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
         else{
             if(ant->Path == NULL){
                 if (strcmp(ant->Position->Name_ID, "Queen Chamber")) {
-                    ant->Path = find_path_to_name(ant->Position, "Queen chamber", true);
+                    ant->Path = find_path_to_name(ant->Position, "Queen chamber", false);
                     reinitialiser_rooms(simulation_data, ant->Position);
                     use_path(ant);
                 } else {
@@ -502,7 +502,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
         if(ant->Held_object == NULL){
             if (ant->Path == NULL && strcmp(ant->Position->Name_ID, "Exterior") == 0) {
                 if(search_object(ant->Position, "food") == NULL){
-                    ant->Path = find_path_to_food(ant->Position, true);
+                    ant->Path = find_path_to_food(ant->Position, false);
                     reinitialiser_rooms(simulation_data, ant->Position);
                     use_path(ant);
                 } else {

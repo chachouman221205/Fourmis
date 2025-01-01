@@ -6,7 +6,6 @@ DEBUG = -g
 
 # Compile dependencies (.c/.h -> .o)
 compile:
-	clear
 	make temp
 	make temp/simulation.o
 	make temp/objects.o
