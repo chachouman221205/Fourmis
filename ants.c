@@ -139,9 +139,7 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     }
     strcpy(new_larve->Name_ID, egg->Name_ID);
 
-    printf("%s : larve type %d | egg type %d\n", egg->Name_ID, new_larve->Ant_type, egg->Ant_type);
     new_larve->Ant_type = egg->Ant_type;
-    printf("%s : 2 larve type %d | egg type %d\n", egg->Name_ID, new_larve->Ant_type, egg->Ant_type);
     new_larve->PV = egg->PV;
     new_larve->Grow = (egg->Nest->Life_min + rand() % (egg->Nest->Life_max - egg->Nest->Life_min + 1))/2; // Grow entre (Life_min et Life_max)/2
     new_larve->Hunger = egg->Hunger;
@@ -158,12 +156,8 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     new_larve->Nest->Larve_list = realloc(new_larve->Nest->Larve_list, (++new_larve->Nest->Larve_number)*sizeof(Larve*));
     new_larve->Nest->Larve_list[new_larve->Nest->Larve_number-1] = new_larve;
 
-    printf("%s : 3 larve type %d | egg type %d\n", egg->Name_ID, new_larve->Ant_type, egg->Ant_type);
-
     free_egg(simulation_data, egg);
     
-    printf("%s : 4 larve type %d ; %p\n", new_larve->Name_ID, new_larve->Ant_type, &egg->Ant_type);
-
     return new_larve;
 }
 
@@ -424,7 +418,7 @@ void Action_queen(Simulation_data* simulation_data, Ant* ant){
 
 void Action_worker(Simulation_data* simulation_data, Ant* ant) {
     if(ant->Action == NULL){
-        printf("ant %s sent to look for food for STORAGE\n", ant->Name_ID);
+        printf("ant %s sent to look for food for STORAGE and is in %s\n", ant->Name_ID, ant->Position->Name_ID);
         insert_pheromone(&(ant->Action), init_pheromone("find_food", 6, 1));
     }
     if(ant->Action->ph_ID == 0){
@@ -486,7 +480,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
         }
     }
     if(ant->Action->ph_ID == 1){
-        printf("ant %s looking for food for STORAGE\n", ant->Name_ID);
+        printf("ant %s looking for food for STORAGE and is in %s\n", ant->Name_ID, ant->Position->Name_ID);
         if(ant->Held_object == NULL){
             if(ant->Path == NULL && strcmp(ant->Position->Name_ID, "Exterior")){ // si dans nest et pas de chemin
                 ant->Path = find_path_to_name(ant->Position, "Exterior", false);
