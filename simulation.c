@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
+#include <unistd.h>
 #include <string.h>
 
 #include "simulation.h"
@@ -241,8 +242,8 @@ void free_exterior(Simulation_data* simulation_data, Exterior* exterior){
             free_nest(simulation_data, exterior->Nests[0]);
         }
 
-        for (int i = 0; i < exterior->Total_Ant_number; i++) {
-            free_ant(simulation_data, exterior->All_Ant_list[i]);
+        for (int i = 0; i < exterior->Ant_number; i++) {
+            free_ant(simulation_data, exterior->Ant_list[i]);
         }
         free_room_rec(simulation_data, exterior->Entry);
 
@@ -299,7 +300,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
 
         // test evolve
     // larves
-    for(int i = 0; i < room->Larve_count; i++){
+    for(int i = room->Larve_count -1; i > -1; i--){
         if(simulation_data->debug_msgs >= 7){
             printf("\033[1;36m| DEBUG : larve \"%s\" in room \"%s\" has been tested\033[0m\n", room->Larve_list[i]->Name_ID, room->Name_ID);
         }
@@ -316,7 +317,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
         }
     }
     // eggs
-    for(int i = 0; i < room->Egg_count; i++){
+    for(int i = room->Egg_count -1; i > -1; i--){
         if(simulation_data->debug_msgs >= 7){
             printf("\033[1;36m| DEBUG : egg \"%s\" in room \"%s\" has been tested\n\033[0m", room->Egg_list[i]->Name_ID, room->Name_ID);
         }
@@ -331,11 +332,6 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
         else{
             room->Egg_list[i]->Grow--;
         }
-    }
-
-    // action
-    for(int i = 0; i < room->Ant_count; i++){
-        Action_ant(simulation_data, room->Ant_list[i]);
     }
 
     // Fin du code à éxecuter
@@ -365,15 +361,22 @@ void simulation(Simulation_data* simulation_data, int iterations) {
 
     simuler_room(simulation_data, simulation_data->Exterior->Entry);
     reinitialiser_rooms(simulation_data, simulation_data->Exterior->Entry);
+    for (int i = 0; i < simulation_data->Exterior->Ant_number; i++) {
+        Action_ant(simulation_data, simulation_data->Exterior->Ant_list[i]);
+    }
 
     if(simulation_data->debug_msgs >= 1){
         printf("| DEBUG : ");
         print_numbers(simulation_data);
     }
+
+    sleep(simulation_data->pause * simulation_data->pause_enable);
+
     simulation(simulation_data, iterations-1);
 }
 
 void simulation_choice(Simulation_data* simulation_data){
+    simulation_data->pause_enable = 0;
     int choice;
     printf("Quel choix pour la simulation ? (-1 pour le message d'aide)   ");
 
@@ -386,7 +389,9 @@ void simulation_choice(Simulation_data* simulation_data){
     if(choice == -1){
         printf("0 : fin de la simulation\n");
         printf("1 : avancer de 1 tick (1 itération)\n");
-        printf("2 : avancer de X tick\n\n");
+        printf("2 : avancer de X tick\n");
+        printf("3 : avancer de X tick avec pause de 1s\n");
+        printf("4 : print numbers\n\n");
         simulation_choice(simulation_data);
     }
     if(choice == 0){
@@ -405,12 +410,21 @@ void simulation_choice(Simulation_data* simulation_data){
         simulation(simulation_data, X);
     }
     if(choice == 3){
+        int X;
+        printf("Combien de ticks voulez-vous simuler ? :   ");
+        scanf("%d", &X);
+        simulation_data->pause_enable = 1;
+        simulation(simulation_data, X);
+    }
+    if(choice == 4){
         print_numbers(simulation_data);
     }
-    if(choice < -1 || choice > 3){
+    if(choice < -1 || choice > 4){
         printf("0 : fin de la simulation\n");
         printf("1 : avancer de 1 tick (1 itération)\n");
-        printf("2 : avancer de X tick\n\n");
+        printf("2 : avancer de X tick\n");
+        printf("3 : avancer de X tick avec pause de 1s\n");
+        printf("4 : print numbers\n\n");
         simulation_choice(simulation_data);
     }
 }
@@ -469,6 +483,9 @@ Simulation_data* init_simulation(){
     Simulation_data* sim = malloc(sizeof(Simulation_data));
 
     sim->tick = 0;
+    sim->pause = 1;
+    sim->pause_enable = 0;
+
     sim->start_season = 0;
     sim->counter = 0;
     sim->current_season = 0;
@@ -522,7 +539,7 @@ Nest* start(Simulation_data* simulation_data){   // Lancer la simulation
     dmg_param[0] = 1;
     dmg_param[1] = 5;
 
-    Nest* nest = init_nest(simulation_data, "fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 10, 100, 50, entry);
+    Nest* nest = init_nest(simulation_data, "fourmia trèspetitus", "léptites fourmis", pv_param, dmg_param, 10, 100, 30, entry);
 
     /* Structure de la fourmilière initiale voulue:
      *                 entrée
@@ -536,10 +553,10 @@ Nest* start(Simulation_data* simulation_data){   // Lancer la simulation
      */
 
     // Création des salles
-    Room* resting_room = init_room(simulation_data, "Resting Room", 50);
-    Room* food_room1 = init_room(simulation_data, "Storage Room", 50);
-    Room* food_room2 = init_room(simulation_data, "Storage Room", 60);
-    Room* queen_chamber = init_room(simulation_data, "Queen chamber", 70);
+    Room* resting_room = init_room(simulation_data, "Resting Room", 100);
+    Room* food_room1 = init_room(simulation_data, "Storage Room", 150);
+    Room* food_room2 = init_room(simulation_data, "Storage Room", 120);
+    Room* queen_chamber = init_room(simulation_data, "Queen chamber", 200);
 
     nest->Queen_chamber = queen_chamber;
 

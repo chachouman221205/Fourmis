@@ -27,9 +27,6 @@ typedef struct Exterior {
 
     struct Ant **Ant_list;
     int Ant_number;
-
-    struct Ant **All_Ant_list;
-    int Total_Ant_number;
 } Exterior;
 
 // Représente une fourmilière (graphe de "Room")
@@ -78,6 +75,11 @@ typedef struct Season {
 
 typedef struct Simulation_data {
     int tick;           // Temps actuel dans la simulation
+
+    int pause;
+    bool pause_enable;
+
+    // Seasons
     int start_season;
     int counter;        // On change de saison et counter = 0 quand counter = 30;
     int current_season;
@@ -99,6 +101,7 @@ typedef struct Simulation_data {
     int ant_NB;
     int obj_NB;
     int crea_NB;
+
 
     int debug_msgs;
 } Simulation_data;

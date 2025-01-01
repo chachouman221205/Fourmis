@@ -255,6 +255,9 @@ void free_Path(Path* p) {
 }
 
 void use_path(Path* p) {
+    if (p->next==NULL) {
+        return;
+    }
     Path* second = p->next;
     p->next = second->next;
     p->room = second->room;
@@ -270,6 +273,7 @@ Path* find_path_to_food(Room* start, bool entry_blocked) {
     if (start->Visited || (start->Name_ID && entry_blocked)) {
         return NULL;
     }
+    start->Visited = true;
 
     Path* result = malloc(sizeof(Path));
     if (result == NULL) {
@@ -278,7 +282,6 @@ Path* find_path_to_food(Room* start, bool entry_blocked) {
 
     // Si un objet se trouve dans la salle actuelle
     if (search_object(start, "food") != NULL) {
-
 
         result->room = start;
         result->next = NULL;
@@ -294,19 +297,31 @@ Path* find_path_to_food(Room* start, bool entry_blocked) {
     }
 
     // recherche du chemin trouvé le plus court
-    unsigned int min_distance = -1;
     result->next = NULL;
     result->room = start;
+    result->length = -1;
     for (int i = 0; i < start->Connexion_list_size; i++) {
-        if (paths[i]->length < min_distance) {
-            free_Path(result);
+        if (paths[i] == NULL) {
+            continue;
+        }
+        if (paths[i]->length < result->length) {
+            if (result->next != NULL) {
+                free_Path(result->next);
+            }
             result->next = paths[i];
-            min_distance = result->length;
+            result->length = paths[i]->length;
 
         } else if (paths[i] != NULL) {
             free_Path(paths[i]);
         }
     }
+
+    if (result->next == NULL) {
+        free_Path(result);
+        return NULL;
+    }
+
+    result->length++;
     return result;
 }
 
@@ -318,6 +333,7 @@ Path* find_path_to_name(Room* start, char* NameID, bool entry_blocked) {
     if (start->Visited || (start->Name_ID && entry_blocked)) {
         return NULL;
     }
+    start->Visited = true;
 
     Path* result = malloc(sizeof(Path));
     if (result == NULL) {
@@ -325,33 +341,44 @@ Path* find_path_to_name(Room* start, char* NameID, bool entry_blocked) {
     }
 
     // Si un objet se trouve dans la salle actuelle
-    if (strcmp(start->Name_ID, NameID)) {
+    if (strcmp(start->Name_ID, NameID) == 0) {
 
         result->room = start;
         result->next = NULL;
-        result->length = 0;
+        result->length = 1;
 
         return result;
     }
 
     Path** paths= malloc(start->Connexion_list_size * sizeof(Path*));
     for (int i = 0; i < start->Connexion_list_size; i++) {
-        paths[i] = find_path_to_food(start->Connexion_list[i], entry_blocked);
+        paths[i] = find_path_to_name(start->Connexion_list[i], NameID, entry_blocked);
     }
 
-    unsigned int min_distance = -1;
     result->next = NULL;
-    result->room = NULL;
+    result->room = start;
+    result->length = -1;
     for (int i = 0; i < start->Connexion_list_size; i++) {
-        if (paths[i]->length < min_distance) {
-            free_Path(result);
-            result = paths[i];
-            min_distance = result->length;
+        if (paths[i] == NULL) {
+            continue;
+        }
+        if (paths[i]->length < result->length) {
+            if (result->next != NULL) {
+                free_Path(result->next);
+            }
+            result->next = paths[i];
+            result->length = paths[i]->length;
 
         } else if (paths[i] != NULL) {
             free_Path(paths[i]);
         }
     }
+
+    if (result->next == NULL) {
+        free_Path(result);
+        return NULL;
+    }
+    result->length++;
 
     return result;
 }

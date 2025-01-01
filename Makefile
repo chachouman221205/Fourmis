@@ -1,6 +1,6 @@
 CFLAGS = -Wall -Wfatal-errors -Werror
 
-MAIN_FILE = proj.c
+MAIN_FILE = main.c
 
 DEBUG = -g
 
