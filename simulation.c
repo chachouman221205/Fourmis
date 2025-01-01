@@ -536,10 +536,10 @@ Nest* start(Simulation_data* simulation_data){   // Lancer la simulation
      */
 
     // Création des salles
-    Room* resting_room = init_room(simulation_data, "Resting Room", 50);
-    Room* food_room1 = init_room(simulation_data, "Storage Room", 50);
-    Room* food_room2 = init_room(simulation_data, "Storage Room", 60);
-    Room* queen_chamber = init_room(simulation_data, "Queen chamber", 70);
+    Room* resting_room = init_room(simulation_data, "Resting Room", 100);
+    Room* food_room1 = init_room(simulation_data, "Storage Room", 150);
+    Room* food_room2 = init_room(simulation_data, "Storage Room", 120);
+    Room* queen_chamber = init_room(simulation_data, "Queen chamber", 200);
 
     nest->Queen_chamber = queen_chamber;
 

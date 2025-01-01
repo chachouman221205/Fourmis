@@ -47,8 +47,9 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     nest->Egg_list = realloc(nest->Egg_list, (++nest->Egg_number)*sizeof(Egg*));
     nest->Egg_list[nest->Egg_number-1] = new_egg;
 
+    char* ant_types[] = {"Worker", "Queen"};
     if(simulation_data->debug_msgs >= 1){
-        printf("\033[1;34m| DEBUG : new egg \"%s\" initialized in nest \"%s\"\n\033[0m", new_egg->Name_ID, nest->Clan);
+        printf("\033[1;34m| DEBUG : new egg \"%s\" ant_type \"%s\" initialized in nest \"%s\"\n\033[0m", new_egg->Name_ID, ant_types[new_egg->Ant_type], nest->Clan);
     }
 
     return new_egg;
