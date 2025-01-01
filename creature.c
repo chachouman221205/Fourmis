@@ -74,7 +74,7 @@ void test_kill_creature(Simulation_data* simulation_data, Creature* crea){
 
 }
 
-void combat_ant_creature(Simulation_data* simulation_data, Ant* ant, Creature* crea){
+void combat_ant_creature(Simulation_data* simulation_data, Ant* ant, Creature* crea){ //Combat entre les créatures et fourmis  ( chaque creature/fourmis inflige des dégats à l'adversaire)
     if(ant == NULL){
         perror("Échec du combat_ant_crea : ant NULL");
         return;

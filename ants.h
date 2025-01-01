@@ -11,13 +11,13 @@ typedef struct Egg {
 
     int PV;
 
-    int Grow;       // nombre de ticks avant que la fourmi passe au stade supérieur
-    int Hunger;     // Nombre d'itérations avant que la fourmi ait besoin de manger, meurt si <= -5
-    // La fourmi a faim quand hunger = 0, et doit manger en moins de 5 itérations pour survivre
+    int Grow;       // nombre de ticks avant que l'oeuf passe au stade supérieur
+    int Hunger;     // l'oeuf n'utilise pas "hunger" mais stocke l'information
+
 
     char *Clan;
     Nest* Nest;
-    struct Room *Position;      // Pointeur vers la pièce où se trouve la fourmi
+    struct Room *Position;      // Pointeur vers la pièce où se trouve l'oeuf
 } Egg;
 
 // Représente une larve de fourmi
@@ -27,13 +27,13 @@ typedef struct Larve {
 
     int PV;
 
-    int Grow;       // nombre de ticks avant que la fourmi passe au stade supérieur
-    int Hunger;     // Nombre d'itérations avant que la fourmi ait besoin de manger, meurt si <= -5
-    // La fourmi a faim quand hunger = 0, et doit manger en moins de 5 itérations pour survivre
+    int Grow;       // nombre de ticks avant que la larve devienne une fourmi
+    int Hunger;     // Nombre d'itérations avant que la larve ait besoin de manger, meurt si <= -5
+    // La larve a faim quand hunger = 0, et doit manger en moins de 5 itérations pour survivre
 
     char *Clan;
     Nest* Nest;
-    struct Room *Position;      // Pointeur vers la pièce où se trouve la fourmi
+    struct Room *Position;      // Pointeur vers la pièce où se trouve la larve
 } Larve;
 
 // Représente une fourmi
