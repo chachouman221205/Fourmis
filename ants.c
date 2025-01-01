@@ -47,8 +47,9 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     nest->Egg_list = realloc(nest->Egg_list, (++nest->Egg_number)*sizeof(Egg*));
     nest->Egg_list[nest->Egg_number-1] = new_egg;
 
+    char* ant_types[] = {"Queen", "Worker"};
     if(simulation_data->debug_msgs >= 1){
-        printf("\033[1;34m| DEBUG : new egg \"%s\" initialized in nest \"%s\"\n\033[0m", new_egg->Name_ID, nest->Clan);
+        printf("\033[1;34m| DEBUG : new egg \"%s\" ant_type \"%s\" initialized in nest \"%s\"\n\033[0m", new_egg->Name_ID, ant_types[new_egg->Ant_type], nest->Clan);
     }
 
     return new_egg;
@@ -138,7 +139,9 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     }
     strcpy(new_larve->Name_ID, egg->Name_ID);
 
+    printf("%s : larve type %d | egg type %d\n", egg->Name_ID, new_larve->Ant_type, egg->Ant_type);
     new_larve->Ant_type = egg->Ant_type;
+    printf("%s : 2 larve type %d | egg type %d\n", egg->Name_ID, new_larve->Ant_type, egg->Ant_type);
     new_larve->PV = egg->PV;
     new_larve->Grow = (egg->Nest->Life_min + rand() % (egg->Nest->Life_max - egg->Nest->Life_min + 1))/2; // Grow entre (Life_min et Life_max)/2
     new_larve->Hunger = egg->Hunger;
@@ -146,15 +149,21 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     new_larve->Nest = egg->Nest;
     new_larve->Position = egg->Position;     // Position NULL au départ, assignation plus tard
 
+    char* ant_types[] = {"Queen", "Worker"};
     if(simulation_data->debug_msgs >= 1){
-        printf("\033[1;34m| DEBUG : new larve \"%s\" initialized in nest \"%s\"\n\033[0m", new_larve->Name_ID, egg->Nest->Clan);
+        printf("\033[1;34m| DEBUG : new larve \"%s\" ant_type \"%s\" initialized in nest \"%s\"\n\033[0m", new_larve->Name_ID, ant_types[new_larve->Ant_type], new_larve->Nest->Clan);
     }
 
     simulation_data->larve_NB++;
     new_larve->Nest->Larve_list = realloc(new_larve->Nest->Larve_list, (++new_larve->Nest->Larve_number)*sizeof(Larve*));
     new_larve->Nest->Larve_list[new_larve->Nest->Larve_number-1] = new_larve;
 
+    printf("%s : 3 larve type %d | egg type %d\n", egg->Name_ID, new_larve->Ant_type, egg->Ant_type);
+
     free_egg(simulation_data, egg);
+    
+    printf("%s : 4 larve type %d ; %p\n", new_larve->Name_ID, new_larve->Ant_type, &egg->Ant_type);
+
     return new_larve;
 }
 
@@ -281,8 +290,9 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
 
     new_ant->Nest->Ant_number++;
 
+    char* ant_types[] = {"Queen", "Worker"};
     if(simulation_data->debug_msgs >= 1){
-        printf("\033[1;34m| DEBUG : new ant \"%s\" initialized in nest \"%s\"\n\033[0m", new_ant->Name_ID, larve->Nest->Clan);
+        printf("\033[1;34m| DEBUG : new ant \"%s\" ant_type \"%s\" initialized in nest \"%s\"\n\033[0m", new_ant->Name_ID, ant_types[new_ant->Ant_type], new_ant->Nest->Clan);
     }
 
     free_larve(simulation_data, larve);
@@ -347,9 +357,9 @@ void Action_queen(Simulation_data* simulation_data, Ant* ant){
     int max_egg = 4;
     //si hunger < 10 --> aller manger
     //si stamina < 10 --> aller dormir ( si on fait le système du cycle de repos)
-    if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "Queen chamber") && remaining_space(ant->Position) > 10){
+    if(ant->Hunger > 10 && !strcmp(ant->Position->Name_ID, "Queen chamber") && remaining_space(ant->Position) > 25){
         for(int i = 0; i < rand()% max_egg + 1; i++){
-            if(ant->Hunger > 50){
+            if(ant->Hunger > egg_cost + 20){
                 ant->Hunger = ant->Hunger - egg_cost;   // on lui retire la nouriture utilisée
                 ant->Position->Egg_list = realloc(ant->Position->Egg_list, (ant->Position->Egg_count+1)*sizeof(Egg*));
                 if(ant->Position->Egg_list == NULL){
@@ -369,10 +379,11 @@ void Action_queen(Simulation_data* simulation_data, Ant* ant){
                 if(ant_type_choice == 0){
                     char name[20]; // Taille adaptée à "Queen" + numéro + '\0'
                     sprintf(name, "Queen%d", simulation_data->queen_IDs++);
+                    // printf("%s\n", name);
                     ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, name, ant_type_choice , ant->Position);
                 }
                 else{
-                    ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL , ant_type_choice , ant->Position);
+                    ant->Position->Egg_list[ant->Position->Egg_count] = init_new_egg(simulation_data, ant->Nest, NULL, ant_type_choice , ant->Position);
                 }
                 ant->Position->Egg_count++;
             }
@@ -383,28 +394,31 @@ void Action_queen(Simulation_data* simulation_data, Ant* ant){
     }
 
     //manger
-    Object* food = search_object(ant->Position, "food");
-    if(food == NULL){
-        insert_pheromone(&(ant->Position->Pheromone_stack), init_pheromone("bring_me_food", 5, 0));
-    }
-    else{
-        food->Size--;
-        if(food->Size == 0){
-            int pos;
-            for(int i = 0; i < ant->Position->Obj_count; i++){
-                if(food == ant->Position->Obj_list[i]){
-                    pos = i;
+    Object* food;
+    for(int i = 0; i < rand()% max_egg + 1; i++){
+        food = search_object(ant->Position, "food");
+        if(food == NULL){
+            insert_pheromone(&(ant->Position->Pheromone_stack), init_pheromone("bring_me_food", 5, 0));
+        }
+        else{
+            food->Size--;
+            if(food->Size == 0){
+                int pos;
+                for(int i = 0; i < ant->Position->Obj_count; i++){
+                    if(food == ant->Position->Obj_list[i]){
+                        pos = i;
+                    }
+                }
+                ant->Position->Obj_list[pos] = ant->Position->Obj_list[--ant->Position->Obj_count];
+                free_object(simulation_data, food);
+                ant->Position->Obj_list = realloc(ant->Position->Obj_list, ant->Position->Obj_count * sizeof(Object*));
+                if(ant->Position->Obj_list == NULL){
+                    perror("Échec de la réallocation mémoire pour ant->Position->Obj_list in \"Action_ant\"");
+                    return;
                 }
             }
-            ant->Position->Obj_list[pos] = ant->Position->Obj_list[--ant->Position->Obj_count];
-            free_object(simulation_data, food);
-            ant->Position->Obj_list = realloc(ant->Position->Obj_list, ant->Position->Obj_count * sizeof(Object*));
-            if(ant->Position->Obj_list == NULL){
-                perror("Échec de la réallocation mémoire pour ant->Position->Obj_list in \"Action_ant\"");
-                return;
-            }
+            ant->Hunger += egg_cost + 1;
         }
-        ant->Hunger += egg_cost + 1;
     }
 }
 
