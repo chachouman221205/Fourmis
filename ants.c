@@ -329,7 +329,6 @@ void move_ant(Simulation_data* simulation_data, Ant* ant, Room* room) {
     room->Ant_list = realloc(room->Ant_list, (++room->Ant_count) * sizeof(Ant*));
     room->Ant_list[room->Ant_count-1] = ant;
     ant->Position = room;
-
 }
 
 void Action_queen(Simulation_data* simulation_data, Ant* ant){
@@ -400,9 +399,11 @@ void Action_queen(Simulation_data* simulation_data, Ant* ant){
 
 void Action_worker(Simulation_data* simulation_data, Ant* ant) {
     if(ant->Action == NULL){
+        printf("ant %s sent to look for food for STORAGE\n", ant->Name_ID);
         insert_pheromone(&(ant->Action), init_pheromone("find_food", 6, 1));
     }
     if(ant->Action->ph_ID == 0){
+        printf("ant %s looking for food for QUEEN\n", ant->Name_ID);
         if(ant->Held_object == NULL){
             if(ant->Path == NULL){
                 ant->Path = find_path_to_food(ant->Position, true); // true = pas le droit d'aller chercher de la nourriture en dehors de la fourmilière
@@ -426,7 +427,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
                     free_Path(ant->Path);    //1 seul elmt à free
                 }
                 else{       //move closer to food
-                    move_ant(ant, ant->Path->room);
+                    move_ant(simulation_data, ant, ant->Path->room);
                     use_path(ant->Path);
                 }
             }
@@ -451,13 +452,14 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
                     free(ant->Path);    //1 seul elmt à free
                 }
                 else{       //move closer to destination
-                    move_ant(ant, ant->Path->room);
+                    move_ant(simulation_data, ant, ant->Path->room);
                     use_path(ant->Path);
                 }
             }
         }
     }
     if(ant->Action->ph_ID == 1){
+        printf("ant %s looking for food for STORAGE\n", ant->Name_ID);
         if(ant->Held_object == NULL){
             if(ant->Path == NULL && strcmp(ant->Position->Name_ID, "Exterior")){ // si dans nest et pas de chemin
                 ant->Path = find_path_to_name(ant->Position, "Exterior", false);
@@ -477,7 +479,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
                     free_Path(ant->Path);
                 }
                 else{       //move closer to destination
-                    move_ant(ant, ant->Path->room);
+                    move_ant(simulation_data, ant, ant->Path->room);
                     use_path(ant->Path);
                 }
             }
@@ -502,7 +504,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
                     free_Path(ant->Path);    //1 seul elmt à free
                 }
                 else{       //move closer to food
-                    move_ant(ant, ant->Path->room);
+                    move_ant(simulation_data, ant, ant->Path->room);
                     use_path(ant->Path);
                 }
             }
@@ -511,9 +513,11 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
     }
 
     //manger
-    if(ant->Hunger < 10 && ant->Held_object != NULL && ant->Held_object->Size >= 2){
-        ant->Held_object->Size--;
-        ant->Hunger += 15;
+    if(ant->Hunger < 10 && ant->Held_object != NULL){
+        if(ant->Held_object->Size >= 2){
+            ant->Held_object->Size--;
+            ant->Hunger += 15;
+        }
     }
 }
 
