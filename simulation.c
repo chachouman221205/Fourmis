@@ -25,7 +25,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
     }
     spring->Name = "Spring";
     spring->Number = 1;
-    spring->Chance = 10;  //en %
+    spring->Chance = 7;  //en %
 
     Season *summer = malloc(sizeof(Season));
     if(summer == NULL){     // Si echec d'allocation, on free toutes les saisons déjà allouées
@@ -35,7 +35,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
     }
     summer->Name = "Summer";
     summer->Number = 2;
-    summer->Chance = 25;
+    summer->Chance = 12;
 
     Season *autumn = malloc(sizeof(Season));
     if(autumn == NULL){
@@ -46,7 +46,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
     }
     autumn->Name = "Autumn";
     autumn->Number = 3;
-    autumn->Chance = 10;
+    autumn->Chance = 7;
 
     Season *winter = malloc(sizeof(Season));
     if(winter == NULL){
@@ -58,7 +58,7 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
     }
     winter->Name = "Winter";
     winter->Number = 4;
-    winter->Chance = 2;
+    winter->Chance = 1;
 
     // Chaînage des saisons : Boucle cyclique
     spring->Next = summer;
@@ -262,7 +262,7 @@ void print_numbers(Simulation_data* sim){   // OLD
 }
 */
 void print_numbers(Simulation_data* sim){
-    printf("| DEBUG : Eggs : %d | Larves : %d | Ants : %d | Objs : %d | Ticks : %d\n\n",
+    printf("Eggs : %d | Larves : %d | Ants : %d | Objs : %d | Ticks : %d\n\n",
            sim->egg_NB, sim->larve_NB, sim->ant_NB, sim->obj_NB, sim->tick);
 }
 
@@ -307,7 +307,6 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
             printf("\033[1;36m| DEBUG : %s : time left before growth : %d\n\033[0m", room->Larve_list[i]->Name_ID, room->Larve_list[i]->Grow);
         }
         if(test_grow_larve(simulation_data, room->Larve_list[i])){
-            printf("in0\n");
             Ant* ant = init_new_ant(simulation_data, room->Larve_list[i]);
             room->Ant_list = realloc(room->Ant_list, (++room->Ant_count)*sizeof(Ant*));
             room->Ant_list[room->Ant_count-1] = ant;
@@ -350,7 +349,7 @@ void simulation(Simulation_data* simulation_data, int iterations) {
         return;
     }
 
-    if(simulation_data->debug_msgs >= 2){
+    if(simulation_data->debug_msgs >= 1){
         printf("| DEBUG : iterations left : %d\n", iterations);
     }
 
@@ -368,6 +367,7 @@ void simulation(Simulation_data* simulation_data, int iterations) {
     reinitialiser_rooms(simulation_data, simulation_data->Exterior->Entry);
 
     if(simulation_data->debug_msgs >= 1){
+        printf("| DEBUG : ");
         print_numbers(simulation_data);
     }
     simulation(simulation_data, iterations-1);
@@ -404,7 +404,10 @@ void simulation_choice(Simulation_data* simulation_data){
         scanf("%d", &X);
         simulation(simulation_data, X);
     }
-    if(choice < -1 || choice > 2){
+    if(choice == 3){
+        print_numbers(simulation_data);
+    }
+    if(choice < -1 || choice > 3){
         printf("0 : fin de la simulation\n");
         printf("1 : avancer de 1 tick (1 itération)\n");
         printf("2 : avancer de X tick\n\n");

@@ -249,7 +249,6 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
         perror("Échec de l'allocation mémoire pour ant->Name_ID");
         return NULL;
     }
-    printf("%ld %ld | %s\n", sizeof(new_ant->Name_ID), sizeof(larve->Name_ID), larve->Name_ID);
     strcpy(new_ant->Name_ID, larve->Name_ID);
 
     simulation_data->ant_NB++;
@@ -322,7 +321,6 @@ void move_ant(Ant* ant, Room* room) {
 }
 
 void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui défini l'action d'une fourmis ouvrière/reine lors du cycle
-    printf("in\n");
     if(ant->Ant_type == 0){  // actions possibles des reines
         int egg_cost = 4;
         int max_egg = 4;
@@ -339,7 +337,6 @@ void Action_ant(Simulation_data* simulation_data, Ant* ant){    //fonction qui d
                     }
                     //ant_type_choice
                     int ant_type_choice;
-                    printf("    ant hunger : %d\n", ant->Hunger);
                     if(ant->Life < ant->Nest->Life_min || ant->Hunger <= egg_cost){
                         ant_type_choice = 0; // on veut une reine
                     }
