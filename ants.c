@@ -47,7 +47,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     nest->Egg_list = realloc(nest->Egg_list, (++nest->Egg_number)*sizeof(Egg*));
     nest->Egg_list[nest->Egg_number-1] = new_egg;
 
-    char* ant_types[] = {"Worker", "Queen"};
+    char* ant_types[] = {"Queen", "Worker"};
     if(simulation_data->debug_msgs >= 1){
         printf("\033[1;34m| DEBUG : new egg \"%s\" ant_type \"%s\" initialized in nest \"%s\"\n\033[0m", new_egg->Name_ID, ant_types[new_egg->Ant_type], nest->Clan);
     }
@@ -147,8 +147,9 @@ Larve* init_new_larve(Simulation_data* simulation_data, Egg* egg) {
     new_larve->Nest = egg->Nest;
     new_larve->Position = egg->Position;     // Position NULL au départ, assignation plus tard
 
+    char* ant_types[] = {"Queen", "Worker"};
     if(simulation_data->debug_msgs >= 1){
-        printf("\033[1;34m| DEBUG : new larve \"%s\" initialized in nest \"%s\"\n\033[0m", new_larve->Name_ID, egg->Nest->Clan);
+        printf("\033[1;34m| DEBUG : new larve \"%s\" ant_type \"%s\" initialized in nest \"%s\"\n\033[0m", new_larve->Name_ID, ant_types[new_larve->Ant_type], nest->Clan);
     }
 
     simulation_data->larve_NB++;
@@ -279,8 +280,9 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
 
     new_ant->Nest->Ant_number++;
 
+    char* ant_types[] = {"Queen", "Worker"};
     if(simulation_data->debug_msgs >= 1){
-        printf("\033[1;34m| DEBUG : new ant \"%s\" initialized in nest \"%s\"\n\033[0m", new_ant->Name_ID, larve->Nest->Clan);
+        printf("\033[1;34m| DEBUG : new ant \"%s\" ant_type \"%s\" initialized in nest \"%s\"\n\033[0m", new_ant->Name_ID, ant_types[new_ant->Ant_type], nest->Clan);
     }
 
     free_larve(simulation_data, larve);
