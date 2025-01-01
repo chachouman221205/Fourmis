@@ -33,7 +33,7 @@ typedef struct Room {
 typedef struct Path {
     struct Room* room;
     struct Path* next;
-    int length;
+    unsigned int length;
 } Path;
 
 

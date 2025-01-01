@@ -333,11 +333,6 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
         }
     }
 
-    // action
-    for(int i = 0; i < room->Ant_count; i++){
-        Action_ant(simulation_data, room->Ant_list[i]);
-    }
-
     // Fin du code à éxecuter
     for (int i = 0; i < room->Connexion_list_size; i++) {
         simuler_room(simulation_data, room->Connexion_list[i]);
@@ -365,6 +360,9 @@ void simulation(Simulation_data* simulation_data, int iterations) {
 
     simuler_room(simulation_data, simulation_data->Exterior->Entry);
     reinitialiser_rooms(simulation_data, simulation_data->Exterior->Entry);
+    for (int i = 0; i < simulation_data->Exterior->Ant_number; i++) {
+        Action_ant(simulation_data, simulation_data->Exterior->Ant_list[i]);
+    }
 
     if(simulation_data->debug_msgs >= 1){
         printf("| DEBUG : ");
