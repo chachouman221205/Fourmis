@@ -486,7 +486,7 @@ Simulation_data* init_simulation(){
 
     sim->tick = 0;
     sim->pause = 1;
-    sim->pause_toggle = 0;
+    sim->pause_enable = 0;
 
     sim->start_season = 0;
     sim->counter = 0;
