@@ -27,9 +27,6 @@ typedef struct Exterior {
 
     struct Ant **Ant_list;
     int Ant_number;
-
-    struct Ant **All_Ant_list;
-    int Total_Ant_number;
 } Exterior;
 
 // Représente une fourmilière (graphe de "Room")

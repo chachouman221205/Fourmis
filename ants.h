@@ -54,7 +54,7 @@ typedef struct Ant {
     struct Room *Position;      // Pointeur vers la pièce où se trouve la fourmi
     struct Object *Held_object; // Pointeur vers l'objet que la fourmi transporte (NULL si aucun)
     struct Pheromone *Action;   // Pointeur vers la phéromone qui détermine son objectif
-    struct Path *Path;          // Objectif current de la fourmi
+    struct Path *Path;          // Objectif actuel de la fourmi
 } Ant;
 
 // Egg
@@ -81,7 +81,7 @@ void attach_ant_to_nest(Ant* ant, Nest* nest);
 
 Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve);
 
-void move_ant(Ant* ant, Room* room);
+bool move_ant(Simulation_data* simulation_data, Ant* ant, Room* room);
 
 void Action_ant(Simulation_data* simulation_data, Ant* ant);
 
