@@ -37,7 +37,7 @@ Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int 
     new_egg->Grow = (nest->Life_min + rand() % (nest->Life_max - nest->Life_min + 1))/2; // Grow entre (Life_min et Life_max)/2
     new_egg->Hunger = nest->Hunger;
     if (ant_type == 0) {
-        new_egg->Hunger *= 3;
+        new_egg->Hunger *= 7;
     }
     new_egg->Nest = nest;
     new_egg->Clan = nest->Clan;
@@ -281,7 +281,7 @@ Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve) {
     return new_ant;
 }
 
-void move_ant(Ant* ant, Room* room) {
+void move_ant(Simulation_data* simulation_data, Ant* ant, Room* room) {
     if (ant == NULL) {
         perror("| ERROR : Cannot move NULL ant");
     }
@@ -306,6 +306,10 @@ void move_ant(Ant* ant, Room* room) {
         return;
     }
 
+    if (simulation_data->debug_msgs >= 7) {
+        printf("| DEBUG : moving ant \"%s\" from room \"%s\" to room \"%s\"", ant->Name_ID, ant->Position->Name_ID, room->Name_ID);
+    }
+
     // Déplacement :
 
     // on retire la fourmi de l'ancienne salle
@@ -316,15 +320,15 @@ void move_ant(Ant* ant, Room* room) {
         }
     }
 
-    // on ajoute la fourmi à la nouvelle salle
-    room->Ant_list = realloc(room->Ant_list, (++room->Ant_count) * sizeof(Ant*));
-    room->Ant_list[room->Ant_count-1] = ant;
-    ant->Position = room;
-
     // on déplace l'objet que porte la fourmi
     if (ant->Held_object != NULL) {
         move_object(ant->Held_object, ant->Position, room);
     }
+
+    // on ajoute la fourmi à la nouvelle salle
+    room->Ant_list = realloc(room->Ant_list, (++room->Ant_count) * sizeof(Ant*));
+    room->Ant_list[room->Ant_count-1] = ant;
+    ant->Position = room;
 
 }
 
