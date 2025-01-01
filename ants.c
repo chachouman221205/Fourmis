@@ -4,6 +4,8 @@
 
 #include "simulation.h"
 
+const char* space_tab[] = {"    ", "   ", "  ", " "};
+
 // Egg
 Egg* init_new_egg(Simulation_data* simulation_data, Nest* nest, char *name, int ant_type, Room* room) {
     Egg* new_egg = malloc(sizeof(Egg));
@@ -418,7 +420,7 @@ void Action_queen(Simulation_data* simulation_data, Ant* ant){
 
 void Action_worker(Simulation_data* simulation_data, Ant* ant) {
     if(ant->Action == NULL){
-        printf("ant %s sent to look for food for STORAGE and is in %s\n", ant->Name_ID, ant->Position->Name_ID);
+        printf("ant %s%ssent to look for food for STORAGE and is in %s\n", ant->Name_ID, space_tab[(strlen(ant->Name_ID)-3)%4], ant->Position->Name_ID);
         insert_pheromone(&(ant->Action), init_pheromone("find_food", 6, 1));
     }
     if(ant->Action->ph_ID == 0){
@@ -480,7 +482,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
         }
     }
     if(ant->Action->ph_ID == 1){
-        printf("ant %s looking for food for STORAGE and is in %s\n", ant->Name_ID, ant->Position->Name_ID);
+        printf("ant %s%slooking for food for STORAGE and is in %s\n", ant->Name_ID, space_tab[(strlen(ant->Name_ID)-3)%4], ant->Position->Name_ID);
         if(ant->Held_object == NULL){
             if(ant->Path == NULL && strcmp(ant->Position->Name_ID, "Exterior")){ // si dans nest et pas de chemin
                 ant->Path = find_path_to_name(ant->Position, "Exterior", false);
