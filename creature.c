@@ -1,3 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "simulation.h"
+
 // Représente une créature quelconque (prédateur ou autre)
 typedef struct Creature {
     char *Name_ID;
@@ -33,14 +39,14 @@ Creature* init_creature(Simulation_data* simulation_data, char* name_ID, int pv,
     new_creature->Hunger = hunger;
     new_creature->Position = position;
 
-    if(debug_msgs >= 1){
+    if(simulation_data->debug_msgs >= 1){
         printf("\033[1;34m| DEBUG : new creature \"%s\" initialized\n\033[0m", new_creature->Name_ID);
     }
 }
 
 void free_creature(Simulation_data* simulation_data, Creature* creature){
     if(creature != NULL){
-        if(debug_msgs >= 1){
+        if(simulation_data->debug_msgs >= 1){
             printf("\033[1;32m| DEBUG : creature \"%s\" freed\n\033[0m", creature->Name_ID);
         }
         free(creature);
@@ -64,7 +70,7 @@ void test_kill_creature(Simulation_data* simulation_data, Creature* crea){
         }
 
         if(condition != 0){
-            if(debug_msgs >= 4){
+            if(simulation_data->debug_msgs >= 4){
                 printf("| DEBUG : crea \"%s\" died : ", crea->Name_ID);
                 printf(death_message[condition], (condition == 1)? crea->PV : (condition == 2)? crea->Life : crea->Hunger);
             }
@@ -87,7 +93,7 @@ void combat_ant_creature(Simulation_data* simulation_data, Ant* ant, Creature* c
     ant->PV -= crea->DMG;
     crea->PV -= ant->DMG;
 
-    if(debug_msgs >= 4){
+    if(simulation_data->debug_msgs >= 4){
         printf("| DEBUG : ant \"%s\" : %d PV\n", ant->Name_ID, ant->PV);
         printf("| DEBUG : crea \"%s\" : %d PV\n", crea->Name_ID, crea->PV);
     }

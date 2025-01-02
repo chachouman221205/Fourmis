@@ -20,7 +20,7 @@ int main(){
 
     // Simulation
     Simulation_data* simulation_1 = init_simulation(); 
-    simulation_1->debug_msgs = 7;   // Niveau de debug
+    simulation_1->debug_msgs = 6;   // Niveau de debug
     simulation_1->pause = 2;        // En seconde
     init_seasons(simulation_1, simulation_1->start_season);
 
@@ -32,6 +32,8 @@ int main(){
     Egg* queen = init_new_egg(simulation_1, nest, "Queen_ORIGIN", 0, nest->Queen_chamber);
     nest->Queen_chamber->Egg_list = realloc(nest->Queen_chamber->Egg_list, (++nest->Queen_chamber->Egg_count)*sizeof(Egg*));
     nest->Queen_chamber->Egg_list[nest->Queen_chamber->Egg_count-1] = queen;
+
+    queen->Grow = 1;
 
     // Simulation
 

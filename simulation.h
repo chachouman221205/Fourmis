@@ -78,6 +78,7 @@ typedef struct Simulation_data {
 
     int pause;
     bool pause_enable;
+    char* space_tab[4];
 
     // Seasons
     int start_season;

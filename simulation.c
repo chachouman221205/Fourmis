@@ -10,7 +10,6 @@
 #include "ants.h"
 #include "rooms.h"
 
-
 /* -----< Récupération des variables de départ >----- */
 void init_variables(Simulation_data* simulation){  // Récupère les scanf pour inititaliser des variables
     printf("Saison de départ : (1: Spring, 2: Summer, 3: Autumn, 4: Winter)   ");
@@ -302,10 +301,10 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     // larves
     for(int i = room->Larve_count -1; i > -1; i--){
         if(simulation_data->debug_msgs >= 7){
-            printf("\033[1;36m| DEBUG : larve \"%s\" in room \"%s\" has been tested\033[0m\n", room->Larve_list[i]->Name_ID, room->Name_ID);
+            printf("\033[1;36m| DEBUG : larve \"%s\"%sin room \"%s\" has been tested\033[0m\n", room->Larve_list[i]->Name_ID, simulation_data->space_tab[(strlen(room->Larve_list[i]->Name_ID)-3)%4], room->Name_ID);
         }
         if(simulation_data->debug_msgs >= 6){
-            printf("\033[1;36m| DEBUG : %s : time left before growth : %d\n\033[0m", room->Larve_list[i]->Name_ID, room->Larve_list[i]->Grow);
+            printf("\033[1;36m| DEBUG : %s%s: time left before growth : %d\n\033[0m", room->Larve_list[i]->Name_ID, simulation_data->space_tab[(strlen(room->Larve_list[i]->Name_ID)-3)%4], room->Larve_list[i]->Grow);
         }
         if(test_grow_larve(simulation_data, room->Larve_list[i])){
             Ant* ant = init_new_ant(simulation_data, room->Larve_list[i]);
@@ -319,10 +318,10 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     // eggs
     for(int i = room->Egg_count -1; i > -1; i--){
         if(simulation_data->debug_msgs >= 7){
-            printf("\033[1;36m| DEBUG : egg \"%s\" in room \"%s\" has been tested\n\033[0m", room->Egg_list[i]->Name_ID, room->Name_ID);
+            printf("\033[1;36m| DEBUG : egg \"%s\"%sin room \"%s\" has been tested\n\033[0m", room->Egg_list[i]->Name_ID, simulation_data->space_tab[(strlen(room->Egg_list[i]->Name_ID)-3)%4], room->Name_ID);
         }
         if(simulation_data->debug_msgs >= 6){
-            printf("\033[1;36m| DEBUG : %s : time left before growth : %d\n\033[0m", room->Egg_list[i]->Name_ID, room->Egg_list[i]->Grow);
+            printf("\033[1;36m| DEBUG : %s%s: time left before growth : %d\n\033[0m", room->Egg_list[i]->Name_ID, simulation_data->space_tab[(strlen(room->Egg_list[i]->Name_ID)-3)%4], room->Egg_list[i]->Grow);
         }
         if(test_grow_egg(simulation_data, room->Egg_list[i])){
             Larve* larve = init_new_larve(simulation_data, room->Egg_list[i]);
@@ -485,6 +484,10 @@ Simulation_data* init_simulation(){
     sim->tick = 0;
     sim->pause = 1;
     sim->pause_enable = 0;
+    sim->space_tab[0] = "    ";
+    sim->space_tab[1] = "   ";
+    sim->space_tab[2] = "  ";
+    sim->space_tab[3] = " ";
 
     sim->start_season = 0;
     sim->counter = 0;
@@ -514,6 +517,8 @@ Simulation_data* init_simulation(){
 Nest* start(Simulation_data* simulation_data){   // Lancer la simulation
     // Season* season = init_seasons(simulation_data, 0);
     srand(time(NULL)); // Pour rendre la simulation aléatoire
+
+    init_variables(simulation_data);
 
     // Création du monde
     // Génération de l'extérieur

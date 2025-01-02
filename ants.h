@@ -82,8 +82,7 @@ void attach_ant_to_nest(Ant* ant, Nest* nest);
 Ant* init_new_ant(Simulation_data* simulation_data, Larve* larve);
 
 bool move_ant(Simulation_data* simulation_data, Ant* ant, Room* room);
-void use_path(Ant* ant);
-
+void use_path(Simulation_data* simulation_data, Ant* ant);
 
 void Action_ant(Simulation_data* simulation_data, Ant* ant);
 

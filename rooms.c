@@ -133,7 +133,7 @@ void free_room(Simulation_data* simulation_data, Room* room){
             for (int j = 0; j < R2->Connexion_list_size; j++) {
                 if (R2->Connexion_list[j] == room) {
                     if(simulation_data->debug_msgs >= 8){
-                        printf("Removing connection to %p from %p\n", room, R2);
+                        printf("| DEBUG : Removing connection to %p from %p\n", room, R2);
                     }
                     R2->Connexion_list[j] = NULL;
 
