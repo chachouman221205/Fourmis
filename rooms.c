@@ -23,20 +23,20 @@ Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
 
     new_room->Visited = false;  // pas visité à l'initialisation
     new_room->Size = size;
-    new_room->Ant_list = malloc(0);
+    new_room->Ant_list = NULL;//malloc(0);
     new_room->Ant_count = 0;
-    new_room->Larve_list = malloc(0);
+    new_room->Larve_list = NULL;//malloc(0);
     new_room->Larve_count = 0;
-    new_room->Egg_list = malloc(0);
+    new_room->Egg_list = NULL;//malloc(0);
     new_room->Egg_count = 0;
-    new_room->Obj_list = malloc(0);
+    new_room->Obj_list = NULL;//malloc(0);
     new_room->Obj_count = 0;
-    new_room->Creature_list = malloc(0);
+    new_room->Creature_list = NULL;//malloc(0);
     new_room->Creature_count = 0;
-    new_room->Connexion_list = malloc(0);
+    new_room->Connexion_list = NULL;//malloc(0);
     new_room->Connexion_list_size = 0;
 
-    new_room->Pheromone = malloc(0);
+    new_room->Pheromone = NULL;//malloc(0);
 
     if(simulation_data->debug_msgs >= 3){
         printf("| DEBUG : new room \"%s\" %p initialized\n", new_room->Name_ID, new_room);
@@ -248,6 +248,9 @@ void reinitialiser_rooms(Simulation_data* simulation_data, Room* room) {
 }
 
 void free_Path(Path* p) {
+    if (p == NULL) {
+        return;
+    }
     if (p->next != NULL) {
         free_Path(p->next);
     }
@@ -272,7 +275,7 @@ Path* find_path_to_food(Room* start, bool entry_blocked) {
     }
 
     // Si un objet se trouve dans la salle actuelle
-    if (search_object(start, "food") != NULL) {
+    if (strcmp(start->Name_ID, "Queen chamber") != 0 && search_object(start, "food") != NULL) { //  Don't count the food inside the queen's chamber
 
         result->room = start;
         result->next = NULL;

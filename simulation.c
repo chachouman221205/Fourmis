@@ -12,12 +12,15 @@
 
 /* -----< Récupération des variables de départ >----- */
 void init_variables(Simulation_data* simulation){  // Récupère les scanf pour inititaliser des variables
-    printf("Saison de départ : (1: Spring, 2: Summer, 3: Autumn, 4: Winter)   ");
-    scanf(" %d", &(simulation->start_season));
+    printf("Saison de départ : (1: Spring, 2: Summer, 3: Autumn, 4: Winter)\n");
+    scanf("%d", &(simulation->start_season));
+    if (simulation->start_season > 4 || simulation->start_season < 1) {
+        printf("Valeure non acceptée\n");
+    }
 }
 
 // Seasons
-void init_seasons(Simulation_data* simulation_data, int start_season){     // Saison de départ (1 à 4) : 1 = spring, 2 = summer, 3 = autumn, 4 = winter
+void init_seasons(Simulation_data* simulation_data){     // Saison de départ (1 à 4) : 1 = spring, 2 = summer, 3 = autumn, 4 = winter
     Season *spring = malloc(sizeof(Season));
     if(spring == NULL){
         perror("Échec de l'allocation pour spring");
@@ -69,10 +72,10 @@ void init_seasons(Simulation_data* simulation_data, int start_season){     // Sa
     Season* tab[] = {spring, summer, autumn, winter};
 
     if(simulation_data->debug_msgs >= 2){
-        printf("| DEBUG : seasons initialized (start season \"%s\")\n", tab[start_season-1]->Name);
+        printf("| DEBUG : seasons initialized (start season \"%s\")\n", tab[simulation_data->start_season-1]->Name);
     }
 
-    simulation_data->season_chain = tab[start_season-1];
+    simulation_data->season_chain = tab[simulation_data->start_season-1];
 }
 
 void free_seasons(Simulation_data* simulation_data, Season* season){
@@ -340,38 +343,35 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
 }
 
 void simulation(Simulation_data* simulation_data, int iterations) {
-    if (iterations == 0) {
-        return;
+    while (iterations > 0) {
+        if(simulation_data->debug_msgs >= 1){
+            printf("| DEBUG : iterations left : %d\n", iterations);
+        }
+
+        simulation_data->tick++;
+        simulation_data->counter++;
+
+        if(simulation_data->counter >= 90){     // Passage à la saison suivante
+            simulation_data->counter = 0;
+
+            simulation_data->season_chain = simulation_data->season_chain->Next;
+            simulation_data->current_season = simulation_data->season_chain->Number;
+        }
+
+        simuler_room(simulation_data, simulation_data->Exterior->Entry);
+        reinitialiser_rooms(simulation_data, simulation_data->Exterior->Entry);
+        for (int i = 0; i < simulation_data->Exterior->Ant_number; i++) {
+            Action_ant(simulation_data, simulation_data->Exterior->Ant_list[i]);
+        }
+
+        if(simulation_data->debug_msgs >= 1){
+            printf("| DEBUG : ");
+            print_numbers(simulation_data);
+        }
+
+        sleep(simulation_data->pause * simulation_data->pause_enable);
+        iterations--;
     }
-
-    if(simulation_data->debug_msgs >= 1){
-        printf("| DEBUG : iterations left : %d\n", iterations);
-    }
-
-    simulation_data->tick++;
-    simulation_data->counter++;
-
-    if(simulation_data->counter >= 90){     // Passage à la saison suivante
-        simulation_data->counter = 0;
-
-        simulation_data->season_chain = simulation_data->season_chain->Next;
-        simulation_data->current_season = simulation_data->season_chain->Number;
-    }
-
-    simuler_room(simulation_data, simulation_data->Exterior->Entry);
-    reinitialiser_rooms(simulation_data, simulation_data->Exterior->Entry);
-    for (int i = 0; i < simulation_data->Exterior->Ant_number; i++) {
-        Action_ant(simulation_data, simulation_data->Exterior->Ant_list[i]);
-    }
-
-    if(simulation_data->debug_msgs >= 1){
-        printf("| DEBUG : ");
-        print_numbers(simulation_data);
-    }
-
-    sleep(simulation_data->pause * simulation_data->pause_enable);
-
-    simulation(simulation_data, iterations-1);
 }
 
 void simulation_choice(Simulation_data* simulation_data){
@@ -438,6 +438,7 @@ Pheromone* init_pheromone(char *action, int density, int ID) {
     new_pheromone->Action = action;
     new_pheromone->Density = density;
     new_pheromone->ph_ID = ID;
+    new_pheromone->next = NULL;
     return new_pheromone;
 }
 
@@ -519,6 +520,7 @@ Nest* start(Simulation_data* simulation_data){   // Lancer la simulation
     srand(time(NULL)); // Pour rendre la simulation aléatoire
 
     init_variables(simulation_data);
+    init_seasons(simulation_data);
 
     // Création du monde
     // Génération de l'extérieur

@@ -33,7 +33,7 @@ Object* init_object(Simulation_data* simulation_data, char* name_ID, int size, b
 
 Object* search_object(Room* room, char* NameID) {
     for (int i = 0; i < room->Obj_count; i++) {
-        if (strcmp(room->Obj_list[i]->Name_ID, NameID) == 0) {
+        if (room->Obj_list[i]->Held == false && strcmp(room->Obj_list[i]->Name_ID, NameID) == 0) {
             return room->Obj_list[i];
         }
     }

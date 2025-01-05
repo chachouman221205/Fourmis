@@ -127,7 +127,7 @@ typedef struct Room Room;
 void init_variables(Simulation_data* simulation);
 
 // Seasons
-void init_seasons(Simulation_data* simulation_data, int start_season);
+void init_seasons(Simulation_data* simulation_data);
 
 void free_seasons(Simulation_data* simulation_data, Season* season);
 
