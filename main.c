@@ -22,7 +22,6 @@ int main(){
     Simulation_data* simulation_1 = init_simulation(); 
     simulation_1->debug_msgs = 6;   // Niveau de debug
     simulation_1->pause = 2;        // En seconde
-    init_seasons(simulation_1, simulation_1->start_season);
 
     // Début de la simulation
     Nest* nest = start(simulation_1);
