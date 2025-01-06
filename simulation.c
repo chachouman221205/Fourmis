@@ -390,7 +390,8 @@ void simulation_choice(Simulation_data* simulation_data){
         printf("1 : avancer de 1 tick (1 itération)\n");
         printf("2 : avancer de X tick\n");
         printf("3 : avancer de X tick avec pause de 1s\n");
-        printf("4 : print numbers\n\n");
+        printf("4 : changer le niveau de debug\n");
+        printf("5 : print numbers\n\n");
         simulation_choice(simulation_data);
     }
     if(choice == 0){
@@ -416,14 +417,28 @@ void simulation_choice(Simulation_data* simulation_data){
         simulation(simulation_data, X);
     }
     if(choice == 4){
+        printf("Simulation debug messages:\n"
+       "    0: No messages\n"
+       "    1: Ants, larvae, eggs, creatures (init, free, evolution), print_numbers\n"
+       "    2: 1+ Environment, seasons (init, free), iterations left\n"
+       "    3: 2+ Rooms (init, free, connections)\n"
+       "    4: 3+ Death and HP of ants, larvae, eggs, creatures\n"
+       "    5: 4+ Food (creation, free)\n"
+       "    6: 5+ Evolution (time left)\n"
+       "    7: 6+ Evolution (test cases)\n"
+       "    8: 7+ Room connections (init, free, reset)\n\n");
+        scanf("%d", &simulation_data->debug_msgs);
+    }
+    if(choice == 5){
         print_numbers(simulation_data);
     }
-    if(choice < -1 || choice > 4){
+    if(choice < -1 || choice > 5){
         printf("0 : fin de la simulation\n");
         printf("1 : avancer de 1 tick (1 itération)\n");
         printf("2 : avancer de X tick\n");
         printf("3 : avancer de X tick avec pause de 1s\n");
-        printf("4 : print numbers\n\n");
+        printf("4 : changer le niveau de debug\n");
+        printf("5 : print numbers\n\n");
         simulation_choice(simulation_data);
     }
 }
