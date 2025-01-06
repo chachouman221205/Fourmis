@@ -20,7 +20,7 @@ int main(){
 
     // Simulation
     Simulation_data* simulation_1 = init_simulation(); 
-    simulation_1->debug_msgs = 6;   // Niveau de debug
+    simulation_1->debug_msgs = 8;   // Niveau de debug
     simulation_1->pause = 2;        // En seconde
 
     // Début de la simulation

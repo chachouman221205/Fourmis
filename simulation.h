@@ -118,7 +118,7 @@ typedef struct Simulation_data {
     7 : 6+ room (reset)
     8 : 7+ room connexion (init + free)
 */
-
+    
 // Pre-déclaration
 typedef struct Room Room;
 

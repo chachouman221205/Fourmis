@@ -12,10 +12,10 @@
 
 /* -----< Récupération des variables de départ >----- */
 void init_variables(Simulation_data* simulation){  // Récupère les scanf pour inititaliser des variables
-    printf("Saison de départ : (1: Spring, 2: Summer, 3: Autumn, 4: Winter)\n");
+    printf("Saison de départ : (1: Spring, 2: Summer, 3: Autumn, 4: Winter)   ");
     scanf("%d", &(simulation->start_season));
     if (simulation->start_season > 4 || simulation->start_season < 1) {
-        printf("Valeure non acceptée\n");
+        printf("Valeur non acceptée\n");
     }
 }
 
