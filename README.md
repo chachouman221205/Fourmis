@@ -4,6 +4,7 @@ Notre projet a été codé en tant que module. C'est à dire que pour l'utiliser
 ## Compilation
 
 Pour compiler le fichier demo.c, utilisez `make`
+
 Pour compiler un autre fichier, utilisez `make MAIN_FILE=<fichier>`
 
 ## Outils de Debug :
