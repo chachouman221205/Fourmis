@@ -15,7 +15,9 @@ void init_variables(Simulation_data* simulation){  // Récupère les scanf pour 
     printf("Saison de départ : (1: Spring, 2: Summer, 3: Autumn, 4: Winter)   ");
     scanf("%d", &(simulation->start_season));
     if (simulation->start_season > 4 || simulation->start_season < 1) {
-        printf("Valeur non acceptée\n");
+        printf("\033[1;31mValeur non acceptée\n\033[0m");
+        while (getchar() != '\n');
+        init_variables(simulation);
     }
 }
 
@@ -281,7 +283,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
     room->Visited = true;
 
     // refill food
-    int tries = 7;
+    int tries = 4;
     int chance = simulation_data->season_chain->Chance;
     int size_max = 20;
     if(!strcmp(room->Name_ID, "Exterior")){

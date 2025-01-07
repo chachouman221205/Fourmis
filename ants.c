@@ -438,7 +438,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
     // Décision de la mission
     if(ant->Action == NULL){
         if (ant->Position->Pheromone == NULL) { // Aucun pheromone, la fourmi va chercher à manger pour la colonie
-            printf("ant %s%ssent to look for food for STORAGE and is in %s\n", ant->Name_ID, simulation_data->space_tab[(strlen(ant->Name_ID)-3)%4], ant->Position->Name_ID);
+            printf("\033[1;33m| DEBUG : ant %s%ssent to look for food for STORAGE and is in %s\n\033[0m", ant->Name_ID, simulation_data->space_tab[(strlen(ant->Name_ID)-3)%4], ant->Position->Name_ID);
             insert_pheromone(&(ant->Action), init_pheromone("find_food", 6, 1));
         } else {
             ant->Action = ant->Position->Pheromone;
@@ -447,7 +447,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
 
     // Execution de la mission choisie
     if(ant->Action->ph_ID == 0){
-        printf("ant %s%slooking for food for QUEEN and is in %s\n", ant->Name_ID, simulation_data->space_tab[(strlen(ant->Name_ID)-3)%4], ant->Position->Name_ID);
+        printf("\033[1;33m| DEBUG : ant %s%slooking for food for QUEEN and is in %s\n\033[0m", ant->Name_ID, simulation_data->space_tab[(strlen(ant->Name_ID)-3)%4], ant->Position->Name_ID);
         if(ant->Held_object == NULL) {
             if(ant->Path == NULL){
                 ant->Path = find_path_to_food(ant->Position, true); // true = pas le droit d'aller chercher de la nourriture en dehors de la fourmilière
@@ -518,7 +518,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
         }
     }
     if(ant->Action->ph_ID == 1){
-        printf("ant %s%slooking for food for STORAGE and is in %s\n", ant->Name_ID, simulation_data->space_tab[(strlen(ant->Name_ID)-3)%4], ant->Position->Name_ID);
+        printf("\033[1;33m| DEBUG : ant %s%slooking for food for STORAGE and is in %s\n\033[0m", ant->Name_ID, simulation_data->space_tab[(strlen(ant->Name_ID)-3)%4], ant->Position->Name_ID);
         if(ant->Held_object == NULL){
             if (ant->Path == NULL && strcmp(ant->Position->Name_ID, "Exterior") == 0) {
                 if(search_object(ant->Position, "food") == NULL){
