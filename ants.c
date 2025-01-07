@@ -330,7 +330,7 @@ bool move_ant(Simulation_data* simulation_data, Ant* ant, Room* room) {
     // Déplacement :
 
     // on retire la fourmi de l'ancienne salle
-    for (int i = 0; i < ant->Position->Ant_count; i++) {
+    for (int i = ant->Position->Ant_count-1; i >= 0; i--) {
         if (ant->Position->Ant_list[i] == ant) {
             ant->Position->Ant_list[i] = ant->Position->Ant_list[--ant->Position->Ant_count];
             ant->Position->Ant_list = realloc(ant->Position->Ant_list, (ant->Position->Ant_count) * sizeof(Ant*));
@@ -464,7 +464,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
                 use_path(simulation_data, ant);
             }
             if (ant->Path == NULL) {
-                if (search_object(ant->Position, "food") != NULL && strcmp(ant->Position->Name_ID, "Queen chamber")) {
+                if (search_object(ant->Position, "food") != NULL && strcmp(ant->Position->Name_ID, "Queen chamber") != 0) {
                     pick_up(ant, search_object(ant->Position, "food")); // nourriture trouvée dans la salle actuelle de la fourmi
                 }
             } else {
@@ -494,7 +494,7 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
                     ant->Action = ant->Action->next;
                     free(old_ph);
 
-                    free(ant->Path);    //1 seul elmt à free
+                    free_Path(ant->Path);
                 }
             }
             if(ant->Path != NULL){  // if path succeed
@@ -509,12 +509,10 @@ void Action_worker(Simulation_data* simulation_data, Ant* ant) {
                     ant->Action = ant->Action->next;
                     free(old_ph);
 
-                    free_Path(ant->Path);    //1 seul elmt à free
+                    free_Path(ant->Path);
                 }
                 else{       //move closer to destination
-                    if (move_ant(simulation_data, ant, ant->Path->room)) {
-                        use_path(simulation_data, ant);
-                    }
+                    follow_path(simulation_data, ant);
                 }
             }
         }
@@ -611,19 +609,20 @@ void free_ant(Simulation_data* simulation_data, Ant* ant){
 
         simulation_data->ant_NB--;
 
-        for(int i = 0; i < simulation_data->Exterior->Ant_number; i++){
+        for(int i = simulation_data->Exterior->Ant_number-1; i >= 0; i--){
             if(simulation_data->Exterior->Ant_list[i] == ant){
                 simulation_data->Exterior->Ant_list[i] = simulation_data->Exterior->Ant_list[--(simulation_data->Exterior->Ant_number)];
                 simulation_data->Exterior->Ant_list = realloc(simulation_data->Exterior->Ant_list, simulation_data->Exterior->Ant_number * sizeof(Ant*));
             }
         }
-        for(int i = 0; i < ant->Nest->Ant_number; i++){
+        for(int i = ant->Nest->Ant_number-1; i >= 0; i--){
             if(ant->Nest->Ant_list[i] == ant){
-                ant->Nest->Ant_list[i] = ant->Nest->Ant_list[--(ant->Nest->Ant_number)];
+                ant->Nest->Ant_number--;
+                ant->Nest->Ant_list[i] = ant->Nest->Ant_list[ant->Nest->Ant_number];
                 ant->Nest->Ant_list = realloc(ant->Nest->Ant_list, ant->Nest->Ant_number * sizeof(Ant*));
             }
         }
-        for(int i = 0; i < ant->Position->Ant_count; i++){
+        for(int i = ant->Position->Ant_count-1; i >= 0; i--){
             if(ant->Position->Ant_list[i] == ant){
                 ant->Position->Ant_list[i] = ant->Position->Ant_list[--(ant->Position->Ant_count)];
                 ant->Position->Ant_list = realloc(ant->Position->Ant_list, ant->Position->Ant_count * sizeof(Ant*));
@@ -657,6 +656,18 @@ void test_kill_ant(Simulation_data* simulation_data, Ant* ant){
             free_ant(simulation_data, ant);
         }
     }
+}
+void print_ant_details(Ant* ant) {
+    printf("| Ant \"%s\" is currently in \"%s\"", ant->Name_ID, ant->Position->Name_ID);
+    if (ant->Held_object != NULL) {
+        printf(" carrying object \"%s\"", ant->Held_object->Name_ID);
+    }
+    printf(" |\n");
+
+    if (ant->Action != NULL) {
+        printf("| This ant is following pheromone \"%s\"\n", ant->Action->Action);
+    }
+    printf("| PV: %d\tDMG: %d\tLife: %d\n", ant->PV, ant->DMG, ant->Life);
 }
 
 void combat_ants(Simulation_data* simulation_data, Ant* ant1, Ant* ant2){

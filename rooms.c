@@ -23,20 +23,20 @@ Room* init_room(Simulation_data* simulation_data, char* name_ID, int size){
 
     new_room->Visited = false;  // pas visité à l'initialisation
     new_room->Size = size;
-    new_room->Ant_list = NULL;//malloc(0);
+    new_room->Ant_list = NULL;
     new_room->Ant_count = 0;
-    new_room->Larve_list = NULL;//malloc(0);
+    new_room->Larve_list = NULL;
     new_room->Larve_count = 0;
-    new_room->Egg_list = NULL;//malloc(0);
+    new_room->Egg_list = NULL;
     new_room->Egg_count = 0;
-    new_room->Obj_list = NULL;//malloc(0);
+    new_room->Obj_list = NULL;
     new_room->Obj_count = 0;
-    new_room->Creature_list = NULL;//malloc(0);
+    new_room->Creature_list = NULL;
     new_room->Creature_count = 0;
-    new_room->Connexion_list = NULL;//malloc(0);
+    new_room->Connexion_list = NULL;
     new_room->Connexion_list_size = 0;
 
-    new_room->Pheromone = NULL;//malloc(0);
+    new_room->Pheromone = NULL;
 
     if(simulation_data->debug_msgs >= 3){
         printf("| DEBUG : new room \"%s\" %p initialized\n", new_room->Name_ID, new_room);
@@ -310,6 +310,8 @@ Path* find_path_to_food(Room* start, bool entry_blocked) {
         }
     }
 
+    free(paths);
+
     if (result->next == NULL) {
         free_Path(result);
         return NULL;
@@ -368,10 +370,13 @@ Path* find_path_to_name(Room* start, char* NameID, bool entry_blocked) {
         }
     }
 
+    free(paths);
+
     if (result->next == NULL) {
         free_Path(result);
         return NULL;
     }
+
     result->length++;
 
     return result;

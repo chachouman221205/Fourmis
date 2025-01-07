@@ -87,6 +87,7 @@ void use_path(Simulation_data* simulation_data, Ant* ant);
 void Action_ant(Simulation_data* simulation_data, Ant* ant);
 
 Ant* search_AntID(char* AntID, Exterior* Exterior);
+void print_ant_details(Ant* ant);
 
 void free_ant(Simulation_data* simulation_data, Ant* ant);
 

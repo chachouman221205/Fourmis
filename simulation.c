@@ -25,7 +25,7 @@ void init_variables(Simulation_data* simulation){  // Récupère les scanf pour 
 void init_seasons(Simulation_data* simulation_data){     // Saison de départ (1 à 4) : 1 = spring, 2 = summer, 3 = autumn, 4 = winter
     Season *spring = malloc(sizeof(Season));
     if(spring == NULL){
-        perror("Échec de l'allocation pour spring");
+        printf("Échec de l'allocation pour spring\n");
         exit(1);
     }
     spring->Name = "Spring";
@@ -34,7 +34,7 @@ void init_seasons(Simulation_data* simulation_data){     // Saison de départ (1
 
     Season *summer = malloc(sizeof(Season));
     if(summer == NULL){     // Si echec d'allocation, on free toutes les saisons déjà allouées
-        perror("Échec de l'allocation pour summer");
+        printf("Échec de l'allocation pour summer\n");
         free(spring);
         exit(1);
     }
@@ -44,7 +44,7 @@ void init_seasons(Simulation_data* simulation_data){     // Saison de départ (1
 
     Season *autumn = malloc(sizeof(Season));
     if(autumn == NULL){
-        perror("Échec de l'allocation pour autumn");
+        printf("Échec de l'allocation pour autumn\n");
         free(spring);
         free(summer);
         exit(1);
@@ -55,7 +55,7 @@ void init_seasons(Simulation_data* simulation_data){     // Saison de départ (1
 
     Season *winter = malloc(sizeof(Season));
     if(winter == NULL){
-        perror("Échec de l'allocation pour winter");
+        printf("Échec de l'allocation pour winter\n");
         free(spring);
         free(summer);
         free(autumn);
@@ -80,21 +80,20 @@ void init_seasons(Simulation_data* simulation_data){     // Saison de départ (1
     simulation_data->season_chain = tab[simulation_data->start_season-1];
 }
 
-void free_seasons(Simulation_data* simulation_data, Season* season){
-    if(season != NULL){
-        Season *current = season;
-        Season *next_season = current->Next;
+void free_seasons(Simulation_data* simulation_data){
+    Season *start_season = simulation_data->season_chain;
+    Season *current = start_season;
+    Season *next_season = current->Next;
 
-        while(current != season){
-            free(current);
-            current = next_season;
-            next_season = current->Next;
-        }
-        free(current); // Libérer la derniere saison
+    while(next_season != start_season){
+        free(current);
+        current = next_season;
+        next_season = current->Next;
+    }
+    free(current); // Libérer la derniere saison
 
-        if(simulation_data->debug_msgs >= 2){
-            printf("\033[1;32m| DEBUG : seasons freed\n\033[0m");
-        }
+    if(simulation_data->debug_msgs >= 2){
+        printf("\033[1;32m| DEBUG : seasons freed\n\033[0m");
     }
 }
 
@@ -102,7 +101,7 @@ void free_seasons(Simulation_data* simulation_data, Season* season){
 Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int* pv, int* dmg, int life_min, int life_max, int hunger, Room* entry){
     Nest* new_nest = malloc(sizeof(Nest));
     if(new_nest == NULL){
-        perror("Échec de l'allocation mémoire pour la nest");
+        printf("Échec de l'allocation mémoire pour la nest\n");
         return NULL;
     }
 
@@ -115,11 +114,11 @@ Nest* init_nest(Simulation_data* simulation_data, char* specie, char* clan, int*
     new_nest->Life_min = life_min;
     new_nest->Life_max = life_max;
     new_nest->Hunger = hunger;
-    new_nest->Ant_list = malloc(0);
+    new_nest->Ant_list = NULL;
     new_nest->Ant_number = 0;
-    new_nest->Larve_list = malloc(0);
+    new_nest->Larve_list = NULL;
     new_nest->Larve_number = 0;
-    new_nest->Egg_list = malloc(0);
+    new_nest->Egg_list = NULL;
     new_nest->Egg_number = 0;
     new_nest->Entry = entry;
     new_nest->Exterior = simulation_data->Exterior;
@@ -146,21 +145,21 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
         free_room_rec(simulation_data, nest->Entry);
 
         // on free les fourmis associées à la fourmilière
-        for(int i = 0; i < nest->Ant_number; i++){
+        for(int i = nest->Ant_number-1; i >= 0; i--){
             free_ant(simulation_data, nest->Ant_list[i]);
         }
         // on free les larve associées à la fourmilière
-        for(int i = 0; i < nest->Larve_number; i++){
+        for(int i = nest->Larve_number-1; i >= 0; i--){
             free_larve(simulation_data, nest->Larve_list[i]);
         }
         // on free les egg associées à la fourmilière
-        for(int i = 0; i < nest->Egg_number; i++){
+        for(int i = nest->Egg_number-1; i >= 0; i--){
             free_egg(simulation_data, nest->Egg_list[i]);
         }
 
         // On retire la fourmilière de l'Exterior
         Exterior* ext = nest->Exterior;
-        for(int i = 0; i < ext->Nest_number; i++){
+        for(int i = ext->Nest_number-1; i >= 0; i--){
             if (ext->Nests[i] == nest) {
                 ext->Nests[i] = ext->Nests[--ext->Nest_number];
                 ext->Nests = realloc(ext->Nests, (ext->Nest_number) * sizeof(Nest*));
@@ -185,20 +184,20 @@ void free_nest(Simulation_data* simulation_data, Nest* nest){
 Exterior* init_exterior(Simulation_data* simulation_data, int size){
     Exterior* new_exterior = malloc(sizeof(Exterior));
     if(new_exterior == NULL){
-        perror("Échec de l'allocation mémoire pour l'exterieur");
+        printf("Échec de l'allocation mémoire pour l'exterieur\n");
         return NULL;
     }
 
-    new_exterior->Nests = malloc(0);
+    new_exterior->Nests = NULL;
     new_exterior->Nest_number = 0;
     new_exterior->Entry = NULL;
-    new_exterior->Ant_list = malloc(0);
+    new_exterior->Ant_list = NULL;
     new_exterior->Ant_number = 0;
 
 
     Room** created_rooms = malloc(size * sizeof(Room*));
     if (created_rooms == NULL) {
-        perror("Échec de l'allocation mémoire pour la liste des salles");
+        printf("Échec de l'allocation mémoire pour la liste des salles\n");
     }
     for (int i = 0; i < size; i++) {
         created_rooms[i] = NULL;
@@ -246,7 +245,7 @@ void free_exterior(Simulation_data* simulation_data, Exterior* exterior){
             free_nest(simulation_data, exterior->Nests[0]);
         }
 
-        for (int i = 0; i < exterior->Ant_number; i++) {
+        for (int i = exterior->Ant_number-1; i >= 0; i--) {
             free_ant(simulation_data, exterior->Ant_list[i]);
         }
         free_room_rec(simulation_data, exterior->Entry);
@@ -293,7 +292,7 @@ void simuler_room(Simulation_data* simulation_data, Room* room) {
                 room->Obj_list = realloc(room->Obj_list, (room->Obj_count + 1)*sizeof(Object*));
 
                 if(room->Obj_list == NULL){
-                    perror("Échec de l'allocation mémoire pour la liste des salles");
+                    printf("Échec de l'allocation mémoire pour la liste des salles\n");
                     exit(1);
                 }
                 room->Obj_list[room->Obj_count] = food;
@@ -434,14 +433,21 @@ void simulation_choice(Simulation_data* simulation_data){
     if(choice == 5){
         print_numbers(simulation_data);
     }
-    if(choice < -1 || choice > 5){
+    if (choice == 6) {
+        char* ant_name = malloc(10 * sizeof(char));
+        printf("Quelle fourmi voulez-vous consulter? ");
+        scanf("%s", ant_name);
+
+        print_ant_details(search_AntID(ant_name, simulation_data->Exterior));
+        free(ant_name);
+    }
+    if(choice < -1 || choice > 6){
         printf("0 : fin de la simulation\n");
         printf("1 : avancer de 1 tick (1 itération)\n");
         printf("2 : avancer de X tick\n");
         printf("3 : avancer de X tick avec pause de 1s\n");
         printf("4 : changer le niveau de debug\n");
         printf("5 : print numbers\n\n");
-        simulation_choice(simulation_data);
     }
 }
 
@@ -449,7 +455,7 @@ void simulation_choice(Simulation_data* simulation_data){
 Pheromone* init_pheromone(char *action, int density, int ID) {
     Pheromone *new_pheromone = malloc(sizeof(Pheromone));
     if(new_pheromone == NULL){
-        perror("Erreur d'allocation de mémoire");
+        printf("Erreur d'allocation de mémoire\n");
         return NULL;
     }
     new_pheromone->Action = action;
@@ -550,14 +556,14 @@ Nest* start(Simulation_data* simulation_data){   // Lancer la simulation
     Room* entry = init_room(simulation_data, "Nest Entrance", 20);
     int* pv_param = malloc(2*sizeof(int));
     if(pv_param == NULL){
-        perror("Erreur d'allocation de mémoire");
+        printf("Erreur d'allocation de mémoire\n");
         return NULL;
     }
     pv_param[0] = 15;
     pv_param[1] = 5;
     int* dmg_param = malloc(2*sizeof(int));
     if(dmg_param == NULL){
-        perror("Erreur d'allocation de mémoire");
+        printf("Erreur d'allocation de mémoire\n");
         return NULL;
     }
     dmg_param[0] = 1;
@@ -601,5 +607,6 @@ Nest* start(Simulation_data* simulation_data){   // Lancer la simulation
 
 void fin(Simulation_data* simulation_data) {
     free_exterior(simulation_data, simulation_data->Exterior);
+    free_seasons(simulation_data);
     free(simulation_data);
 }

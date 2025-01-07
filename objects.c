@@ -53,6 +53,7 @@ void free_object(Simulation_data* simulation_data, Object* object){
 void drop_object(Ant* ant) {
     if (ant == NULL) {
         perror("| ERROR : Cannot drop objet from NULL ant");
+        exit(1);
     }
     if (ant->Held_object == NULL) {
         return;
@@ -65,9 +66,11 @@ void drop_object(Ant* ant) {
 void pick_up(Ant* ant, Object* object) {
     if (ant == NULL) {
         perror("| ERROR : Cannot pickup objet on NULL ant");
+        exit(1);
     }
     if (object == NULL) {
         perror("| ERROR : Cannot pickup NULL object on ant");
+        exit(1);
     }
 
     if (ant->Held_object != NULL) {
@@ -104,7 +107,7 @@ void move_object(Object* object, Room* start, Room* end) {
     // Déplacement :
 
     // on retire l'objet de l'ancienne salle
-    for (int i = 0; i < start->Obj_count; i++) {
+    for (int i = start->Obj_count-1; i >= 0; i--) {
         if (start->Obj_list[i] == object) {
             start->Obj_list[i] = start->Obj_list[--start->Obj_count];
             start->Obj_list = realloc(start->Obj_list, start->Obj_count * sizeof(Object*));
