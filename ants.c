@@ -591,8 +591,8 @@ Ant* search_AntID(char* AntID, Exterior* Exterior) {
             return Exterior->Ant_list[i];
         }
     }
-    printf("| ERROR : \"%s\" does not exist", AntID);
-    exit(1);
+    printf("| ERROR : \"%s\" does not exist\n", AntID);
+    return NULL;
 }
 
 void free_ant(Simulation_data* simulation_data, Ant* ant){
@@ -658,6 +658,9 @@ void test_kill_ant(Simulation_data* simulation_data, Ant* ant){
     }
 }
 void print_ant_details(Ant* ant) {
+    if (ant == NULL) {
+        return;
+    }
     printf("| Ant \"%s\" is currently in \"%s\"", ant->Name_ID, ant->Position->Name_ID);
     if (ant->Held_object != NULL) {
         printf(" carrying object \"%s\"", ant->Held_object->Name_ID);

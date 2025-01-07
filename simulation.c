@@ -447,7 +447,9 @@ void simulation_choice(Simulation_data* simulation_data){
         printf("2 : avancer de X tick\n");
         printf("3 : avancer de X tick avec pause de 1s\n");
         printf("4 : changer le niveau de debug\n");
-        printf("5 : print numbers\n\n");
+        printf("5 : afficher les statisiques de la simulation\n");
+        printf("6 : afficher l'état d'une fourmi\n  ");
+        printf("\n");
     }
 }
 
