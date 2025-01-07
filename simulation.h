@@ -18,7 +18,6 @@
 
 
 
-
 // Représente l'extérieur de l'environnement (graphe de "Room")
 typedef struct Exterior {
     struct Nest** Nests;
