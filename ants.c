@@ -671,12 +671,12 @@ void print_ant_details(Ant* ant) {
     if (ant->Held_object != NULL) {
         printf(" carrying object \"%s\"", ant->Held_object->Name_ID);
     }
-    printf(" |\n");
+    printf("\n");
 
     if (ant->Action != NULL) {
         printf("| This ant is following pheromone \"%s\"\n", ant->Action->Action);
     }
-    printf("| PV: %d\tDMG: %d\tLife: %d\n", ant->PV, ant->DMG, ant->Life);
+    printf("| PV: %d   DMG: %d   Life: %d   Hunger: %d\n\n", ant->PV, ant->DMG, ant->Life, ant->Hunger);
 }
 
 void combat_ants(Simulation_data* simulation_data, Ant* ant1, Ant* ant2){

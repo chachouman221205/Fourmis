@@ -435,7 +435,7 @@ void simulation_choice(Simulation_data* simulation_data){
     }
     if (choice == 6) {
         char* ant_name = malloc(10 * sizeof(char));
-        printf("Quelle fourmi voulez-vous consulter? ");
+        printf("Quelle fourmi voulez-vous consulter?   ");
         scanf("%s", ant_name);
 
         print_ant_details(search_AntID(ant_name, simulation_data->Exterior));
