@@ -424,7 +424,7 @@ void simulation_choice(Simulation_data* simulation_data){
        "    2: 1+ Environment, seasons (init, free), iterations left\n"
        "    3: 2+ Rooms (init, free, connections)\n"
        "    4: 3+ Death and HP of ants, larvae, eggs, creatures\n"
-       "    5: 4+ Food (creation, free)\n"
+       "    5: 4+ Food (creation, free), ant moves\n"
        "    6: 5+ Evolution (time left)\n"
        "    7: 6+ Evolution (test cases)\n"
        "    8: 7+ Room connections (init, free, reset)\n\n");

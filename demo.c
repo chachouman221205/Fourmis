@@ -8,7 +8,7 @@
     2 : 1+ environment & seasons (init + free), iterations left
     3 : 2+ room (init + free + connections)
     4 : 3+ ant & larve & egg & creature (death + pv)
-    5 : 4+ food (creation + free)
+    5 : 4+ food (creation + free), ant moves
     6 : 5+ evolution (time_left)
     7 : 6+ evolution (test)
     8 : 7+ room connexion (init + free + reset)
