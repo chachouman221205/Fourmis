@@ -20,7 +20,7 @@ int main(){
 
     // Simulation
     Simulation_data* simulation_1 = init_simulation(); 
-    simulation_1->debug_msgs = 8;   // Niveau de debug
+    simulation_1->debug_msgs = 1;   // Niveau de debug
     simulation_1->pause = 2;        // En seconde
 
     // Début de la simulation
@@ -36,10 +36,14 @@ int main(){
 
     // Simulation
 
-    if(simulation_1->debug_msgs >= 1){print_numbers(simulation_1);}
+    if(simulation_1->debug_msgs >= 1){
+        print_numbers(simulation_1);
+    }
     while(1){
         simulation_choice(simulation_1);
-        if(simulation_1->debug_msgs == -1){print_numbers(simulation_1);}
+        if(simulation_1->debug_msgs == -1){
+            print_numbers(simulation_1);
+        }
     }
 
     // Fin de la simulation

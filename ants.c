@@ -305,7 +305,7 @@ bool move_ant(Simulation_data* simulation_data, Ant* ant, Room* room) {
         printf("| ERROR : Cannot move ant to NULL room");
         return false;
     }
-    if(ant->Position == room){
+    if(ant->Position == room && simulation_data->debug_msgs >= 5){
         printf("| WARNING : trying to move ant to current location : move cancelled\n");
         return true;
     }
